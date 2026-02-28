@@ -1,0 +1,2057 @@
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Search, TrendingUp, TrendingDown, Minus, Plus, X, Calendar, DollarSign, Settings, Info, Share2, Check, Copy } from 'lucide-react';
+import {
+  fetchAllPlayers,
+  fetchAllPlayersFromDatabase,
+  analyzeTrade,
+  fetchLeagueRosters,
+  fetchLeagueUsers,
+  fetchTradedPicks,
+  clearPlayerValuesCache,
+  type SleeperPlayer,
+  type SleeperRoster,
+  type SleeperUser,
+  type TradeAnalysis,
+  type DraftPick,
+  type LeagueSettings,
+} from '../services/sleeperApi';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
+import { useToast } from './Toast';
+import Tooltip from './Tooltip';
+import { playerValuesApi } from '../services/playerValuesApi';
+import { PlayerAvatar } from './PlayerAvatar';
+import { StatSparkline } from './StatSparkline';
+import { AchievementBadge } from './AchievementBadge';
+import { TradeGrade, calculateTradeGrade } from './TradeGrade';
+import { syncPlayerValuesToDatabase } from '../utils/syncPlayerValues';
+import { getCurrentPhaseInfo, getPhaseEmoji } from '../lib/picks/seasonPhase';
+import { getMultiplierPercentage } from '../lib/picks/phaseMultipliers';
+import { evaluateTrade, type TradeAsset, type TradeEvaluationResult } from '../lib/trade/evaluateTrade';
+import TradeFairnessWarning from './TradeFairnessWarning';
+import { trackUsage, checkUsageLimit, USAGE_LIMITS } from '../lib/subscription';
+import { useSubscription } from '../hooks/useSubscription';
+import UsageMeter from './UsageMeter';
+import UpgradeModal from './UpgradeModal';
+
+interface TradeAnalyzerProps {
+  leagueId?: string;
+  onTradeSaved?: () => void;
+  isGuest?: boolean;
+}
+
+export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false }: TradeAnalyzerProps) {
+  const { user } = useAuth();
+  const { showToast } = useToast();
+  const { isPro } = useSubscription();
+  const [players, setPlayers] = useState<Record<string, SleeperPlayer>>({});
+  const [searchTermA, setSearchTermA] = useState('');
+  const [searchTermB, setSearchTermB] = useState('');
+  const [searchResultsA, setSearchResultsA] = useState<SleeperPlayer[]>([]);
+  const [searchResultsB, setSearchResultsB] = useState<SleeperPlayer[]>([]);
+  const [searchLoadingA, setSearchLoadingA] = useState(false);
+  const [searchLoadingB, setSearchLoadingB] = useState(false);
+  const searchTimerA = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchTimerB = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [teamAGives, setTeamAGives] = useState<string[]>([]);
+  const [teamAGets, setTeamAGets] = useState<string[]>([]);
+  const [teamAGivesPicks, setTeamAGivesPicks] = useState<DraftPick[]>([]);
+  const [teamAGetsPicks, setTeamAGetsPicks] = useState<DraftPick[]>([]);
+  const [teamAGivesFAAB, setTeamAGivesFAAB] = useState<number>(0);
+  const [teamAGetsFAAB, setTeamAGetsFAAB] = useState<number>(0);
+  const [analysis, setAnalysis] = useState<TradeAnalysis | null>(null);
+  const [fairnessEvaluation, setFairnessEvaluation] = useState<TradeEvaluationResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [sharing, setSharing] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [leagueSettings, setLeagueSettings] = useState<Partial<LeagueSettings>>({
+    isSuperflex: false,
+    isTEPremium: false,
+  });
+  const [rosters, setRosters] = useState<SleeperRoster[]>([]);
+  const [users, setUsers] = useState<SleeperUser[]>([]);
+  const [tradedPicks, setTradedPicks] = useState<any[]>([]);
+  const [teamAName, setTeamAName] = useState('Your Team');
+  const [teamBName, setTeamBName] = useState('Their Team');
+  const [selectedTeamA, setSelectedTeamA] = useState<string>('');
+  const [selectedTeamB, setSelectedTeamB] = useState<string>('');
+  const [assetTypeA, setAssetTypeA] = useState<'players' | 'picks' | 'faab'>('players');
+  const [assetTypeB, setAssetTypeB] = useState<'players' | 'picks' | 'faab'>('players');
+  const [tradeDirectionA, setTradeDirectionA] = useState<'gives' | 'gets'>('gives');
+  const [tradeDirectionB, setTradeDirectionB] = useState<'gives' | 'gets'>('gets');
+  const [enhancedPlayerData, setEnhancedPlayerData] = useState<Record<string, any>>({});
+  const [leagueFormat, setLeagueFormat] = useState<'dynasty' | 'redraft'>('dynasty');
+  const [scoringFormat, setScoringFormat] = useState<'ppr' | 'half' | 'standard'>('ppr');
+  const [syncingValues, setSyncingValues] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [playersLoading, setPlayersLoading] = useState(false);
+  const [playerValues, setPlayerValues] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (leagueId) {
+      loadLeagueData();
+    }
+  }, [leagueId]);
+
+  // Preload player values for live display while building a trade.
+  // Mirrors the same adjustments getPlayerValue() applies so badges match trade results.
+  useEffect(() => {
+    const sf: 'ppr' | 'half-ppr' = scoringFormat === 'half' ? 'half-ppr' : 'ppr';
+    playerValuesApi.getPlayerValues(undefined, 3000, leagueFormat, sf).then(values => {
+      const map: Record<string, number> = {};
+      values.forEach(v => {
+        const raw = v.adjusted_value ?? v.fdp_value ?? v.base_value;
+        let val = typeof raw === 'number' ? raw : parseFloat(String(raw || 0));
+        if (val <= 0) return;
+        // Apply TE Premium if the league setting is on (matches getPlayerValue() behaviour)
+        if (v.position === 'TE' && leagueSettings.isTEPremium) val *= 1.15;
+        map[v.player_id] = Math.round(val);
+      });
+      setPlayerValues(map);
+    }).catch(() => {});
+  }, [leagueFormat, scoringFormat, leagueSettings.isTEPremium]);
+
+  const searchPlayers = useCallback(async (term: string, side: 'A' | 'B') => {
+    const setResults = side === 'A' ? setSearchResultsA : setSearchResultsB;
+    const setSearching = side === 'A' ? setSearchLoadingA : setSearchLoadingB;
+
+    if (!term || term.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+
+    setSearching(true);
+    try {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const url = `${supabaseUrl}/functions/v1/player-search?q=${encodeURIComponent(term.trim())}&limit=10`;
+
+      const response = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${supabaseKey}` },
+      });
+
+      if (!response.ok) throw new Error(`Search failed: ${response.status}`);
+
+      const data = await response.json();
+
+      const results: SleeperPlayer[] = (data.results || []).map((p: any) => ({
+        player_id: p.id,
+        full_name: p.name,
+        first_name: (p.name || '').split(' ')[0] || '',
+        last_name: (p.name || '').split(' ').slice(1).join(' ') || '',
+        position: p.position,
+        team: p.team,
+        age: 0,
+        injury_status: null,
+        status: 'Active',
+      }));
+
+      setResults(results);
+
+      const newPlayers: Record<string, SleeperPlayer> = {};
+      results.forEach(p => { newPlayers[p.player_id] = p; });
+      setPlayers(prev => ({ ...prev, ...newPlayers }));
+    } catch (err) {
+      console.error('Player search error:', err);
+      setResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  function handleSearchA(value: string) {
+    setSearchTermA(value);
+    if (searchTimerA.current) clearTimeout(searchTimerA.current);
+    if (!value || value.trim().length < 2) {
+      setSearchResultsA([]);
+      return;
+    }
+    searchTimerA.current = setTimeout(() => searchPlayers(value, 'A'), 200);
+  }
+
+  function handleSearchB(value: string) {
+    setSearchTermB(value);
+    if (searchTimerB.current) clearTimeout(searchTimerB.current);
+    if (!value || value.trim().length < 2) {
+      setSearchResultsB([]);
+      return;
+    }
+    searchTimerB.current = setTimeout(() => searchPlayers(value, 'B'), 200);
+  }
+
+  async function checkAndSyncPlayerValues() {
+    try {
+      const { count, error } = await supabase
+        .from('latest_player_values')
+        .select('*', { count: 'exact', head: true });
+
+      if (error) throw error;
+
+      if (!count || count === 0) {
+        console.log('No player values found in database, syncing from FDP API...');
+        setSyncingValues(true);
+        showToast('Initializing player values...', 'info');
+
+        const synced = await syncPlayerValuesToDatabase(leagueSettings.isSuperflex);
+
+        if (synced > 0) {
+          showToast(`Successfully loaded ${synced} player values!`, 'success');
+        } else {
+          showToast('Failed to load player values, using fallback values', 'info');
+        }
+        setSyncingValues(false);
+      }
+    } catch (error) {
+      console.error('Error checking player values:', error);
+      setSyncingValues(false);
+    }
+  }
+
+  async function loadLeagueData() {
+    if (!leagueId) return;
+
+    setPlayersLoading(true);
+    try {
+      const [rostersData, usersData, tradedPicksData, dbPlayers] = await Promise.all([
+        fetchLeagueRosters(leagueId),
+        fetchLeagueUsers(leagueId),
+        fetchTradedPicks(leagueId).catch(() => []),
+        fetchAllPlayersFromDatabase().catch(() => ({} as Record<string, SleeperPlayer>)),
+      ]);
+
+      setRosters(rostersData);
+      setUsers(usersData);
+      setTradedPicks(tradedPicksData);
+      if (Object.keys(dbPlayers).length > 0) {
+        setPlayers(dbPlayers);
+      }
+    } catch (error) {
+      console.error('Failed to load league data:', error);
+      showToast('Failed to load league data', 'error');
+    } finally {
+      setPlayersLoading(false);
+    }
+  }
+
+  function getTeamName(rosterId: string): string {
+    const roster = rosters.find(r => r.roster_id.toString() === rosterId);
+    if (!roster) return 'Unknown Team';
+
+    const user = users.find(u => u.user_id === roster.owner_id);
+    if (!user) return 'Unknown Team';
+
+    return user.metadata?.team_name || user.display_name || user.username;
+  }
+
+  type SearchResult = {
+    type: 'player' | 'pick';
+    player?: SleeperPlayer;
+    pick?: { year: number; round: number; pickNumber?: number; displayName: string };
+  };
+
+  function getFilteredResults(searchTerm: string): SearchResult[] {
+    if (!searchTerm || searchTerm.length < 2) return [];
+
+    const term = searchTerm.toLowerCase().trim();
+    const results: SearchResult[] = [];
+
+    // Check if searching for specific pick number (e.g., "2026 1.01", "2026 1", "1.05")
+    const yearPickPattern = /(\d{4})?\s*(\d)[.\s]?(\d{1,2})?/;
+    const match = term.match(yearPickPattern);
+
+    const currentYear = new Date().getFullYear();
+    const pickKeywords = ['pick', '1st', '2nd', '3rd', '4th', 'first', 'second', 'third', 'fourth', 'round'];
+    const isPickSearch = pickKeywords.some(keyword => term.includes(keyword)) || match;
+
+    // Add draft picks if searching for picks
+    if (isPickSearch && match) {
+      const searchYear = match[1] ? parseInt(match[1]) : null;
+      const searchRound = match[2] ? parseInt(match[2]) : null;
+      const searchPick = match[3] ? parseInt(match[3]) : null;
+
+      const yearsToSearch = searchYear ? [searchYear] : [currentYear, currentYear + 1, currentYear + 2, currentYear + 3, currentYear + 4];
+      const maxRounds = leagueSettings.draftRounds || 5;
+      const roundsToSearch = searchRound ? [searchRound] : Array.from({ length: maxRounds }, (_, i) => i + 1);
+
+      for (const year of yearsToSearch) {
+        for (const round of roundsToSearch) {
+          if (round < 1 || round > maxRounds) continue;
+
+          const numTeams = leagueSettings.numTeams || 12;
+          // If specific pick number is provided, show only that pick
+          if (searchPick !== null && searchPick >= 1 && searchPick <= numTeams) {
+            const pickNum = searchPick;
+            const displayName = `${year} Pick ${round}.${pickNum.toString().padStart(2, '0')}`;
+            results.push({
+              type: 'pick',
+              pick: { year, round, pickNumber: pickNum, displayName }
+            });
+          } else {
+            // Show all picks for that round
+            for (let pickNum = 1; pickNum <= numTeams; pickNum++) {
+              const displayName = `${year} Pick ${round}.${pickNum.toString().padStart(2, '0')}`;
+              const searchableText = `${year} ${round}.${pickNum.toString().padStart(2, '0')} pick`.toLowerCase();
+
+              if (searchableText.includes(term) || term.includes(`${year} ${round}`) || term === `${round}`) {
+                results.push({
+                  type: 'pick',
+                  pick: { year, round, pickNumber: pickNum, displayName }
+                });
+              }
+            }
+          }
+        }
+      }
+    } else if (isPickSearch) {
+      // General pick search without specific numbers
+      const maxRounds = leagueSettings.draftRounds || 5;
+      const numTeams = leagueSettings.numTeams || 12;
+      for (let year = currentYear; year <= currentYear + 4; year++) {
+        for (let round = 1; round <= maxRounds; round++) {
+          for (let pickNum = 1; pickNum <= numTeams; pickNum++) {
+            const displayName = `${year} Pick ${round}.${pickNum.toString().padStart(2, '0')}`;
+            const searchableText = `${year} ${getOrdinal(round)} round pick ${round}.${pickNum.toString().padStart(2, '0')}`.toLowerCase();
+
+            if (searchableText.includes(term)) {
+              results.push({
+                type: 'pick',
+                pick: { year, round, pickNumber: pickNum, displayName }
+              });
+            }
+          }
+        }
+      }
+    }
+
+    // Add players (only if not a clear pick search)
+    if (!match || results.length < 5) {
+      const filteredPlayers = Object.values(players)
+        .filter(
+          (player) =>
+            player.full_name?.toLowerCase().includes(term) &&
+            player.position &&
+            ['QB', 'RB', 'WR', 'TE', 'K', 'DEF', 'DL', 'LB', 'DB', 'DE', 'DT', 'CB', 'S'].includes(player.position) &&
+            player.status !== 'Retired' && player.status !== 'Inactive'
+        )
+        .sort((a, b) => {
+          const aName = a.full_name?.toLowerCase() || '';
+          const bName = b.full_name?.toLowerCase() || '';
+          const aStartsWith = aName.startsWith(term);
+          const bStartsWith = bName.startsWith(term);
+          if (aStartsWith && !bStartsWith) return -1;
+          if (!aStartsWith && bStartsWith) return 1;
+          return aName.localeCompare(bName);
+        })
+        .slice(0, 8);
+
+      results.push(...filteredPlayers.map(player => ({ type: 'player' as const, player })));
+    }
+
+    return results.slice(0, 12);
+  }
+
+  async function fetchEnhancedPlayerData(playerId: string, playerName: string) {
+    if (enhancedPlayerData[playerId]) return;
+
+    try {
+      const details = await playerValuesApi.getPlayerDetailsFromSportsData(playerName);
+      if (details) {
+        setEnhancedPlayerData(prev => ({
+          ...prev,
+          [playerId]: details
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to fetch enhanced player data:', error);
+    }
+  }
+
+  function addPlayer(playerId: string, team: 'A' | 'B', type: 'gives' | 'gets') {
+    if (team === 'A' && type === 'gives') {
+      if (teamAGives.includes(playerId)) {
+        setTeamAGives(teamAGives.filter(id => id !== playerId));
+      } else {
+        setTeamAGives([...teamAGives, playerId]);
+        const player = players[playerId];
+        if (player) fetchEnhancedPlayerData(playerId, player.full_name);
+      }
+    } else if (team === 'A' && type === 'gets') {
+      if (teamAGets.includes(playerId)) {
+        setTeamAGets(teamAGets.filter(id => id !== playerId));
+      } else {
+        setTeamAGets([...teamAGets, playerId]);
+        const player = players[playerId];
+        if (player) fetchEnhancedPlayerData(playerId, player.full_name);
+      }
+    }
+    setSearchTermA('');
+    setSearchTermB('');
+    setSearchResultsA([]);
+    setSearchResultsB([]);
+  }
+
+  function addPickFromSearch(year: number, round: number, pickNumber: number | undefined, displayName: string, team: 'A' | 'B', type: 'gives' | 'gets') {
+    const pick: DraftPick = {
+      id: `${year}-${round}-${pickNumber || 0}-${Date.now()}`,
+      year,
+      round,
+      displayName,
+      pickNumber: pickNumber,
+    };
+
+    if (team === 'A' && type === 'gives') {
+      setTeamAGivesPicks([...teamAGivesPicks, pick]);
+    } else if (team === 'A' && type === 'gets') {
+      setTeamAGetsPicks([...teamAGetsPicks, pick]);
+    }
+
+    setSearchTermA('');
+    setSearchTermB('');
+    setSearchResultsA([]);
+    setSearchResultsB([]);
+  }
+
+  function removePlayer(playerId: string, team: 'A' | 'B', type: 'gives' | 'gets') {
+    if (team === 'A' && type === 'gives') {
+      setTeamAGives(teamAGives.filter((id) => id !== playerId));
+    } else if (team === 'A' && type === 'gets') {
+      setTeamAGets(teamAGets.filter((id) => id !== playerId));
+    }
+  }
+
+  function removeDraftPick(pickId: string, team: 'A' | 'B', type: 'gives' | 'gets') {
+    if (team === 'A' && type === 'gives') {
+      setTeamAGivesPicks(teamAGivesPicks.filter((p) => p.id !== pickId));
+    } else if (team === 'A' && type === 'gets') {
+      setTeamAGetsPicks(teamAGetsPicks.filter((p) => p.id !== pickId));
+    }
+  }
+
+  function getOrdinal(n: number): string {
+    const s = ['th', 'st', 'nd', 'rd'];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
+  function getInjuryStatusBadge(player: SleeperPlayer) {
+    const status = player.injury_status || (player as any).status;
+
+    if (!status) return null;
+
+    const statusConfig: Record<string, { label: string; className: string }> = {
+      'Out': { label: 'OUT', className: 'bg-red-600 text-white' },
+      'Doubtful': { label: 'D', className: 'bg-red-500 text-white' },
+      'Questionable': { label: 'Q', className: 'bg-yellow-500 text-white' },
+      'IR': { label: 'IR', className: 'bg-red-700 text-white' },
+      'PUP': { label: 'PUP', className: 'bg-red-600 text-white' },
+      'COV': { label: 'COV', className: 'bg-red-600 text-white' },
+      'Inactive': { label: 'INACTIVE', className: 'bg-fdp-border-1 text-fdp-text-2' },
+      'Retired': { label: 'RETIRED', className: 'bg-fdp-surface-1 text-white' },
+    };
+
+    const config = statusConfig[status];
+    if (!config) return null;
+
+    return (
+      <span className={`text-xs font-bold px-2 py-0.5 rounded ${config.className}`}>
+        {config.label}
+      </span>
+    );
+  }
+
+  async function handleAnalyzeTrade() {
+    if (
+      teamAGives.length === 0 &&
+      teamAGivesPicks.length === 0 &&
+      teamAGivesFAAB === 0 &&
+      teamAGets.length === 0 &&
+      teamAGetsPicks.length === 0 &&
+      teamAGetsFAAB === 0
+    ) {
+      alert('Please add players, picks, or FAAB to both sides of the trade');
+      return;
+    }
+
+    if (
+      (teamAGives.length === 0 && teamAGivesPicks.length === 0 && teamAGivesFAAB === 0) ||
+      (teamAGets.length === 0 && teamAGetsPicks.length === 0 && teamAGetsFAAB === 0)
+    ) {
+      alert('Please add items to both sides of the trade');
+      return;
+    }
+
+    // Check usage limit for non-pro users (skip for guests)
+    if (!isGuest && user && !isPro) {
+      const canUse = await checkUsageLimit(user.id, 'trade_calc', USAGE_LIMITS.free.trade_calc);
+      if (!canUse) {
+        showToast('Daily trade calculation limit reached. Upgrade to Pro for unlimited access!', 'error');
+        setShowUpgradeModal(true);
+        return;
+      }
+    }
+
+    setAnalyzing(true);
+    try {
+      const result = await analyzeTrade(
+        leagueId,
+        teamAGives,
+        teamAGets,
+        teamAGivesPicks,
+        teamAGetsPicks,
+        teamAGivesFAAB,
+        teamAGetsFAAB,
+        !leagueId ? leagueSettings : undefined,
+        leagueFormat,
+        scoringFormat === 'half' ? 'half-ppr' : scoringFormat
+      );
+      setAnalysis(result);
+
+      // Evaluate trade fairness
+      try {
+        const teamAAssets: TradeAsset[] = [];
+        const teamBAssets: TradeAsset[] = [];
+
+        // Convert Team A gives (Team B gets)
+        for (const item of result.teamAItems) {
+          const playerData = item.id ? players[item.id] : undefined;
+          teamBAssets.push({
+            player_id: item.id,
+            player_name: item.name,
+            position: item.position || 'PICK',
+            value: item.value,
+            tier: item.tier !== undefined ? Number(item.tier) : undefined,
+            is_pick: item.type === 'pick',
+            age: playerData?.age || undefined,
+          });
+        }
+
+        // Convert Team B gives (Team A gets)
+        for (const item of result.teamBItems) {
+          const playerData = item.id ? players[item.id] : undefined;
+          teamAAssets.push({
+            player_id: item.id,
+            player_name: item.name,
+            position: item.position || 'PICK',
+            value: item.value,
+            tier: item.tier !== undefined ? Number(item.tier) : undefined,
+            is_pick: item.type === 'pick',
+            age: playerData?.age || undefined,
+          });
+        }
+
+        const currentPhase = getCurrentPhaseInfo();
+        const fairness = evaluateTrade(
+          teamAAssets,
+          teamBAssets,
+          leagueFormat === 'dynasty' ? 'dynasty' : 'redraft',
+          {
+            isSuperflex: leagueSettings.isSuperflex,
+            currentPhase: currentPhase.phase as any,
+          }
+        );
+
+        setFairnessEvaluation(fairness);
+      } catch (fairnessError) {
+        console.error('Fairness evaluation failed:', fairnessError);
+        // Don't block trade analysis if fairness evaluation fails
+      }
+
+      if (user) {
+        await saveTrade(result);
+        // Track usage after successful analysis (skip for guests)
+        if (!isGuest) {
+          await trackUsage(user.id, 'trade_calc');
+        }
+      }
+      showToast('Trade analyzed successfully!', 'success');
+    } catch (error) {
+      console.error('Failed to analyze trade:', error);
+      showToast('Failed to analyze trade. Please try again.', 'error');
+    } finally {
+      setAnalyzing(false);
+    }
+  }
+
+  async function saveTrade(result: TradeAnalysis) {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase.from('saved_trades').insert({
+        user_id: user.id,
+        league_id: leagueId,
+        trade_data: {
+          team_a_gives: teamAGives,
+          team_a_gets: teamAGets,
+          team_a_gives_picks: teamAGivesPicks,
+          team_a_gets_picks: teamAGetsPicks,
+          team_a_gives_faab: teamAGivesFAAB,
+          team_a_gets_faab: teamAGetsFAAB,
+        },
+        trade_result: {
+          team_a_value: result.teamAValue,
+          team_b_value: result.teamBValue,
+          difference: result.difference,
+          winner: result.winner,
+          fairness: result.fairness,
+          team_a_items: result.teamAItems,
+          team_b_items: result.teamBItems,
+          team_a_name: teamAName,
+          team_b_name: teamBName,
+        },
+      });
+
+      if (error) throw error;
+
+      if (onTradeSaved) onTradeSaved();
+      showToast('Trade saved to history', 'info');
+    } catch (error) {
+      console.error('Failed to save trade:', error);
+      showToast('Failed to save trade to history', 'error');
+    }
+  }
+
+  function clearTrade() {
+    setTeamAGives([]);
+    setTeamAGets([]);
+    setTeamAGivesPicks([]);
+    setTeamAGetsPicks([]);
+    setTeamAGivesFAAB(0);
+    setTeamAGetsFAAB(0);
+    setAnalysis(null);
+    setFairnessEvaluation(null);
+    setShareUrl(null);
+    setCopied(false);
+  }
+
+  function swapTrade() {
+    const tmpPlayers = teamAGives;
+    const tmpPicks = teamAGivesPicks;
+    const tmpFAAB = teamAGivesFAAB;
+    setTeamAGives(teamAGets);
+    setTeamAGivesPicks(teamAGetsPicks);
+    setTeamAGivesFAAB(teamAGetsFAAB);
+    setTeamAGets(tmpPlayers);
+    setTeamAGetsPicks(tmpPicks);
+    setTeamAGetsFAAB(tmpFAAB);
+    setAnalysis(null);
+    setFairnessEvaluation(null);
+  }
+
+  async function shareTrade() {
+    if (!analysis) return;
+
+    try {
+      setSharing(true);
+
+      const format = leagueSettings.isSuperflex ? 'dynasty_sf' : 'dynasty_1qb';
+
+      const sideAPlayers = analysis.teamAItems
+        .filter(item => item.type === 'player')
+        .map(item => ({
+          id: item.id,
+          name: item.name,
+          position: item.position || '',
+          value: item.value,
+        }));
+
+      const sideBPlayers = analysis.teamBItems
+        .filter(item => item.type === 'player')
+        .map(item => ({
+          id: item.id,
+          name: item.name,
+          position: item.position || '',
+          value: item.value,
+        }));
+
+      const sideAPicks = analysis.teamAItems
+        .filter(item => item.type === 'pick')
+        .map(item => ({
+          round: item.round || 1,
+          year: item.year || new Date().getFullYear(),
+          value: item.value,
+        }));
+
+      const sideBPicks = analysis.teamBItems
+        .filter(item => item.type === 'pick')
+        .map(item => ({
+          round: item.round || 1,
+          year: item.year || new Date().getFullYear(),
+          value: item.value,
+        }));
+
+      const fairnessPercentage = Math.max(analysis.teamAValue, analysis.teamBValue) > 0
+        ? Math.round(100 - (Math.abs(analysis.teamAValue - analysis.teamBValue) / Math.max(analysis.teamAValue, analysis.teamBValue) * 100))
+        : 100;
+
+      const winner = analysis.winner === 'Fair' ? 'even' : analysis.winner === 'A' ? 'side_a' : 'side_b';
+
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/trade-share`;
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({
+          format,
+          sideA: {
+            players: sideAPlayers,
+            picks: sideAPicks.length > 0 ? sideAPicks : undefined,
+            faab: teamAGivesFAAB > 0 ? teamAGivesFAAB : undefined,
+          },
+          sideB: {
+            players: sideBPlayers,
+            picks: sideBPicks.length > 0 ? sideBPicks : undefined,
+            faab: teamAGetsFAAB > 0 ? teamAGetsFAAB : undefined,
+          },
+          sideATotal: analysis.teamAValue,
+          sideBTotal: analysis.teamBValue,
+          fairnessPercentage,
+          winner,
+          recommendation: analysis.fairness,
+          hideValues: false,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok && data.url) {
+        setShareUrl(data.url);
+        showToast('Trade link created!', 'success');
+      } else {
+        throw new Error(data.error || 'Failed to create share link');
+      }
+    } catch (error) {
+      console.error('Failed to share trade:', error);
+      showToast('Failed to create share link', 'error');
+    } finally {
+      setSharing(false);
+    }
+  }
+
+  function copyShareLink() {
+    if (shareUrl) {
+      navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      showToast('Link copied to clipboard!', 'success');
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  function getRosterPlayers(rosterId: string): string[] {
+    const roster = rosters.find(r => r.roster_id.toString() === rosterId);
+    return roster?.players || [];
+  }
+
+  function getRosterPicks(rosterId: string): DraftPick[] {
+    const roster = rosters.find(r => r.roster_id.toString() === rosterId);
+    if (!roster) return [];
+
+    const picks: DraftPick[] = [];
+    const pickKeys = new Set<string>();
+
+    if (roster.draft_picks) {
+      roster.draft_picks.forEach((pick, index) => {
+        const key = `${pick.season}-${pick.round}`;
+        if (!pickKeys.has(key)) {
+          pickKeys.add(key);
+          picks.push({
+            id: `${pick.season}-${pick.round}-${roster.roster_id}-${index}`,
+            year: pick.season,
+            round: pick.round,
+            displayName: `${pick.season} Round ${pick.round} Pick`,
+            pickNumber: undefined,
+          });
+        }
+      });
+    }
+
+    tradedPicks.forEach((pick: any) => {
+      if (pick.owner_id === roster.roster_id || pick.roster_id === roster.roster_id) {
+        const key = `${pick.season}-${pick.round}`;
+        if (!pickKeys.has(key)) {
+          pickKeys.add(key);
+          picks.push({
+            id: `${pick.season}-${pick.round}-${roster.roster_id}-traded`,
+            year: pick.season,
+            round: pick.round,
+            displayName: `${pick.season} Round ${pick.round} Pick`,
+            pickNumber: undefined,
+          });
+        }
+      }
+    });
+
+    return picks.sort((a, b) => {
+      if (a.year !== b.year) return a.year - b.year;
+      return a.round - b.round;
+    });
+  }
+
+  function getRosterFAAB(rosterId: string): number {
+    const roster = rosters.find(r => r.roster_id.toString() === rosterId);
+    return roster?.settings?.waiver_budget_used
+      ? (roster.settings.waiver_budget_used)
+      : 0;
+  }
+
+  function addRosterPlayer(playerId: string, direction: 'gives' | 'gets') {
+    if (direction === 'gives') {
+      if (teamAGives.includes(playerId)) {
+        setTeamAGives(teamAGives.filter(id => id !== playerId));
+      } else {
+        setTeamAGives([...teamAGives, playerId]);
+        const player = players[playerId];
+        if (player) fetchEnhancedPlayerData(playerId, player.full_name);
+      }
+    } else {
+      if (teamAGets.includes(playerId)) {
+        setTeamAGets(teamAGets.filter(id => id !== playerId));
+      } else {
+        setTeamAGets([...teamAGets, playerId]);
+        const player = players[playerId];
+        if (player) fetchEnhancedPlayerData(playerId, player.full_name);
+      }
+    }
+  }
+
+  function addRosterPick(pick: DraftPick, direction: 'gives' | 'gets') {
+    if (direction === 'gives') {
+      setTeamAGivesPicks([...teamAGivesPicks, pick]);
+    } else {
+      setTeamAGetsPicks([...teamAGetsPicks, pick]);
+    }
+  }
+
+  return (
+    <div className="space-y-6">
+      {user && !isPro && (
+        <UsageMeter feature="trade_calc" onUpgrade={() => setShowUpgradeModal(true)} />
+      )}
+
+      <div className="card p-6 shadow-card-lg">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-fdp-text-1 flex items-center gap-2">
+            <TrendingUp className="w-7 h-7 text-fdp-accent-1" />
+            <span className="text-gradient">Trade Analyzer</span>
+          </h2>
+          {(teamAGives.length > 0 ||
+            teamAGets.length > 0 ||
+            teamAGivesPicks.length > 0 ||
+            teamAGetsPicks.length > 0 ||
+            teamAGivesFAAB > 0 ||
+            teamAGetsFAAB > 0) && (
+            <button
+              onClick={clearTrade}
+              className="text-sm text-fdp-text-3 hover:text-fdp-text-1 transition-colors"
+            >
+              Clear Trade
+            </button>
+          )}
+        </div>
+
+        {leagueId && rosters.length > 0 && (
+          <>
+            <div className="bg-fdp-surface-2 border border-fdp-border-1 rounded-lg p-4 mb-6">
+              <h3 className="text-lg font-semibold text-white mb-4">Select Teams</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-fdp-text-2 mb-2">Team 1</label>
+                  <select
+                    value={selectedTeamA}
+                    onChange={(e) => {
+                      setSelectedTeamA(e.target.value);
+                      if (e.target.value) {
+                        setTeamAName(getTeamName(e.target.value));
+                      }
+                    }}
+                    className="w-full px-4 py-2 bg-fdp-bg-1 border border-fdp-border-1 rounded-lg text-white focus:outline-none focus:border-fdp-accent-1 transition-colors"
+                  >
+                    <option value="">Select a team...</option>
+                    {rosters.map((roster) => (
+                      <option key={roster.roster_id} value={roster.roster_id.toString()}>
+                        {getTeamName(roster.roster_id.toString())}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-fdp-text-2 mb-2">Team 2</label>
+                  <select
+                    value={selectedTeamB}
+                    onChange={(e) => {
+                      setSelectedTeamB(e.target.value);
+                      if (e.target.value) {
+                        setTeamBName(getTeamName(e.target.value));
+                      }
+                    }}
+                    className="w-full px-4 py-2 bg-fdp-bg-1 border border-fdp-border-1 rounded-lg text-white focus:outline-none focus:border-fdp-accent-1 transition-colors"
+                  >
+                    <option value="">Select a team...</option>
+                    {rosters.map((roster) => (
+                      <option key={roster.roster_id} value={roster.roster_id.toString()}>
+                        {getTeamName(roster.roster_id.toString())}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {(selectedTeamA || selectedTeamB) && (
+              <div className="bg-fdp-surface-2 border border-fdp-border-1 rounded-lg p-4 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Team Rosters</h3>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {selectedTeamA && (
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-md font-semibold text-fdp-text-2">{teamAName}</h4>
+                      </div>
+
+                      <div className="flex gap-2 mb-3">
+                        <button
+                          onClick={() => setAssetTypeA('players')}
+                          className={`flex-1 px-3 py-2 rounded text-sm font-medium transition-colors ${
+                            assetTypeA === 'players'
+                              ? 'bg-fdp-accent-1 text-white'
+                              : 'bg-fdp-surface-1 text-fdp-text-2 hover:bg-fdp-border-1'
+                          }`}
+                        >
+                          Players
+                        </button>
+                        <button
+                          onClick={() => setAssetTypeA('picks')}
+                          className={`flex-1 px-3 py-2 rounded text-sm font-medium transition-colors ${
+                            assetTypeA === 'picks'
+                              ? 'bg-fdp-accent-1 text-white'
+                              : 'bg-fdp-surface-1 text-fdp-text-2 hover:bg-fdp-border-1'
+                          }`}
+                        >
+                          Picks
+                        </button>
+                        <button
+                          onClick={() => setAssetTypeA('faab')}
+                          className={`flex-1 px-3 py-2 rounded text-sm font-medium transition-colors ${
+                            assetTypeA === 'faab'
+                              ? 'bg-fdp-accent-1 text-white'
+                              : 'bg-fdp-surface-1 text-fdp-text-2 hover:bg-fdp-border-1'
+                          }`}
+                        >
+                          FAAB
+                        </button>
+                      </div>
+
+                      <div className="bg-fdp-bg-1 rounded-lg p-3 max-h-96 overflow-y-auto">
+                        {assetTypeA === 'players' && (
+                          <div className="space-y-1">
+                            {playersLoading ? (
+                              <div className="flex items-center justify-center py-6 gap-2 text-fdp-text-3 text-sm">
+                                <div className="w-4 h-4 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin" />
+                                Loading roster...
+                              </div>
+                            ) : (
+                              <>
+                                <div className="grid grid-cols-[1fr_auto_auto] gap-1 px-2 pb-1 border-b border-fdp-border-1 mb-1">
+                                  <span className="text-xs text-fdp-text-3">Player</span>
+                                  <span className="text-xs text-fdp-text-3 w-14 text-center">Gives</span>
+                                  <span className="text-xs text-fdp-text-3 w-14 text-center">Gets</span>
+                                </div>
+                                {getRosterPlayers(selectedTeamA).map((playerId) => {
+                                  const player = players[playerId];
+                                  const displayName = player?.full_name || `Player ${playerId}`;
+                                  const position = player?.position || '—';
+                                  const team = player?.team ?? undefined;
+                                  const inGives = teamAGives.includes(playerId);
+                                  const inGets = teamAGets.includes(playerId);
+
+                                  return (
+                                    <div
+                                      key={playerId}
+                                      className={`grid grid-cols-[1fr_auto_auto] gap-1 items-center p-1.5 rounded transition-colors ${
+                                        inGives || inGets ? 'bg-fdp-surface-2' : 'hover:bg-fdp-surface-2/50'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2 min-w-0">
+                                        <PlayerAvatar
+                                          playerId={playerId}
+                                          playerName={displayName}
+                                          team={team}
+                                          position={position}
+                                          size="sm"
+                                          showTeamLogo={false}
+                                        />
+                                        <div className="min-w-0">
+                                          <div className="text-white text-xs font-medium truncate">{displayName}</div>
+                                          <div className="text-fdp-text-3 text-xs">{position}{team ? ` · ${team}` : ''}</div>
+                                        </div>
+                                      </div>
+                                      <button
+                                        onClick={() => addRosterPlayer(playerId, 'gives')}
+                                        className={`w-14 text-xs py-1 rounded font-medium transition-all ${
+                                          inGives
+                                            ? 'bg-red-500/20 border border-red-500 text-red-400 hover:bg-red-500/30'
+                                            : 'bg-fdp-surface-1 text-fdp-text-3 hover:bg-fdp-accent-1/20 hover:text-fdp-accent-1 hover:border hover:border-fdp-accent-1'
+                                        }`}
+                                      >
+                                        {inGives ? '✓ Out' : '+ Out'}
+                                      </button>
+                                      <button
+                                        onClick={() => addRosterPlayer(playerId, 'gets')}
+                                        className={`w-14 text-xs py-1 rounded font-medium transition-all ${
+                                          inGets
+                                            ? 'bg-green-500/20 border border-green-500 text-green-400 hover:bg-green-500/30'
+                                            : 'bg-fdp-surface-1 text-fdp-text-3 hover:bg-green-500/20 hover:text-green-400 hover:border hover:border-green-500'
+                                        }`}
+                                      >
+                                        {inGets ? '✓ In' : '+ In'}
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                                {getRosterPlayers(selectedTeamA).length === 0 && (
+                                  <p className="text-fdp-text-3 text-sm text-center py-4">No players found on this roster</p>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        )}
+
+                        {assetTypeA === 'picks' && (
+                          <div className="space-y-2">
+                            {getRosterPicks(selectedTeamA).map((pick) => {
+                              const alreadyAdded = tradeDirectionA === 'gives'
+                                ? teamAGivesPicks.some(p => p.year === pick.year && p.round === pick.round)
+                                : teamAGetsPicks.some(p => p.year === pick.year && p.round === pick.round);
+
+                              return (
+                                <button
+                                  key={pick.id}
+                                  onClick={() => !alreadyAdded && addRosterPick(pick, tradeDirectionA)}
+                                  disabled={alreadyAdded}
+                                  className={`w-full flex items-center justify-between p-3 rounded hover:bg-fdp-surface-2 transition-colors ${
+                                    alreadyAdded ? 'opacity-50 cursor-not-allowed' : ''
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-fdp-accent-1" />
+                                    <span className="text-white text-sm">{pick.displayName}</span>
+                                  </div>
+                                  {alreadyAdded && (
+                                    <span className="text-xs text-fdp-text-3">Added</span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                            {getRosterPicks(selectedTeamA).length === 0 && (
+                              <p className="text-fdp-text-3 text-sm text-center py-4">No draft picks</p>
+                            )}
+                          </div>
+                        )}
+
+                        {assetTypeA === 'faab' && (
+                          <div className="p-3">
+                            <div className="text-fdp-text-2 text-sm mb-2">
+                              Available FAAB: ${getRosterFAAB(selectedTeamA)}
+                            </div>
+                            <p className="text-xs text-fdp-text-3">
+                              Use the FAAB input fields in the trade sections to add FAAB to the trade.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedTeamB && (
+                    <div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-md font-semibold text-fdp-text-2">{teamBName}</h4>
+                      </div>
+
+                      <div className="flex gap-2 mb-3">
+                        <button
+                          onClick={() => setAssetTypeB('players')}
+                          className={`flex-1 px-3 py-2 rounded text-sm font-medium transition-colors ${
+                            assetTypeB === 'players'
+                              ? 'bg-fdp-accent-1 text-white'
+                              : 'bg-fdp-surface-1 text-fdp-text-2 hover:bg-fdp-border-1'
+                          }`}
+                        >
+                          Players
+                        </button>
+                        <button
+                          onClick={() => setAssetTypeB('picks')}
+                          className={`flex-1 px-3 py-2 rounded text-sm font-medium transition-colors ${
+                            assetTypeB === 'picks'
+                              ? 'bg-fdp-accent-1 text-white'
+                              : 'bg-fdp-surface-1 text-fdp-text-2 hover:bg-fdp-border-1'
+                          }`}
+                        >
+                          Picks
+                        </button>
+                        <button
+                          onClick={() => setAssetTypeB('faab')}
+                          className={`flex-1 px-3 py-2 rounded text-sm font-medium transition-colors ${
+                            assetTypeB === 'faab'
+                              ? 'bg-fdp-accent-1 text-white'
+                              : 'bg-fdp-surface-1 text-fdp-text-2 hover:bg-fdp-border-1'
+                          }`}
+                        >
+                          FAAB
+                        </button>
+                      </div>
+
+                      <div className="bg-fdp-bg-1 rounded-lg p-3 max-h-96 overflow-y-auto">
+                        {assetTypeB === 'players' && (
+                          <div className="space-y-1">
+                            {playersLoading ? (
+                              <div className="flex items-center justify-center py-6 gap-2 text-fdp-text-3 text-sm">
+                                <div className="w-4 h-4 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin" />
+                                Loading roster...
+                              </div>
+                            ) : (
+                              <>
+                                <div className="grid grid-cols-[1fr_auto_auto] gap-1 px-2 pb-1 border-b border-fdp-border-1 mb-1">
+                                  <span className="text-xs text-fdp-text-3">Player</span>
+                                  <span className="text-xs text-fdp-text-3 w-14 text-center">Gives</span>
+                                  <span className="text-xs text-fdp-text-3 w-14 text-center">Gets</span>
+                                </div>
+                                {getRosterPlayers(selectedTeamB).map((playerId) => {
+                                  const player = players[playerId];
+                                  const displayName = player?.full_name || `Player ${playerId}`;
+                                  const position = player?.position || '—';
+                                  const team = player?.team ?? undefined;
+                                  const inGives = teamAGives.includes(playerId);
+                                  const inGets = teamAGets.includes(playerId);
+
+                                  return (
+                                    <div
+                                      key={playerId}
+                                      className={`grid grid-cols-[1fr_auto_auto] gap-1 items-center p-1.5 rounded transition-colors ${
+                                        inGives || inGets ? 'bg-fdp-surface-2' : 'hover:bg-fdp-surface-2/50'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2 min-w-0">
+                                        <PlayerAvatar
+                                          playerId={playerId}
+                                          playerName={displayName}
+                                          team={team}
+                                          position={position}
+                                          size="sm"
+                                          showTeamLogo={false}
+                                        />
+                                        <div className="min-w-0">
+                                          <div className="text-white text-xs font-medium truncate">{displayName}</div>
+                                          <div className="text-fdp-text-3 text-xs">{position}{team ? ` · ${team}` : ''}</div>
+                                        </div>
+                                      </div>
+                                      <button
+                                        onClick={() => addRosterPlayer(playerId, 'gives')}
+                                        className={`w-14 text-xs py-1 rounded font-medium transition-all ${
+                                          inGives
+                                            ? 'bg-red-500/20 border border-red-500 text-red-400 hover:bg-red-500/30'
+                                            : 'bg-fdp-surface-1 text-fdp-text-3 hover:bg-fdp-accent-1/20 hover:text-fdp-accent-1 hover:border hover:border-fdp-accent-1'
+                                        }`}
+                                      >
+                                        {inGives ? '✓ Out' : '+ Out'}
+                                      </button>
+                                      <button
+                                        onClick={() => addRosterPlayer(playerId, 'gets')}
+                                        className={`w-14 text-xs py-1 rounded font-medium transition-all ${
+                                          inGets
+                                            ? 'bg-green-500/20 border border-green-500 text-green-400 hover:bg-green-500/30'
+                                            : 'bg-fdp-surface-1 text-fdp-text-3 hover:bg-green-500/20 hover:text-green-400 hover:border hover:border-green-500'
+                                        }`}
+                                      >
+                                        {inGets ? '✓ In' : '+ In'}
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                                {getRosterPlayers(selectedTeamB).length === 0 && (
+                                  <p className="text-fdp-text-3 text-sm text-center py-4">No players found on this roster</p>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        )}
+
+                        {assetTypeB === 'picks' && (
+                          <div className="space-y-2">
+                            {getRosterPicks(selectedTeamB).map((pick) => {
+                              const alreadyAdded = tradeDirectionB === 'gives'
+                                ? teamAGivesPicks.some(p => p.year === pick.year && p.round === pick.round)
+                                : teamAGetsPicks.some(p => p.year === pick.year && p.round === pick.round);
+
+                              return (
+                                <button
+                                  key={pick.id}
+                                  onClick={() => !alreadyAdded && addRosterPick(pick, tradeDirectionB)}
+                                  disabled={alreadyAdded}
+                                  className={`w-full flex items-center justify-between p-3 rounded hover:bg-fdp-surface-2 transition-colors ${
+                                    alreadyAdded ? 'opacity-50 cursor-not-allowed' : ''
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-fdp-accent-1" />
+                                    <span className="text-white text-sm">{pick.displayName}</span>
+                                  </div>
+                                  {alreadyAdded && (
+                                    <span className="text-xs text-fdp-text-3">Added</span>
+                                  )}
+                                </button>
+                              );
+                            })}
+                            {getRosterPicks(selectedTeamB).length === 0 && (
+                              <p className="text-fdp-text-3 text-sm text-center py-4">No draft picks</p>
+                            )}
+                          </div>
+                        )}
+
+                        {assetTypeB === 'faab' && (
+                          <div className="p-3">
+                            <div className="text-fdp-text-2 text-sm mb-2">
+                              Available FAAB: ${getRosterFAAB(selectedTeamB)}
+                            </div>
+                            <p className="text-xs text-fdp-text-3">
+                              Use the FAAB input fields in the trade sections to add FAAB to the trade.
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Compact settings strip */}
+        <div className="flex flex-wrap items-center gap-2 mb-5 p-3 bg-fdp-surface-2/60 border border-fdp-border-1/60 rounded-lg">
+          {/* Format toggle */}
+          <div className="flex rounded-md overflow-hidden border border-fdp-border-1 text-xs font-medium">
+            <button
+              onClick={() => setLeagueFormat('dynasty')}
+              className={`px-3 py-1.5 transition-colors ${leagueFormat === 'dynasty' ? 'bg-fdp-accent-1 text-white' : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'}`}
+            >
+              Dynasty
+            </button>
+            <button
+              onClick={() => setLeagueFormat('redraft')}
+              className={`px-3 py-1.5 border-l border-fdp-border-1 transition-colors ${leagueFormat === 'redraft' ? 'bg-fdp-accent-1 text-white' : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'}`}
+            >
+              Redraft
+            </button>
+          </div>
+
+          {/* Scoring toggle */}
+          <div className="flex rounded-md overflow-hidden border border-fdp-border-1 text-xs font-medium">
+            {(['ppr', 'half', 'standard'] as const).map((fmt, i) => (
+              <button
+                key={fmt}
+                onClick={() => setScoringFormat(fmt)}
+                className={`px-3 py-1.5 transition-colors ${i > 0 ? 'border-l border-fdp-border-1' : ''} ${scoringFormat === fmt ? 'bg-fdp-accent-1 text-white' : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'}`}
+              >
+                {fmt === 'ppr' ? 'PPR' : fmt === 'half' ? 'Half' : 'Std'}
+              </button>
+            ))}
+          </div>
+
+          {/* Superflex + TEP (no-league mode only) */}
+          {!leagueId && (
+            <>
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs text-fdp-text-2">
+                <input
+                  type="checkbox"
+                  checked={leagueSettings.isSuperflex}
+                  onChange={(e) => setLeagueSettings({ ...leagueSettings, isSuperflex: e.target.checked })}
+                  className="w-3.5 h-3.5 rounded"
+                />
+                SF
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs text-fdp-text-2">
+                <input
+                  type="checkbox"
+                  checked={leagueSettings.isTEPremium}
+                  onChange={(e) => setLeagueSettings({ ...leagueSettings, isTEPremium: e.target.checked })}
+                  className="w-3.5 h-3.5 rounded"
+                />
+                TE+
+              </label>
+            </>
+          )}
+
+          {/* Refresh values */}
+          <button
+            onClick={async () => {
+              setSyncingValues(true);
+              clearPlayerValuesCache();
+              try {
+                const dbPlayers = await fetchAllPlayersFromDatabase();
+                if (Object.keys(dbPlayers).length > 0) {
+                  setPlayers(dbPlayers);
+                  showToast(`Loaded ${Object.keys(dbPlayers).length} player values`, 'success');
+                }
+              } catch {
+                showToast('Failed to refresh', 'error');
+              } finally {
+                setSyncingValues(false);
+              }
+            }}
+            disabled={syncingValues}
+            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 text-xs text-fdp-text-3 hover:text-fdp-text-1 bg-fdp-surface-1 hover:bg-fdp-border-1 rounded-md transition-colors disabled:opacity-50"
+          >
+            <Settings className={`w-3.5 h-3.5 ${syncingValues ? 'animate-spin' : ''}`} />
+            {syncingValues ? 'Refreshing…' : 'Refresh Values'}
+          </button>
+        </div>
+
+        {/* Swap button row */}
+        {(teamAGives.length > 0 || teamAGets.length > 0 || teamAGivesPicks.length > 0 || teamAGetsPicks.length > 0) && (
+          <div className="flex items-center justify-center mb-2">
+            <button
+              onClick={swapTrade}
+              className="flex items-center gap-2 text-xs text-fdp-text-3 hover:text-fdp-accent-1 bg-fdp-surface-2 border border-fdp-border-1 hover:border-fdp-accent-1/50 px-4 py-1.5 rounded-full transition-all"
+            >
+              <TrendingUp className="w-3.5 h-3.5 rotate-90" />
+              Swap sides
+            </button>
+          </div>
+        )}
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-fdp-text-2 mb-2">
+                {teamAName} Gives
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 w-5 h-5 text-fdp-text-3 z-10" />
+                <input
+                  type="text"
+                  value={searchTermA}
+                  onChange={(e) => handleSearchA(e.target.value)}
+                  placeholder="Search players or draft picks..."
+                  className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-white placeholder-fdp-text-3 focus:outline-none focus:border-fdp-accent-1 transition-colors"
+                />
+                {searchLoadingA && (
+                  <div className="absolute right-3 top-3 w-5 h-5 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin z-10" />
+                )}
+                {searchTermA.length >= 2 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-60 overflow-y-auto z-50 shadow-xl">
+                  {searchResultsA.length === 0 && !searchLoadingA && (
+                    <div className="px-4 py-3 text-sm text-fdp-text-3">No players found</div>
+                  )}
+                  {searchResultsA.map((player) => {
+                    const isSelected = teamAGives.includes(player.player_id);
+                    return (
+                      <button
+                        key={player.player_id}
+                        onClick={() => addPlayer(player.player_id, 'A', 'gives')}
+                        className={`w-full px-4 py-2 text-left transition-colors flex items-center gap-3 group ${
+                          isSelected
+                            ? 'bg-fdp-accent-1/20 border-l-4 border-fdp-accent-1 hover:bg-fdp-accent-1/30'
+                            : 'hover:bg-fdp-surface-1'
+                        }`}
+                      >
+                        <PlayerAvatar
+                          playerName={player.full_name}
+                          team={player.team ?? undefined}
+                          position={player.position}
+                          size="md"
+                          playerId={player.player_id}
+                        />
+                        <div className="flex-1">
+                          <span className="text-white font-medium">{player.full_name}</span>
+                          <div className="text-sm text-fdp-text-3">{player.position} - {player.team || 'FA'}</div>
+                        </div>
+                        <Plus className="w-5 h-5 text-fdp-text-3 group-hover:text-fdp-accent-1" />
+                      </button>
+                    );
+                  })}
+                </div>
+                )}
+              </div>
+              <div className="mt-3 space-y-2">
+                {teamAGives.map((playerId) => {
+                  const player = players[playerId];
+                  const enhanced = enhancedPlayerData[playerId];
+                  const hasInjury = !!(player.injury_status && ['Out', 'Doubtful', 'Questionable', 'IR', 'PUP'].includes(player.injury_status));
+                  return (
+                    <div
+                      key={playerId}
+                      className="flex items-center gap-3 bg-fdp-surface-2 px-4 py-3 rounded-lg border border-fdp-border-1 hover-lift card-enter"
+                    >
+                      <PlayerAvatar
+                        playerId={playerId}
+                        playerName={player.full_name}
+                        team={player.team ?? undefined}
+                        position={player.position}
+                        size="lg"
+                        showTeamLogo={true}
+                        showBadge={hasInjury}
+                        badgeContent={hasInjury ? <AchievementBadge type="injury" size="sm" /> : undefined}
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-white font-medium">{player.full_name}</span>
+                          {getInjuryStatusBadge(player)}
+                          {enhanced && (
+                            <Tooltip content={
+                              <div className="space-y-2 text-xs">
+                                {enhanced.projection && (
+                                  <div>
+                                    <div className="font-semibold text-fdp-accent-1">Projected Points</div>
+                                    <div>{Math.round(enhanced.projection.FantasyPointsPPR || 0)} PPR pts</div>
+                                  </div>
+                                )}
+                                {enhanced.injury && (
+                                  <div>
+                                    <div className="font-semibold text-orange-400">Injury</div>
+                                    <div>{enhanced.injury.InjuryBodyPart}: {enhanced.injury.Status}</div>
+                                    {enhanced.injury.InjuryNotes && (
+                                      <div className="text-fdp-text-3 mt-1">{enhanced.injury.InjuryNotes}</div>
+                                    )}
+                                  </div>
+                                )}
+                                {enhanced.news && enhanced.news.length > 0 && (
+                                  <div>
+                                    <div className="font-semibold text-green-400">Latest News</div>
+                                    <div className="text-fdp-text-3">{enhanced.news[0].Title}</div>
+                                  </div>
+                                )}
+                              </div>
+                            }>
+                              <Info className="w-4 h-4 text-fdp-accent-1 cursor-help" />
+                            </Tooltip>
+                          )}
+                        </div>
+                        <div className="text-sm text-fdp-text-3 flex items-center gap-2">
+                          <span>{player.position} - {player.team || 'FA'}</span>
+                          {enhanced?.projection && (
+                            <span className="text-fdp-accent-1">• {Math.round(enhanced.projection.FantasyPointsPPR || 0)} pts</span>
+                          )}
+                        </div>
+                        {enhanced?.recentGames && enhanced.recentGames.length > 0 && (
+                          <div className="mt-2">
+                            <StatSparkline
+                              data={enhanced.recentGames.map((g: any) => g.FantasyPointsPPR || 0).slice(-5)}
+                              color="cyan"
+                              height={24}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      {playerValues[playerId] !== undefined && (
+                        <div className="flex flex-col items-end flex-shrink-0 mr-1">
+                          <span className="text-fdp-accent-1 font-bold text-sm leading-none">{Math.round(playerValues[playerId])}</span>
+                          <span className="text-fdp-text-3 text-xs">KTC</span>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => removePlayer(playerId, 'A', 'gives')}
+                        className="text-fdp-text-3 hover:text-red-400 transition-colors"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                  );
+                })}
+                {teamAGivesPicks.map((pick) => (
+                  <div
+                    key={pick.id}
+                    className="flex items-center justify-between bg-fdp-surface-2 px-4 py-3 rounded-lg border border-fdp-accent-1"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-fdp-accent-1" />
+                      <div className="text-white font-medium">{pick.displayName}</div>
+                    </div>
+                    <button
+                      onClick={() => removeDraftPick(pick.id, 'A', 'gives')}
+                      className="text-fdp-text-3 hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+                <div className="pt-2">
+                  <label className="block text-sm font-semibold text-fdp-text-2 mb-2">
+                    FAAB Money
+                  </label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-3 w-4 h-4 text-fdp-text-3" />
+                    <input
+                      type="number"
+                      min="0"
+                      max="1000"
+                      value={teamAGivesFAAB || ''}
+                      onChange={(e) => setTeamAGivesFAAB(Number(e.target.value) || 0)}
+                      placeholder="0"
+                      className="w-full pl-9 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-white placeholder-fdp-text-3 focus:outline-none focus:border-fdp-accent-1 transition-colors"
+                    />
+                  </div>
+                  {teamAGivesFAAB > 0 && (
+                    <div className="mt-2 text-sm text-fdp-text-3">
+                      Value: {teamAGivesFAAB.toFixed(1)} points
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-fdp-text-2 mb-2">
+                {teamAName} Gets
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-3 w-5 h-5 text-fdp-text-3 z-10" />
+                <input
+                  type="text"
+                  value={searchTermB}
+                  onChange={(e) => handleSearchB(e.target.value)}
+                  placeholder="Search players or draft picks..."
+                  className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-white placeholder-fdp-text-3 focus:outline-none focus:border-fdp-accent-1 transition-colors"
+                />
+                {searchLoadingB && (
+                  <div className="absolute right-3 top-3 w-5 h-5 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin z-10" />
+                )}
+                {searchTermB.length >= 2 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-60 overflow-y-auto z-50 shadow-xl">
+                  {searchResultsB.length === 0 && !searchLoadingB && (
+                    <div className="px-4 py-3 text-sm text-fdp-text-3">No players found</div>
+                  )}
+                  {searchResultsB.map((player) => {
+                    const isSelected = teamAGets.includes(player.player_id);
+                    return (
+                      <button
+                        key={player.player_id}
+                        onClick={() => addPlayer(player.player_id, 'A', 'gets')}
+                        className={`w-full px-4 py-2 text-left transition-colors flex items-center gap-3 group ${
+                          isSelected
+                            ? 'bg-fdp-accent-1/20 border-l-4 border-fdp-accent-1 hover:bg-fdp-accent-1/30'
+                            : 'hover:bg-fdp-surface-1'
+                        }`}
+                      >
+                        <PlayerAvatar
+                          playerName={player.full_name}
+                          team={player.team ?? undefined}
+                          position={player.position}
+                          size="md"
+                          playerId={player.player_id}
+                        />
+                        <div className="flex-1">
+                          <span className="text-white font-medium">{player.full_name}</span>
+                          <div className="text-sm text-fdp-text-3">{player.position} - {player.team || 'FA'}</div>
+                        </div>
+                        <Plus className="w-5 h-5 text-fdp-text-3 group-hover:text-fdp-accent-1" />
+                      </button>
+                    );
+                  })}
+                </div>
+                )}
+              </div>
+              <div className="mt-3 space-y-2">
+                {teamAGets.map((playerId) => {
+                  const player = players[playerId];
+                  const enhanced = enhancedPlayerData[playerId];
+                  const hasInjury = !!(player.injury_status && ['Out', 'Doubtful', 'Questionable', 'IR', 'PUP'].includes(player.injury_status));
+                  return (
+                    <div
+                      key={playerId}
+                      className="flex items-center gap-3 bg-fdp-surface-2 px-4 py-3 rounded-lg border border-fdp-border-1 hover-lift card-enter"
+                    >
+                      <PlayerAvatar
+                        playerId={playerId}
+                        playerName={player.full_name}
+                        team={player.team ?? undefined}
+                        position={player.position}
+                        size="lg"
+                        showTeamLogo={true}
+                        showBadge={hasInjury}
+                        badgeContent={hasInjury ? <AchievementBadge type="injury" size="sm" /> : undefined}
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-white font-medium">{player.full_name}</span>
+                          {getInjuryStatusBadge(player)}
+                          {enhanced && (
+                            <Tooltip content={
+                              <div className="space-y-2 text-xs">
+                                {enhanced.projection && (
+                                  <div>
+                                    <div className="font-semibold text-fdp-accent-1">Projected Points</div>
+                                    <div>{Math.round(enhanced.projection.FantasyPointsPPR || 0)} PPR pts</div>
+                                  </div>
+                                )}
+                                {enhanced.injury && (
+                                  <div>
+                                    <div className="font-semibold text-orange-400">Injury</div>
+                                    <div>{enhanced.injury.InjuryBodyPart}: {enhanced.injury.Status}</div>
+                                    {enhanced.injury.InjuryNotes && (
+                                      <div className="text-fdp-text-3 mt-1">{enhanced.injury.InjuryNotes}</div>
+                                    )}
+                                  </div>
+                                )}
+                                {enhanced.news && enhanced.news.length > 0 && (
+                                  <div>
+                                    <div className="font-semibold text-green-400">Latest News</div>
+                                    <div className="text-fdp-text-3">{enhanced.news[0].Title}</div>
+                                  </div>
+                                )}
+                              </div>
+                            }>
+                              <Info className="w-4 h-4 text-fdp-accent-1 cursor-help" />
+                            </Tooltip>
+                          )}
+                        </div>
+                        <div className="text-sm text-fdp-text-3 flex items-center gap-2">
+                          <span>{player.position} - {player.team || 'FA'}</span>
+                          {enhanced?.projection && (
+                            <span className="text-fdp-accent-1">• {Math.round(enhanced.projection.FantasyPointsPPR || 0)} pts</span>
+                          )}
+                        </div>
+                        {enhanced?.recentGames && enhanced.recentGames.length > 0 && (
+                          <div className="mt-2">
+                            <StatSparkline
+                              data={enhanced.recentGames.map((g: any) => g.FantasyPointsPPR || 0).slice(-5)}
+                              color="cyan"
+                              height={24}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      {playerValues[playerId] !== undefined && (
+                        <div className="flex flex-col items-end flex-shrink-0 mr-1">
+                          <span className="text-fdp-accent-1 font-bold text-sm leading-none">{Math.round(playerValues[playerId])}</span>
+                          <span className="text-fdp-text-3 text-xs">KTC</span>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => removePlayer(playerId, 'A', 'gets')}
+                        className="text-fdp-text-3 hover:text-red-400 transition-colors"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                  );
+                })}
+                {teamAGetsPicks.map((pick) => (
+                  <div
+                    key={pick.id}
+                    className="flex items-center justify-between bg-fdp-surface-2 px-4 py-3 rounded-lg border border-fdp-accent-1"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4 text-fdp-accent-1" />
+                      <div className="text-white font-medium">{pick.displayName}</div>
+                    </div>
+                    <button
+                      onClick={() => removeDraftPick(pick.id, 'A', 'gets')}
+                      className="text-fdp-text-3 hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+                <div className="pt-2">
+                  <label className="block text-sm font-semibold text-fdp-text-2 mb-2">
+                    FAAB Money
+                  </label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-3 w-4 h-4 text-fdp-text-3" />
+                    <input
+                      type="number"
+                      min="0"
+                      max="1000"
+                      value={teamAGetsFAAB || ''}
+                      onChange={(e) => setTeamAGetsFAAB(Number(e.target.value) || 0)}
+                      placeholder="0"
+                      className="w-full pl-9 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-white placeholder-fdp-text-3 focus:outline-none focus:border-fdp-accent-1 transition-colors"
+                    />
+                  </div>
+                  {teamAGetsFAAB > 0 && (
+                    <div className="mt-2 text-sm text-fdp-text-3">
+                      Value: {teamAGetsFAAB.toFixed(1)} points
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Live value running totals */}
+        {Object.keys(playerValues).length > 0 && (teamAGives.length > 0 || teamAGets.length > 0) && (
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            {(() => {
+              const givesVal = Math.round(teamAGives.reduce((s, id) => s + (playerValues[id] || 0), 0) + teamAGivesFAAB);
+              const getsVal = Math.round(teamAGets.reduce((s, id) => s + (playerValues[id] || 0), 0) + teamAGetsFAAB);
+              const total = givesVal + getsVal;
+              const givePct = total > 0 ? (givesVal / total) * 100 : 50;
+              const getPct = 100 - givePct;
+              const diff = getsVal - givesVal;
+              return (
+                <>
+                  <div className="bg-fdp-surface-2/80 border border-fdp-border-1 rounded-lg p-3 text-center">
+                    <div className="text-xs text-fdp-text-3 mb-0.5">You give (est.)</div>
+                    <div className={`text-xl font-bold ${diff < -200 ? 'text-red-400' : diff < 0 ? 'text-yellow-400' : 'text-white'}`}>{givesVal.toLocaleString()}</div>
+                  </div>
+                  <div className="bg-fdp-surface-2/80 border border-fdp-border-1 rounded-lg p-3 text-center">
+                    <div className="text-xs text-fdp-text-3 mb-0.5">You get (est.)</div>
+                    <div className={`text-xl font-bold ${diff > 200 ? 'text-green-400' : diff > 0 ? 'text-yellow-400' : 'text-white'}`}>{getsVal.toLocaleString()}</div>
+                  </div>
+                  {total > 0 && (
+                    <div className="col-span-2">
+                      <div className="flex rounded-full overflow-hidden h-2 gap-0.5">
+                        <div className="bg-red-500/70 transition-all duration-300" style={{ width: `${givePct}%` }} />
+                        <div className="bg-green-500/70 transition-all duration-300" style={{ width: `${getPct}%` }} />
+                      </div>
+                      <div className="flex justify-between text-xs text-fdp-text-3 mt-1">
+                        <span>Gives {givePct.toFixed(0)}%</span>
+                        {diff !== 0 && (
+                          <span className={diff > 0 ? 'text-green-400' : 'text-red-400'}>
+                            {diff > 0 ? '+' : ''}{diff.toLocaleString()} for you
+                          </span>
+                        )}
+                        <span>Gets {getPct.toFixed(0)}%</span>
+                      </div>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        )}
+
+        <div className="mt-4">
+          <button
+            onClick={handleAnalyzeTrade}
+            disabled={
+              analyzing ||
+              (teamAGives.length === 0 && teamAGivesPicks.length === 0 && teamAGivesFAAB === 0) ||
+              (teamAGets.length === 0 && teamAGetsPicks.length === 0 && teamAGetsFAAB === 0)
+            }
+            className="btn-primary w-full py-3 text-base disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:shadow-none"
+          >
+            {analyzing ? (
+              <span className="flex items-center gap-2 justify-center">
+                <span className="w-4 h-4 border-2 border-fdp-bg-0/40 border-t-fdp-bg-0 rounded-full animate-spin" />
+                Analyzing...
+              </span>
+            ) : 'Analyze Trade'}
+          </button>
+        </div>
+      </div>
+
+      {analysis && (
+        <div className="card p-6 shadow-card-lg animate-fade-up">
+          <h3 className="text-xl font-bold text-fdp-text-1 mb-4 flex items-center gap-2">
+            <span className="text-gradient">Trade Analysis Results</span>
+          </h3>
+
+          {/* Plain-English Trade Narrative */}
+          {fairnessEvaluation?.narrative && (
+            <div className="mb-4 p-4 rounded-lg bg-blue-950/40 border border-blue-700/40">
+              <p className="text-sm text-blue-200 leading-relaxed">{fairnessEvaluation.narrative}</p>
+            </div>
+          )}
+
+          {/* Roster Context Notes */}
+          {fairnessEvaluation?.roster_context_notes && fairnessEvaluation.roster_context_notes.length > 0 && (
+            <div className="mb-4 space-y-1">
+              {fairnessEvaluation.roster_context_notes.map((note, i) => (
+                <div key={i} className="flex items-start gap-2 text-xs text-amber-300/90 bg-amber-950/30 border border-amber-700/30 rounded px-3 py-2">
+                  <span className="mt-0.5 flex-shrink-0">!</span>
+                  <span>{note}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Age-Adjusted Value Banner (dynasty only) */}
+          {fairnessEvaluation && leagueFormat === 'dynasty' &&
+            (fairnessEvaluation.teamA_age_adjusted_value !== fairnessEvaluation.teamA_value ||
+             fairnessEvaluation.teamB_age_adjusted_value !== fairnessEvaluation.teamB_value) && (
+            <div className="mb-4 flex gap-4 text-xs text-fdp-text-3 bg-fdp-surface-2/60 rounded px-3 py-2 border border-fdp-border-1/40">
+              <span>Age-adjusted dynasty value:</span>
+              <span className="text-fdp-primary font-semibold">
+                Your side: {fairnessEvaluation.teamA_age_adjusted_value.toFixed(0)}
+              </span>
+              <span className="text-fdp-text-2 font-semibold">
+                Their side: {fairnessEvaluation.teamB_age_adjusted_value.toFixed(0)}
+              </span>
+            </div>
+          )}
+
+          {/* Fairness Evaluation Warning */}
+          {fairnessEvaluation && (
+            <div className="mb-6">
+              <TradeFairnessWarning
+                evaluation={fairnessEvaluation}
+                showActions={false}
+              />
+            </div>
+          )}
+
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
+              <h4 className="text-lg font-semibold text-white mb-3">{teamAName} Gives</h4>
+              <div className="space-y-2">
+                {analysis.teamAItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-fdp-surface-1/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      {item.type === 'player' && (
+                        <PlayerAvatar
+                          playerId={item.id}
+                          playerName={item.name}
+                          position={item.position}
+                          team={item.team}
+                          size="sm"
+                          showTeamLogo={false}
+                        />
+                      )}
+                      {item.type === 'pick' && (
+                        <div className="w-10 h-10 rounded-full bg-fdp-accent-1/20 flex items-center justify-center ring-2 ring-fdp-accent-1/30">
+                          <Calendar className="w-5 h-5 text-fdp-accent-1" />
+                        </div>
+                      )}
+                      {item.type === 'faab' && (
+                        <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center ring-2 ring-green-500/30">
+                          <DollarSign className="w-5 h-5 text-green-400" />
+                        </div>
+                      )}
+                      <div>
+                        <span className="text-white font-medium block">{item.name}</span>
+                        {item.position && (
+                          <span className="text-fdp-text-3 text-xs">{item.position}</span>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-fdp-accent-1 font-bold text-base">{item.value}</span>
+                  </div>
+                ))}
+                <div className="pt-2 mt-2 border-t border-fdp-border-1 flex justify-between font-bold">
+                  <span className="text-white">Total</span>
+                  <span className="text-fdp-accent-1">{analysis.teamAValue}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
+              <h4 className="text-lg font-semibold text-white mb-3">{teamAName} Gets</h4>
+              <div className="space-y-2">
+                {analysis.teamBItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between text-sm p-2 rounded-lg hover:bg-fdp-surface-1/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      {item.type === 'player' && (
+                        <PlayerAvatar
+                          playerId={item.id}
+                          playerName={item.name}
+                          position={item.position}
+                          team={item.team}
+                          size="sm"
+                          showTeamLogo={false}
+                        />
+                      )}
+                      {item.type === 'pick' && (
+                        <div className="w-10 h-10 rounded-full bg-fdp-accent-1/20 flex items-center justify-center ring-2 ring-fdp-accent-1/30">
+                          <Calendar className="w-5 h-5 text-fdp-accent-1" />
+                        </div>
+                      )}
+                      {item.type === 'faab' && (
+                        <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center ring-2 ring-green-500/30">
+                          <DollarSign className="w-5 h-5 text-green-400" />
+                        </div>
+                      )}
+                      <div>
+                        <span className="text-white font-medium block">{item.name}</span>
+                        {item.position && (
+                          <span className="text-fdp-text-3 text-xs">{item.position}</span>
+                        )}
+                      </div>
+                    </div>
+                    <span className="text-fdp-accent-1 font-bold text-base">{item.value}</span>
+                  </div>
+                ))}
+                <div className="pt-2 mt-2 border-t border-fdp-border-1 flex justify-between font-bold">
+                  <span className="text-white">Total</span>
+                  <span className="text-fdp-accent-1">{analysis.teamBValue}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <div className="card-glow p-4">
+              <div className="stat-label mb-1">{teamAName} Value</div>
+              <div className="text-2xl font-bold text-fdp-text-1">{analysis.teamAValue}</div>
+            </div>
+            <div className="card-glow p-4">
+              <div className="stat-label mb-1">{teamBName} Value</div>
+              <div className="text-2xl font-bold text-fdp-text-1">{analysis.teamBValue}</div>
+            </div>
+            <div className="card-glow p-4">
+              <div className="stat-label mb-1">Difference</div>
+              <div className="text-2xl font-bold text-gradient">{analysis.difference}</div>
+            </div>
+          </div>
+
+          <div className="card p-6 shadow-card-lg">
+            {(teamAGivesPicks.length > 0 || teamAGetsPicks.length > 0) && (() => {
+              const phaseInfo = getCurrentPhaseInfo();
+              const adjustment = getMultiplierPercentage(phaseInfo.phase);
+              return (
+                <div className="mb-4 p-3 bg-blue-900/30 border border-blue-500/30 rounded-lg">
+                  <div className="flex items-center gap-2 text-sm text-blue-300">
+                    <span className="text-lg">{getPhaseEmoji(phaseInfo.phase)}</span>
+                    <span className="font-semibold">{phaseInfo.label}:</span>
+                    <span>Rookie picks currently {adjustment.startsWith('+') ? 'inflated' : adjustment.startsWith('-') ? 'discounted' : 'at baseline'} ({adjustment})</span>
+                  </div>
+                  <div className="text-xs text-blue-400 mt-1">
+                    {phaseInfo.description}
+                  </div>
+                </div>
+              );
+            })()}
+
+            <div className="flex flex-col items-center gap-4 mb-4">
+              <TradeGrade
+                grade={calculateTradeGrade(
+                  Math.max(analysis.teamAValue, analysis.teamBValue) > 0
+                    ? 100 - (Math.abs(analysis.teamAValue - analysis.teamBValue) / Math.max(analysis.teamAValue, analysis.teamBValue) * 100)
+                    : 100
+                )}
+                score={
+                  Math.max(analysis.teamAValue, analysis.teamBValue) > 0
+                    ? 100 - (Math.abs(analysis.teamAValue - analysis.teamBValue) / Math.max(analysis.teamAValue, analysis.teamBValue) * 100)
+                    : 100
+                }
+                size="lg"
+              />
+
+              <div className="flex items-center gap-3">
+                {analysis.winner === 'Fair' ? (
+                  <Minus className="w-8 h-8 text-yellow-400" />
+                ) : analysis.winner === 'A' ? (
+                  <TrendingUp className="w-8 h-8 text-green-400" />
+                ) : (
+                  <TrendingDown className="w-8 h-8 text-red-400" />
+                )}
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-white">
+                    {analysis.winner === 'Fair'
+                      ? 'Fair Trade'
+                      : analysis.winner === 'A'
+                      ? `${teamAName} Wins`
+                      : `${teamBName} Wins`}
+                  </div>
+                  <div className="text-sm text-fdp-text-3 mt-1">{analysis.fairness}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Visual value comparison bar */}
+            {(() => {
+              const aVal = Number(analysis.teamAValue) || 0;
+              const bVal = Number(analysis.teamBValue) || 0;
+              const total = aVal + bVal;
+              if (total === 0) return null;
+              const aPct = (aVal / total) * 100;
+              const bPct = 100 - aPct;
+              return (
+                <div className="mb-4">
+                  <div className="flex justify-between text-xs text-fdp-text-3 mb-1">
+                    <span>{teamAName} gives: <strong className="text-white">{aVal.toLocaleString()}</strong></span>
+                    <span>{teamBName} gives: <strong className="text-white">{bVal.toLocaleString()}</strong></span>
+                  </div>
+                  <div className="flex rounded-full overflow-hidden h-3">
+                    <div
+                      className={`transition-all duration-500 ${analysis.winner === 'A' ? 'bg-green-500' : 'bg-red-500/70'}`}
+                      style={{ width: `${aPct}%` }}
+                    />
+                    <div
+                      className={`transition-all duration-500 ${analysis.winner === 'B' ? 'bg-green-500' : analysis.winner === 'Fair' ? 'bg-yellow-500' : 'bg-fdp-accent-1/60'}`}
+                      style={{ width: `${bPct}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-xs text-fdp-text-3 mt-1">
+                    <span>{aPct.toFixed(0)}%</span>
+                    <span>{bPct.toFixed(0)}%</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {analysis.winner !== 'Fair' && (
+              <p className="text-center text-fdp-text-2 text-sm bg-fdp-bg-1/50 rounded-lg p-3 border border-fdp-border-1">
+                {analysis.winner === 'A' ? teamAName : teamBName} receives approximately{' '}
+                <span className="font-bold text-fdp-accent-1">{analysis.difference}</span> more value in this trade.
+              </p>
+            )}
+
+            {/* Share Trade Section */}
+            <div className="mt-6 pt-6 border-t border-fdp-border-1">
+              <div className="text-center">
+                {!shareUrl ? (
+                  <button
+                    onClick={shareTrade}
+                    disabled={sharing}
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                  >
+                    <Share2 className="w-5 h-5" />
+                    {sharing ? 'Creating Link...' : 'Share This Trade'}
+                  </button>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 justify-center">
+                      <Check className="w-5 h-5 text-green-400" />
+                      <span className="text-green-400 font-semibold">Share link created!</span>
+                    </div>
+                    <div className="flex items-center gap-2 max-w-2xl mx-auto">
+                      <input
+                        type="text"
+                        value={shareUrl}
+                        readOnly
+                        className="flex-1 px-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-fdp-text-2 text-sm"
+                      />
+                      <button
+                        onClick={copyShareLink}
+                        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                      >
+                        {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                        {copied ? 'Copied!' : 'Copy'}
+                      </button>
+                    </div>
+                    <p className="text-sm text-fdp-text-3">
+                      Share this link on Discord, Twitter, Reddit, or any platform. Perfect for getting league opinions!
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {user && (
+            <div className="mt-4 text-center text-sm text-fdp-text-3">
+              This trade has been saved to your history
+            </div>
+          )}
+        </div>
+      )}
+
+      {showUpgradeModal && (
+        <UpgradeModal onClose={() => setShowUpgradeModal(false)} />
+      )}
+    </div>
+  );
+}

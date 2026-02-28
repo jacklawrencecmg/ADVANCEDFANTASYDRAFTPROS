@@ -1,0 +1,880 @@
+import { supabase } from '../lib/supabase';
+import { sportsDataAPI } from './sportsdataApi';
+
+/**
+ * Player Values API
+ *
+ * IMPORTANT: All read operations use `latest_player_values` view which is the
+ * canonical source of truth for current player values. This view automatically
+ * provides the most recent values per player and format from ktc_value_snapshots.
+ *
+ * Write operations (sync, upsert) should target `player_values` table directly.
+ */
+
+const KNOWN_BACKUP_QBS = [
+  'joe milton', 'joe milton iii', 'trey lance', 'sam howell', 'tyler huntley',
+  'jake browning', 'easton stick', 'cooper rush', 'taylor heinicke',
+  'jarrett stidham', 'mitch trubisky', 'tyson bagent', 'joshua dobbs',
+  'clayton tune', 'davis mills', 'aidan oconnell', 'jaren hall',
+  'stetson bennett', 'dorian thompson-robinson', 'malik willis'
+];
+
+export interface PlayerValue {
+  id?: string;
+  player_id: string;
+  player_name: string;
+  position: string;
+  team: string | null;
+  base_value: number | string;
+  fdp_value?: number | string;  // Legacy - use adjusted_value instead
+  adjusted_value?: number | string;  // Current canonical FDP value
+  market_value?: number | string;  // Market consensus value (KTC)
+  trend?: 'up' | 'down' | 'stable';
+  last_updated?: string;  // Legacy - use updated_at instead
+  updated_at?: string;  // Current canonical timestamp
+  metadata?: Record<string, any>;
+  age?: number | string | null;
+  years_experience?: number | null;
+  injury_status?: string | null;
+  bye_week?: number | null;
+  college?: string | null;
+  draft_year?: number | null;
+  draft_round?: number | null;
+  draft_pick?: number | null;
+  contract_years_remaining?: number | null;
+  tier?: string | null;
+  volatility_score?: number | string | null;
+  rank_overall?: number | null;
+  rank_position?: number | null;
+  format?: string | null;
+  source?: string | null;
+  confidence_score?: number | null;
+}
+
+export interface PlayerValueHistory {
+  id: string;
+  player_id: string;
+  value: number;
+  source: 'ktc' | 'fdp';
+  snapshot_date: string;
+  created_at: string;
+}
+
+export interface PlayerValueChange {
+  player_id: string;
+  change_7d: number;
+  change_30d: number;
+  change_season: number;
+  percent_7d: number;
+  percent_30d: number;
+  percent_season: number;
+  last_calculated: string;
+}
+
+export interface DynastyDraftPick {
+  id: string;
+  pick_id: string;
+  year: number;
+  round: number;
+  pick_number: number;
+  value: number;
+  display_name: string;
+  last_updated: string;
+}
+
+export interface ValueAdjustmentFactors {
+  id: string;
+  player_id: string;
+  superflex_boost: number | string;
+  playoff_schedule: number | string;
+  recent_performance: number | string;
+  injury_risk: number | string;
+  age_factor: number | string;
+  team_situation: number | string;
+  calculated_at: string;
+}
+
+export interface UserCustomValue {
+  id: string;
+  user_id: string;
+  player_id: string;
+  custom_value: number;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SportsDataPlayer {
+  PlayerID: number;
+  Name: string;
+  Team: string;
+  Position: string;
+  FantasyPoints: number;
+  AverageDraftPosition: number;
+  LastGameFantasyPoints: number;
+  ProjectedFantasyPoints: number;
+}
+
+function toNumber(value: number | string | null | undefined, defaultValue: number = 0): number {
+  if (value === null || value === undefined) return defaultValue;
+  if (typeof value === 'number') return value;
+  const parsed = parseFloat(value);
+  return isNaN(parsed) ? defaultValue : parsed;
+}
+
+/**
+ * Normalize PlayerValue from database to ensure backward compatibility
+ * Maps adjusted_value -> fdp_value and updated_at -> last_updated for legacy code
+ */
+function normalizePlayerValue(value: PlayerValue): PlayerValue {
+  return {
+    ...value,
+    // Ensure fdp_value is set (prefer adjusted_value, fallback to fdp_value)
+    fdp_value: value.adjusted_value ?? value.fdp_value ?? value.base_value,
+    // Ensure last_updated is set (prefer updated_at, fallback to last_updated)
+    last_updated: value.updated_at ?? value.last_updated ?? new Date().toISOString(),
+    // Extract trend from metadata if not present
+    trend: value.trend ?? (value.metadata?.trend as 'up' | 'down' | 'stable') ?? 'stable',
+  };
+}
+
+class PlayerValuesApi {
+  toNumber = toNumber;
+
+  async fetchSportsDataPlayers(): Promise<SportsDataPlayer[]> {
+    try {
+      const players = await sportsDataAPI.getAllPlayers();
+      const projections = await sportsDataAPI.getPlayerProjections();
+
+      return players.map(player => {
+        const projection = projections.find(p => p.PlayerID === player.PlayerID);
+        return {
+          PlayerID: player.PlayerID,
+          Name: player.Name,
+          Team: player.Team,
+          Position: player.Position,
+          FantasyPoints: projection?.FantasyPointsPPR || 0,
+          AverageDraftPosition: 0,
+          LastGameFantasyPoints: 0,
+          ProjectedFantasyPoints: projection?.FantasyPointsPPR || 0,
+        };
+      });
+    } catch (error) {
+      console.error('Error fetching SportsData.io values:', error);
+      return [];
+    }
+  }
+
+  async getPlayerDetailsFromSportsData(playerName: string): Promise<any> {
+    try {
+      const [playerInfo, projection, news, injuries] = await Promise.all([
+        sportsDataAPI.getPlayerByName(playerName),
+        sportsDataAPI.getPlayerProjection(playerName),
+        sportsDataAPI.getPlayerNews(playerName),
+        sportsDataAPI.getInjuries(),
+      ]);
+
+      const injury = injuries.find(i =>
+        i.Name?.toLowerCase() === playerName.toLowerCase()
+      );
+
+      return {
+        info: playerInfo,
+        projection,
+        news: news.slice(0, 5),
+        injury,
+      };
+    } catch (error) {
+      console.error('Error fetching player details:', error);
+      return null;
+    }
+  }
+
+
+  convertSportsDataToPlayerValue(player: SportsDataPlayer, baseValue: number = 0): Partial<PlayerValue> {
+    const fantasyValue = player.FantasyPoints || player.ProjectedFantasyPoints || 0;
+    const normalizedValue = parseFloat((fantasyValue / 4).toFixed(1));
+
+    let trend: 'up' | 'down' | 'stable' = 'stable';
+    if (player.LastGameFantasyPoints > player.FantasyPoints) {
+      trend = 'up';
+    } else if (player.LastGameFantasyPoints < player.FantasyPoints) {
+      trend = 'down';
+    }
+
+    return {
+      player_id: player.PlayerID.toString(),
+      player_name: player.Name,
+      position: player.Position,
+      team: player.Team,
+      base_value: baseValue || normalizedValue,
+      fdp_value: normalizedValue,
+      trend,
+      last_updated: new Date().toISOString(),
+      metadata: {
+        fantasy_points: player.FantasyPoints,
+        projected_points: player.ProjectedFantasyPoints,
+        adp: player.AverageDraftPosition,
+        last_game_points: player.LastGameFantasyPoints,
+      },
+    };
+  }
+
+  async syncPlayerValuesFromSportsData(isSuperflex: boolean = false): Promise<number> {
+    try {
+      const [sleeperPlayers, dfPlayers, injuries, playerInfo] = await Promise.all([
+        this.fetchSleeperPlayers(),
+        sportsDataAPI.getDailyFantasyPlayers().catch(() => []),
+        sportsDataAPI.getInjuries().catch(() => []),
+        sportsDataAPI.getAllPlayers().catch(() => []),
+      ]);
+
+      if (dfPlayers.length === 0) {
+        throw new Error('No Daily Fantasy Players data fetched from SportsData.io');
+      }
+
+      const playerValues: any[] = [];
+      const sleeperNameMap = new Map(sleeperPlayers.map(p => [p.full_name.toLowerCase(), p.player_id]));
+
+      dfPlayers.forEach((dfPlayer) => {
+        if (!dfPlayer.Position || !['QB', 'RB', 'WR', 'TE'].includes(dfPlayer.Position)) return;
+
+        const playerNameLower = dfPlayer.Name.toLowerCase();
+        const sleeperId = sleeperNameMap.get(playerNameLower);
+
+        if (!sleeperId) {
+          return;
+        }
+
+        const injury = injuries.find(i => i.Name?.toLowerCase() === playerNameLower);
+        const info = playerInfo.find(p => p.PlayerID === dfPlayer.PlayerID);
+
+        const lastGamePoints = dfPlayer.LastGameFantasyPoints || 0;
+        const projectedPoints = dfPlayer.ProjectedFantasyPoints || 0;
+        const avgDfsSalary = (dfPlayer.FanDuelSalary + dfPlayer.DraftKingsSalary) / 2000;
+
+        const isKnownBackup = KNOWN_BACKUP_QBS.some(name => playerNameLower.includes(name));
+        const isRookie = (info?.Experience || 0) === 0;
+
+        let baseValue = ((projectedPoints * 12) + (avgDfsSalary * 50) + (lastGamePoints * 5)) * 0.01;
+
+        // Apply backup QB penalty
+        if (dfPlayer.Position === 'QB' && isKnownBackup) {
+          baseValue *= 0.02; // 98% reduction
+        }
+
+        // Apply rookie penalty for non-elite rookies
+        if (isRookie && dfPlayer.Position !== 'QB' && baseValue < 50) {
+          baseValue *= 0.85;
+        }
+
+        const factors: Partial<ValueAdjustmentFactors> = {
+          superflex_boost: isSuperflex && dfPlayer.Position === 'QB' ? 0.5 : 0,
+          recent_performance: lastGamePoints > 0 && projectedPoints > 0
+            ? (lastGamePoints - projectedPoints) / projectedPoints
+            : 0,
+          playoff_schedule: dfPlayer.OpponentPositionRank ? (15 - dfPlayer.OpponentPositionRank) * 0.01 : 0,
+          injury_risk: this.calculateInjuryRisk(injury?.Status || dfPlayer.Status),
+          age_factor: info?.Experience ? this.calculateAgeFactor(info.Experience, dfPlayer.Position) : 0,
+          team_situation: 0,
+        };
+
+        const fdpValue = this.calculateFDPValue(baseValue, factors, isSuperflex);
+
+        let trend: 'up' | 'down' | 'stable' = 'stable';
+        if (lastGamePoints > 0 && projectedPoints > 0) {
+          if (lastGamePoints > projectedPoints * 1.15) trend = 'up';
+          else if (lastGamePoints < projectedPoints * 0.85) trend = 'down';
+        }
+
+        playerValues.push({
+          player_id: sleeperId,
+          player_name: dfPlayer.Name,
+          position: dfPlayer.Position,
+          team: dfPlayer.Team || null,
+          base_value: parseFloat((baseValue * 0.8).toFixed(1)),
+          fdp_value: fdpValue,
+          trend: trend,
+          last_updated: new Date().toISOString(),
+          injury_status: (injury?.Status || dfPlayer.Status)?.toLowerCase() || null,
+          years_experience: info?.Experience || null,
+          metadata: {
+            is_superflex: isSuperflex,
+            source: 'sportsdata_daily_fantasy',
+            injury_body_part: injury?.InjuryBodyPart || null,
+            injury_notes: injury?.InjuryNotes || null,
+            projected_points: projectedPoints,
+            last_game_points: lastGamePoints,
+            fanduel_salary: dfPlayer.FanDuelSalary,
+            draftkings_salary: dfPlayer.DraftKingsSalary,
+            opponent: dfPlayer.Opponent,
+            opponent_rank: dfPlayer.OpponentRank,
+            opponent_position_rank: dfPlayer.OpponentPositionRank,
+            experience: info?.Experience || null,
+            backup_qb_applied: dfPlayer.Position === 'QB' && isKnownBackup,
+            rookie_penalty_applied: isRookie && dfPlayer.Position !== 'QB',
+          },
+        });
+      });
+
+      if (playerValues.length > 0) {
+        const { error } = await supabase
+          .from('player_values')
+          .upsert(playerValues, { onConflict: 'player_id' });
+
+        if (error) throw error;
+        console.log(`Synced ${playerValues.length} player values from SportsData.io Daily Fantasy`);
+      }
+
+      return playerValues.length;
+    } catch (error) {
+      console.error('Error syncing player values:', error);
+      return 0;
+    }
+  }
+
+  private async fetchSleeperPlayers(): Promise<any[]> {
+    try {
+      const response = await fetch('https://api.sleeper.app/v1/players/nfl');
+      if (!response.ok) throw new Error('Failed to fetch Sleeper players');
+      const data = await response.json();
+
+      return Object.entries(data).map(([id, player]: [string, any]) => ({
+        player_id: id,
+        full_name: player.full_name || `${player.first_name} ${player.last_name}`,
+        position: player.position,
+        team: player.team,
+      }));
+    } catch (error) {
+      console.error('Error fetching Sleeper players:', error);
+      return [];
+    }
+  }
+
+  private calculateProjectionBasedValue(
+    projection: any,
+    stats: any,
+    injury: any,
+    info: any,
+    isSuperflex: boolean
+  ): number {
+    const ppr = projection.FantasyPointsPPR || 0;
+    const games = projection.Games || 16;
+
+    const ppg = games > 0 ? ppr / games : 0;
+
+    const positionMultipliers: Record<string, number> = {
+      'QB': isSuperflex ? 0.85 : 0.50,
+      'RB': 0.75,
+      'WR': 0.65,
+      'TE': 0.55,
+    };
+
+    const multiplier = positionMultipliers[projection.Position] || 0.50;
+
+    let baseValue = ppg * multiplier;
+
+    if (ppg > 20) baseValue *= 1.3;
+    else if (ppg > 15) baseValue *= 1.2;
+    else if (ppg > 10) baseValue *= 1.1;
+    else if (ppg < 5) baseValue *= 0.7;
+
+    return parseFloat(baseValue.toFixed(1));
+  }
+
+  private calculateRecentPerformance(stats: any, projection: any): number {
+    if (!stats.Games || stats.Games === 0) return 0;
+
+    const recentPPG = stats.FantasyPointsPPR / stats.Games;
+    const projectedPPG = projection.Games > 0 ? projection.FantasyPointsPPR / projection.Games : 0;
+
+    if (projectedPPG === 0) return 0;
+
+    const performanceRatio = recentPPG / projectedPPG;
+
+    if (performanceRatio > 1.2) return 0.15;
+    if (performanceRatio > 1.1) return 0.10;
+    if (performanceRatio < 0.8) return -0.15;
+    if (performanceRatio < 0.9) return -0.10;
+
+    return 0;
+  }
+
+  private calculateAgeFactor(experience: number, position: string): number {
+    if (position === 'RB') {
+      if (experience <= 2) return 0.10;
+      if (experience <= 4) return 0.05;
+      if (experience >= 7) return -0.15;
+      if (experience >= 6) return -0.10;
+    } else if (position === 'WR' || position === 'TE') {
+      if (experience <= 2) return 0.05;
+      if (experience >= 10) return -0.10;
+      if (experience >= 8) return -0.05;
+    } else if (position === 'QB') {
+      if (experience <= 3) return 0.05;
+      if (experience >= 12) return -0.05;
+    }
+
+    return 0;
+  }
+
+  private calculateInjuryRisk(status?: string): number {
+    if (!status) return 0;
+    const statusLower = status.toLowerCase();
+    if (statusLower.includes('out') || statusLower.includes('ir')) return -0.3;
+    if (statusLower.includes('doubtful')) return -0.15;
+    if (statusLower.includes('questionable')) return -0.05;
+    return 0;
+  }
+
+  calculateFDPValue(
+    baseValue: number,
+    factors: Partial<ValueAdjustmentFactors>,
+    isSuperflex: boolean = false
+  ): number {
+    let adjustedValue = baseValue;
+
+    if (factors.superflex_boost && isSuperflex) {
+      adjustedValue *= (1 + Number(factors.superflex_boost));
+    }
+
+    if (factors.playoff_schedule) {
+      adjustedValue *= (1 + Number(factors.playoff_schedule));
+    }
+
+    if (factors.recent_performance) {
+      adjustedValue *= (1 + Number(factors.recent_performance));
+    }
+
+    if (factors.age_factor) {
+      adjustedValue *= (1 + Number(factors.age_factor));
+    }
+
+    if (factors.team_situation) {
+      adjustedValue *= (1 + Number(factors.team_situation));
+    }
+
+    if (factors.injury_risk) {
+      adjustedValue *= (1 + Number(factors.injury_risk));
+    }
+
+    return parseFloat(adjustedValue.toFixed(1));
+  }
+
+  async getPlayerValues(
+    position?: string,
+    limit: number = 10000,
+    leagueFormat: 'dynasty' | 'redraft' = 'dynasty',
+    scoringFormat: 'ppr' | 'half-ppr' = 'ppr'
+  ): Promise<PlayerValue[]> {
+    try {
+      const format = leagueFormat === 'redraft' ? 'redraft' : 'dynasty';
+
+      let query = supabase
+        .from('latest_player_values')
+        .select('player_id, player_name, position, team, rank_overall, rank_position, base_value, adjusted_value, market_value, updated_at, format, metadata')
+        .eq('format', format)
+        .order('adjusted_value', { ascending: false })
+        .limit(limit);
+
+      if (position) {
+        query = query.eq('position', position);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      return (data || []).map((p: any) => normalizePlayerValue({
+        player_id: p.player_id,
+        player_name: p.player_name,
+        position: p.position,
+        team: p.team,
+        base_value: p.base_value || 0,
+        adjusted_value: p.adjusted_value || p.base_value || 0,
+        fdp_value: p.adjusted_value || p.base_value || 0,
+        market_value: p.market_value,
+        updated_at: p.updated_at,
+        last_updated: p.updated_at,
+        rank_overall: p.rank_overall,
+        rank_position: p.rank_position,
+        format: p.format,
+        metadata: p.metadata,
+      }));
+    } catch (error) {
+      console.error('Error fetching player values:', error);
+      return [];
+    }
+  }
+
+  async getPlayerValue(playerId: string): Promise<PlayerValue | null> {
+    try {
+      const { data, error } = await supabase
+        .from('latest_player_values')
+        .select('player_id, player_name, position, team, rank_overall, rank_position, base_value, adjusted_value, market_value, updated_at, format, metadata')
+        .eq('player_id', playerId)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) return null;
+
+      return normalizePlayerValue({
+        player_id: data.player_id,
+        player_name: data.player_name,
+        position: data.position,
+        team: data.team,
+        base_value: data.base_value || 0,
+        adjusted_value: data.adjusted_value || data.base_value || 0,
+        fdp_value: data.adjusted_value || data.base_value || 0,
+        market_value: data.market_value,
+        updated_at: data.updated_at,
+        last_updated: data.updated_at,
+        rank_overall: data.rank_overall,
+        rank_position: data.rank_position,
+        format: data.format,
+        metadata: data.metadata,
+      });
+    } catch (error) {
+      console.error('Error fetching player value:', error);
+      return null;
+    }
+  }
+
+  async getAdjustmentFactors(playerId: string): Promise<ValueAdjustmentFactors | null> {
+    try {
+      const { data, error } = await supabase
+        .from('value_adjustment_factors')
+        .select('*')
+        .eq('player_id', playerId)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching adjustment factors:', error);
+      return null;
+    }
+  }
+
+  async getUserCustomValue(userId: string, playerId: string): Promise<UserCustomValue | null> {
+    try {
+      const { data, error } = await supabase
+        .from('user_custom_values')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('player_id', playerId)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching user custom value:', error);
+      return null;
+    }
+  }
+
+  async setUserCustomValue(
+    userId: string,
+    playerId: string,
+    customValue: number,
+    notes: string = ''
+  ): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('user_custom_values')
+        .upsert({
+          user_id: userId,
+          player_id: playerId,
+          custom_value: customValue,
+          notes: notes,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+      return true;
+    } catch (error) {
+      console.error('Error setting user custom value:', error);
+      return false;
+    }
+  }
+
+  async searchPlayers(searchTerm: string, limit: number = 20): Promise<PlayerValue[]> {
+    try {
+      const { data, error } = await supabase
+        .from('latest_player_values')
+        .select('*')
+        .or(`player_name.ilike.%${searchTerm}%,team.ilike.%${searchTerm}%`)
+        .order('adjusted_value', { ascending: false, nullsFirst: false })
+        .limit(limit);
+
+      if (error) {
+        console.error('Supabase search error:', error);
+        throw error;
+      }
+
+      return (data || []).map(normalizePlayerValue);
+    } catch (error) {
+      console.error('Error searching players:', error);
+      return [];
+    }
+  }
+
+  async getTopRisers(limit: number = 10): Promise<PlayerValue[]> {
+    try {
+      const { data, error } = await supabase
+        .from('latest_player_values')
+        .select('*')
+        .order('adjusted_value', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      // Filter for upward trend in metadata or use value changes
+      return (data || []).map(normalizePlayerValue).filter(p => p.trend === 'up');
+    } catch (error) {
+      console.error('Error fetching top risers:', error);
+      return [];
+    }
+  }
+
+  async getTopFallers(limit: number = 10): Promise<PlayerValue[]> {
+    try {
+      const { data, error } = await supabase
+        .from('latest_player_values')
+        .select('*')
+        .order('adjusted_value', { ascending: false })
+        .limit(limit);
+
+      if (error) throw error;
+      // Filter for downward trend in metadata or use value changes
+      return (data || []).map(normalizePlayerValue).filter(p => p.trend === 'down');
+    } catch (error) {
+      console.error('Error fetching top fallers:', error);
+      return [];
+    }
+  }
+
+  async comparePlayerValues(playerIds: string[]): Promise<PlayerValue[]> {
+    try {
+      const { data, error } = await supabase
+        .from('latest_player_values')
+        .select('*')
+        .in('player_id', playerIds);
+
+      if (error) throw error;
+      return (data || []).map(normalizePlayerValue);
+    } catch (error) {
+      console.error('Error comparing player values:', error);
+      return [];
+    }
+  }
+
+  formatValue(value: number | string): string {
+    const num = toNumber(value);
+    return num.toFixed(1);
+  }
+
+  getValueDifference(value1: number | string, value2: number | string): {
+    difference: number;
+    percentage: number;
+    direction: 'positive' | 'negative' | 'neutral';
+  } {
+    const v1 = toNumber(value1);
+    const v2 = toNumber(value2);
+    const difference = v1 - v2;
+    const percentage = v2 !== 0 ? (difference / v2) * 100 : 0;
+    const direction = difference > 0 ? 'positive' : difference < 0 ? 'negative' : 'neutral';
+
+    return { difference, percentage, direction };
+  }
+
+  async getPlayerValueHistory(playerId: string, days: number = 30): Promise<PlayerValueHistory[]> {
+    try {
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const { data, error } = await supabase
+        .from('player_value_history')
+        .select('*')
+        .eq('player_id', playerId)
+        .gte('snapshot_date', startDate.toISOString().split('T')[0])
+        .order('snapshot_date', { ascending: true });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching player value history:', error);
+      return [];
+    }
+  }
+
+  async getPlayerValueChanges(playerIds?: string[]): Promise<PlayerValueChange[]> {
+    try {
+      let query = supabase
+        .from('player_value_changes')
+        .select('*');
+
+      if (playerIds && playerIds.length > 0) {
+        query = query.in('player_id', playerIds);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching player value changes:', error);
+      return [];
+    }
+  }
+
+  async getBiggestMovers(period: '7d' | '30d' | 'season' = '7d', limit: number = 10): Promise<{risers: PlayerValue[], fallers: PlayerValue[]}> {
+    try {
+      const changeColumn = period === '7d' ? 'change_7d' : period === '30d' ? 'change_30d' : 'change_season';
+
+      const { data: changes, error: changesError } = await supabase
+        .from('player_value_changes')
+        .select('player_id, ' + changeColumn)
+        .order(changeColumn, { ascending: false })
+        .limit(limit * 2);
+
+      if (changesError) throw changesError;
+
+      const playerIds = changes?.map(c => (c as any).player_id) || [];
+      if (playerIds.length === 0) return { risers: [], fallers: [] };
+
+      const { data: players, error: playersError } = await supabase
+        .from('latest_player_values')
+        .select('*')
+        .in('player_id', playerIds);
+
+      if (playersError) throw playersError;
+
+      const playerMap = new Map(players?.map(p => [p.player_id, normalizePlayerValue(p)]) || []);
+
+      const risers = changes
+        ?.filter(c => (c as any)[changeColumn] > 0)
+        .slice(0, limit)
+        .map(c => playerMap.get((c as any).player_id))
+        .filter(p => p !== undefined) as PlayerValue[] || [];
+
+      const fallers = changes
+        ?.filter(c => (c as any)[changeColumn] < 0)
+        .slice(-limit)
+        .reverse()
+        .map(c => playerMap.get((c as any).player_id))
+        .filter(p => p !== undefined) as PlayerValue[] || [];
+
+      return { risers, fallers };
+    } catch (error) {
+      console.error('Error fetching biggest movers:', error);
+      return { risers: [], fallers: [] };
+    }
+  }
+
+  async getDynastyDraftPicks(year?: number): Promise<DynastyDraftPick[]> {
+    try {
+      let query = supabase
+        .from('dynasty_draft_picks')
+        .select('*')
+        .order('year', { ascending: true })
+        .order('round', { ascending: true })
+        .order('pick_number', { ascending: true });
+
+      if (year) {
+        query = query.eq('year', year);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching dynasty draft picks:', error);
+      return [];
+    }
+  }
+
+  async getRookies(year?: number): Promise<PlayerValue[]> {
+    try {
+      const currentYear = year || new Date().getFullYear();
+
+      const { data, error } = await supabase
+        .from('latest_player_values')
+        .select('*')
+        .eq('draft_year', currentYear)
+        .order('adjusted_value', { ascending: false });
+
+      if (error) throw error;
+      return (data || []).map(normalizePlayerValue);
+    } catch (error) {
+      console.error('Error fetching rookies:', error);
+      return [];
+    }
+  }
+
+  async saveValueSnapshot(): Promise<boolean> {
+    try {
+      const { data: players, error: playersError } = await supabase
+        .from('player_values')
+        .select('player_id, fdp_value');
+
+      if (playersError) throw playersError;
+
+      const today = new Date().toISOString().split('T')[0];
+      const snapshots = players?.map(p => ({
+        player_id: p.player_id,
+        value: p.fdp_value,
+        source: 'fdp',
+        snapshot_date: today,
+      })) || [];
+
+      if (snapshots.length > 0) {
+        const { error } = await supabase
+          .from('player_value_history')
+          .upsert(snapshots, { onConflict: 'player_id,source,snapshot_date', ignoreDuplicates: true });
+
+        if (error) throw error;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error saving value snapshot:', error);
+      return false;
+    }
+  }
+
+  getInjuryBadgeColor(status: string | null | undefined): string {
+    switch (status) {
+      case 'out':
+      case 'ir':
+        return 'bg-red-500/20 text-red-400 border-red-500/30';
+      case 'doubtful':
+        return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
+      case 'questionable':
+        return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
+      default:
+        return 'bg-green-500/20 text-green-400 border-green-500/30';
+    }
+  }
+
+  getTierBadgeColor(tier: string | null | undefined): string {
+    switch (tier) {
+      case 'elite':
+        return 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+      case 'tier1':
+        return 'bg-blue-500/20 text-blue-300 border-blue-500/30';
+      case 'tier2':
+        return 'bg-teal-500/20 text-teal-300 border-teal-500/30';
+      case 'tier3':
+        return 'bg-green-500/20 text-green-300 border-green-500/30';
+      case 'flex':
+        return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+      case 'depth':
+        return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
+      default:
+        return 'bg-gray-500/20 text-gray-300 border-gray-500/30';
+    }
+  }
+}
+
+export const playerValuesApi = new PlayerValuesApi();

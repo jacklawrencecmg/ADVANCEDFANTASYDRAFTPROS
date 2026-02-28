@@ -1,0 +1,48 @@
+import js from '@eslint/js';
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import tseslint from 'typescript-eslint';
+import noDirectValueQueries from './eslint-rules/no-direct-value-queries.js';
+
+export default tseslint.config(
+  { ignores: ['dist'] },
+  {
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+      'fdp-canonical': {
+        rules: {
+          'no-direct-value-queries': noDirectValueQueries,
+        },
+      },
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
+      // FDP Canonical Value Enforcement
+      'fdp-canonical/no-direct-value-queries': 'error',
+      // Prevent direct database queries in components
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['*/supabase', '../*/supabase', '../../*/supabase'],
+              message: 'Do not import supabase directly in components. Use Canonical API from @/lib/values/canonicalApi instead.',
+            },
+          ],
+        },
+      ],
+    },
+  }
+);
