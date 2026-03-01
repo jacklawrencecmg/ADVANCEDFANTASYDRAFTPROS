@@ -292,7 +292,7 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                     const league = leagues.find(l => l.id === e.target.value);
                     setCurrentLeague(league || null);
                   }}
-                  className="px-3 py-1.5 bg-fdp-surface-2 border border-fdp-border-1 text-fdp-text-1 rounded-lg text-sm focus:ring-2 focus:ring-fdp-accent-1 outline-none max-w-xs truncate"
+                  className="px-3 py-1.5 bg-fdp-surface-2 border border-fdp-border-1 text-fdp-text-1 rounded-lg text-sm focus:ring-2 focus:ring-fdp-accent-1 outline-none min-w-0 w-full max-w-[160px] sm:max-w-xs truncate"
                 >
                   {leagues.map((league) => (
                     <option key={league.id} value={league.id}>
@@ -341,7 +341,7 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
           </div>
 
           {/* ─── Primary nav tabs ─── */}
-          <div className="flex gap-0 pb-0 overflow-x-auto">
+          <div className="flex gap-0 pb-0 overflow-x-auto scroll-smooth scrollbar-hide [mask-image:linear-gradient(to_right,transparent_0,black_8px,black_calc(100%-24px),transparent_100%)]">
             {([
               { id: 'trade', label: 'Trade', icon: ArrowLeftRight },
               { id: 'league', label: 'My League', icon: Trophy },
@@ -372,34 +372,46 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
 
-        {/* Onboarding callout — shown to new users with no leagues */}
+        {/* Onboarding checklist — shown to new users with no leagues */}
         {!loading && leagues.length === 0 && !onboardingDismissed && (
           <div className="mb-5 relative overflow-hidden rounded-xl border border-fdp-accent-1/40 bg-gradient-to-r from-fdp-accent-1/10 to-fdp-accent-2/5 p-4 animate-fade-up">
             <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top left, rgba(124,58,237,0.12) 0%, transparent 60%)' }} />
-            <div className="relative flex items-start gap-4">
-              <div className="w-10 h-10 rounded-lg bg-fdp-accent-1/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <Trophy className="w-5 h-5 text-fdp-accent-2" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-fdp-text-1 text-sm">Connect your league to unlock everything</p>
-                <p className="text-fdp-text-3 text-xs mt-1 leading-relaxed">
-                  Add your Sleeper, ESPN, or Yahoo league to get Power Rankings, Team Advice, Waiver Wire, and personalized trade suggestions.
+            <div className="relative">
+              <div className="flex items-center justify-between mb-3">
+                <p className="font-bold text-fdp-text-1 text-sm flex items-center gap-2">
+                  <Trophy className="w-4 h-4 text-fdp-accent-2" />
+                  Get started — 3 quick steps
                 </p>
                 <button
-                  onClick={() => setShowAddLeague(true)}
-                  className="mt-3 btn-primary py-1.5 px-4 text-xs"
+                  onClick={() => { setOnboardingDismissed(true); localStorage.setItem('fdp_onboarding_dismissed', '1'); }}
+                  className="p-1 text-fdp-text-3 hover:text-fdp-text-1 transition-colors"
+                  title="Dismiss"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  Add Your League
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-              <button
-                onClick={() => { setOnboardingDismissed(true); localStorage.setItem('fdp_onboarding_dismissed', '1'); }}
-                className="p-1 text-fdp-text-3 hover:text-fdp-text-1 transition-colors flex-shrink-0"
-                title="Dismiss"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="space-y-2">
+                {/* Step 1: always done (they're in the dashboard) */}
+                <div className="flex items-center gap-3 text-xs">
+                  <div className="w-5 h-5 rounded-full bg-fdp-pos/20 border border-fdp-pos/50 flex items-center justify-center flex-shrink-0">
+                    <span className="text-fdp-pos text-[10px] font-bold">✓</span>
+                  </div>
+                  <span className="text-fdp-text-3 line-through">Analyze a trade</span>
+                </div>
+                {/* Step 2: import league */}
+                <button
+                  onClick={() => setShowAddLeague(true)}
+                  className="w-full flex items-center gap-3 text-xs text-left hover:bg-fdp-accent-1/5 rounded-lg px-1 py-0.5 transition-colors"
+                >
+                  <div className="w-5 h-5 rounded-full border border-fdp-border-2 flex items-center justify-center flex-shrink-0" />
+                  <span className="text-fdp-text-2 hover:text-fdp-accent-2 transition-colors">Import your league (Sleeper, ESPN, Yahoo)</span>
+                </button>
+                {/* Step 3: watch a player */}
+                <div className="flex items-center gap-3 text-xs">
+                  <div className="w-5 h-5 rounded-full border border-fdp-border-2 flex items-center justify-center flex-shrink-0" />
+                  <span className="text-fdp-text-2">Watch a player for value alerts <span className="text-fdp-text-3">(click the bell icon on any player)</span></span>
+                </div>
+              </div>
             </div>
           </div>
         )}

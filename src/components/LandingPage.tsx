@@ -311,7 +311,7 @@ export function LandingPage() {
 
           {/* Headline */}
           <h1
-            className="text-5xl sm:text-6xl md:text-7xl font-black mb-6 leading-[1.06] tracking-tight animate-fade-up"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 leading-[1.06] tracking-tight animate-fade-up"
             style={{ animationDelay: '0.08s' }}
           >
             <span className="text-gradient">Win Every Trade.</span>
@@ -379,7 +379,7 @@ export function LandingPage() {
               </div>
             </div>
             <div className="bg-fdp-surface-1 p-4 sm:p-6">
-              <TradeAnalyzer isGuest={true} />
+              <TradeAnalyzer isGuest={true} onSignUp={() => { setMode('signup'); setShowAuth(true); }} />
             </div>
           </div>
         </section>

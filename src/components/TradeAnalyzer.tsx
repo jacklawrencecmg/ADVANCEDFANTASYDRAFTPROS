@@ -36,17 +36,23 @@ import { trackUsage, checkUsageLimit, USAGE_LIMITS } from '../lib/subscription';
 import { useSubscription } from '../hooks/useSubscription';
 import UsageMeter from './UsageMeter';
 import UpgradeModal from './UpgradeModal';
+import { FirstTradeModal } from './FirstTradeModal';
+import { WatchButton } from './WatchButton';
+import { useWatchlist } from '../hooks/useWatchlist';
 
 interface TradeAnalyzerProps {
   leagueId?: string;
   onTradeSaved?: () => void;
   isGuest?: boolean;
+  onSignUp?: () => void;
 }
 
-export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false }: TradeAnalyzerProps) {
+export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false, onSignUp }: TradeAnalyzerProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const { isPro } = useSubscription();
+  const [showFirstTradeModal, setShowFirstTradeModal] = useState(false);
+  const { isWatched, toggle: toggleWatch } = useWatchlist();
   const [players, setPlayers] = useState<Record<string, SleeperPlayer>>({});
   const [searchTermA, setSearchTermA] = useState('');
   const [searchTermB, setSearchTermB] = useState('');
@@ -585,6 +591,12 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
         }
       }
       showToast('Trade analyzed successfully!', 'success');
+
+      // Show first-trade onboarding modal for anonymous users (once)
+      if (!user && !localStorage.getItem('fdp_first_analysis_done')) {
+        localStorage.setItem('fdp_first_analysis_done', '1');
+        setShowFirstTradeModal(true);
+      }
     } catch (error) {
       console.error('Failed to analyze trade:', error);
       showToast('Failed to analyze trade. Please try again.', 'error');
@@ -1256,13 +1268,13 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
           <div className="flex rounded-md overflow-hidden border border-fdp-border-1 text-xs font-medium">
             <button
               onClick={() => setLeagueFormat('dynasty')}
-              className={`px-3 py-1.5 transition-colors ${leagueFormat === 'dynasty' ? 'bg-fdp-accent-1 text-white' : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'}`}
+              className={`px-3 py-2 min-h-[36px] transition-colors ${leagueFormat === 'dynasty' ? 'bg-fdp-accent-1 text-white' : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'}`}
             >
               Dynasty
             </button>
             <button
               onClick={() => setLeagueFormat('redraft')}
-              className={`px-3 py-1.5 border-l border-fdp-border-1 transition-colors ${leagueFormat === 'redraft' ? 'bg-fdp-accent-1 text-white' : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'}`}
+              className={`px-3 py-2 min-h-[36px] border-l border-fdp-border-1 transition-colors ${leagueFormat === 'redraft' ? 'bg-fdp-accent-1 text-white' : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'}`}
             >
               Redraft
             </button>
@@ -1274,7 +1286,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
               <button
                 key={fmt}
                 onClick={() => setScoringFormat(fmt)}
-                className={`px-3 py-1.5 transition-colors ${i > 0 ? 'border-l border-fdp-border-1' : ''} ${scoringFormat === fmt ? 'bg-fdp-accent-1 text-white' : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'}`}
+                className={`px-3 py-2 min-h-[36px] transition-colors ${i > 0 ? 'border-l border-fdp-border-1' : ''} ${scoringFormat === fmt ? 'bg-fdp-accent-1 text-white' : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'}`}
               >
                 {fmt === 'ppr' ? 'PPR' : fmt === 'half' ? 'Half' : 'Std'}
               </button>
@@ -1362,7 +1374,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                   <div className="absolute right-3 top-3 w-5 h-5 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin z-10" />
                 )}
                 {searchTermA.length >= 2 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-60 overflow-y-auto z-50 shadow-xl">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-[min(240px,50vh)] overflow-y-auto z-50 shadow-xl">
                   {searchResultsA.length === 0 && !searchLoadingA && (
                     <div className="px-4 py-3 text-sm text-fdp-text-3">No players found</div>
                   )}
@@ -1474,6 +1486,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                           <span className="text-fdp-text-3 text-xs">KTC</span>
                         </div>
                       )}
+                      <WatchButton playerId={playerId} isWatched={isWatched(playerId)} onToggle={toggleWatch} />
                       <button
                         onClick={() => removePlayer(playerId, 'A', 'gives')}
                         className="text-fdp-text-3 hover:text-red-400 transition-colors"
@@ -1544,7 +1557,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                   <div className="absolute right-3 top-3 w-5 h-5 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin z-10" />
                 )}
                 {searchTermB.length >= 2 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-60 overflow-y-auto z-50 shadow-xl">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-[min(240px,50vh)] overflow-y-auto z-50 shadow-xl">
                   {searchResultsB.length === 0 && !searchLoadingB && (
                     <div className="px-4 py-3 text-sm text-fdp-text-3">No players found</div>
                   )}
@@ -1656,6 +1669,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                           <span className="text-fdp-text-3 text-xs">KTC</span>
                         </div>
                       )}
+                      <WatchButton playerId={playerId} isWatched={isWatched(playerId)} onToggle={toggleWatch} />
                       <button
                         onClick={() => removePlayer(playerId, 'A', 'gets')}
                         className="text-fdp-text-3 hover:text-red-400 transition-colors"
@@ -2026,6 +2040,54 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
               </p>
             )}
 
+            {/* Trade Breakdown — age + flags */}
+            {fairnessEvaluation && (() => {
+              const playersGiving = analysis.teamAItems.filter(i => i.type === 'player');
+              const playersGetting = analysis.teamBItems.filter(i => i.type === 'player');
+              const agesGiving = playersGiving.map(i => players[i.id]?.age).filter((a): a is number => typeof a === 'number' && a > 0);
+              const agesGetting = playersGetting.map(i => players[i.id]?.age).filter((a): a is number => typeof a === 'number' && a > 0);
+              const avgAgeGiving = agesGiving.length > 0 ? agesGiving.reduce((s, a) => s + a, 0) / agesGiving.length : null;
+              const avgAgeGetting = agesGetting.length > 0 ? agesGetting.reduce((s, a) => s + a, 0) / agesGetting.length : null;
+              const topFlags = [...fairnessEvaluation.flags]
+                .filter(f => f.severity === 'critical' || f.severity === 'high')
+                .sort((a, b) => b.penalty - a.penalty)
+                .slice(0, 2);
+              if (avgAgeGiving === null && avgAgeGetting === null && topFlags.length === 0) return null;
+              return (
+                <div className="mt-4 pt-4 border-t border-fdp-border-1">
+                  <div className="text-xs font-semibold text-fdp-text-3 uppercase tracking-wider mb-3">Trade Breakdown</div>
+                  <div className="flex flex-col gap-2">
+                    {avgAgeGiving !== null && avgAgeGetting !== null && (
+                      <div className="flex items-start gap-2 text-sm bg-fdp-surface-2/60 rounded-lg px-3 py-2.5 border border-fdp-border-1/40">
+                        <span className="flex-shrink-0">📅</span>
+                        <span className="text-fdp-text-2">
+                          {'Avg age: '}
+                          <span className="text-fdp-text-1 font-semibold">giving {avgAgeGiving.toFixed(1)}</span>
+                          {' → '}
+                          <span className="text-fdp-text-1 font-semibold">getting {avgAgeGetting.toFixed(1)}</span>
+                          {avgAgeGetting < avgAgeGiving - 1.5 && <span className="text-fdp-pos ml-2">dynasty-friendly</span>}
+                          {avgAgeGiving < avgAgeGetting - 1.5 && <span className="text-fdp-warn ml-2">win-now move</span>}
+                        </span>
+                      </div>
+                    )}
+                    {topFlags.map((flag, i) => (
+                      <div
+                        key={i}
+                        className={`flex items-start gap-2 text-sm rounded-lg px-3 py-2.5 border ${
+                          flag.severity === 'critical'
+                            ? 'bg-red-950/30 border-red-700/40 text-red-300'
+                            : 'bg-amber-950/30 border-amber-700/40 text-amber-300'
+                        }`}
+                      >
+                        <span className="flex-shrink-0 mt-0.5">{flag.severity === 'critical' ? '⚠️' : '!'}</span>
+                        <span>{flag.message}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* Share Trade Section */}
             <div className="mt-6 pt-6 border-t border-fdp-border-1">
               <div className="text-center">
@@ -2078,6 +2140,14 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
 
       {showUpgradeModal && (
         <UpgradeModal onClose={() => setShowUpgradeModal(false)} />
+      )}
+
+      {showFirstTradeModal && (
+        <FirstTradeModal
+          onClose={() => setShowFirstTradeModal(false)}
+          onShareTrade={shareTrade}
+          onSignUp={() => { setShowFirstTradeModal(false); onSignUp?.(); }}
+        />
       )}
     </div>
   );
