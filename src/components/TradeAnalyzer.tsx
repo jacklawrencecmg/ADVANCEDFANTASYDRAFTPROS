@@ -305,17 +305,13 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
               pick: { year, round, pickNumber: pickNum, displayName }
             });
           } else {
-            // Show all picks for that round
+            // Round already identified by regex — show all picks for this round without re-filtering by text
             for (let pickNum = 1; pickNum <= numTeams; pickNum++) {
               const displayName = `${year} Pick ${round}.${pickNum.toString().padStart(2, '0')}`;
-              const searchableText = `${year} ${round}.${pickNum.toString().padStart(2, '0')} pick`.toLowerCase();
-
-              if (searchableText.includes(term) || term.includes(`${year} ${round}`) || term === `${round}`) {
-                results.push({
-                  type: 'pick',
-                  pick: { year, round, pickNumber: pickNum, displayName }
-                });
-              }
+              results.push({
+                type: 'pick',
+                pick: { year, round, pickNumber: pickNum, displayName }
+              });
             }
           }
         }
@@ -324,11 +320,18 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
       // General pick search without specific numbers
       const maxRounds = leagueSettings.draftRounds || 5;
       const numTeams = leagueSettings.numTeams || 12;
+      const cardinalWords = ['', 'first', 'second', 'third', 'fourth', 'fifth'];
       for (let year = currentYear; year <= currentYear + 4; year++) {
         for (let round = 1; round <= maxRounds; round++) {
           for (let pickNum = 1; pickNum <= numTeams; pickNum++) {
             const displayName = `${year} Pick ${round}.${pickNum.toString().padStart(2, '0')}`;
-            const searchableText = `${year} ${getOrdinal(round)} round pick ${round}.${pickNum.toString().padStart(2, '0')}`.toLowerCase();
+            // Include ordinal ("1st"), cardinal ("first"), "draft", and slot notation so all natural
+            // search terms match: "draft pick", "first round pick", "1st round", "2026 pick", etc.
+            const searchableText = [
+              `${year} ${getOrdinal(round)} round pick ${round}.${pickNum.toString().padStart(2, '0')}`,
+              `${year} ${cardinalWords[round] || round} round pick`,
+              `draft pick ${year} round ${round}`,
+            ].join(' ').toLowerCase();
 
             if (searchableText.includes(term)) {
               results.push({

@@ -226,12 +226,14 @@ function AppContent() {
 
   if (currentPage === 'dynasty-rankings') {
     return (
-      <Suspense fallback={<PageLoader />}>
-        <SafeModeBanner />
-        <DynastyRankingsPage />
-        <Footer onNavigate={setCurrentPage} />
-        <FeedbackButton context={{ page: 'dynasty-rankings' }} />
-      </Suspense>
+      <RouterProvider params={{}}>
+        <Suspense fallback={<PageLoader />}>
+          <SafeModeBanner />
+          <DynastyRankingsPage />
+          <Footer onNavigate={setCurrentPage} />
+          <FeedbackButton context={{ page: 'dynasty-rankings' }} />
+        </Suspense>
+      </RouterProvider>
     );
   }
 
@@ -263,12 +265,14 @@ function AppContent() {
 
   if (currentPage === 'top1000') {
     return (
-      <Suspense fallback={<PageLoader />}>
-        <SafeModeBanner />
-        <Top1000Rankings />
-        <Footer onNavigate={setCurrentPage} />
-        <FeedbackButton context={{ page: 'top1000' }} />
-      </Suspense>
+      <RouterProvider params={{}}>
+        <Suspense fallback={<PageLoader />}>
+          <SafeModeBanner />
+          <Top1000Rankings />
+          <Footer onNavigate={setCurrentPage} />
+          <FeedbackButton context={{ page: 'top1000' }} />
+        </Suspense>
+      </RouterProvider>
     );
   }
 
