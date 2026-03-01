@@ -55,7 +55,9 @@ export function DynastyRankingsPage() {
     fetchAllPlayers().then(allPlayers => {
       const map: Record<string, string> = {};
       for (const [id, p] of Object.entries(allPlayers)) {
-        const name = (p.full_name || '').toLowerCase().trim();
+        // Strip all non-alphanumeric characters so "Ja'Marr Chase" (straight apostrophe)
+        // and "Ja\u2019Marr Chase" (curly apostrophe from DB) both normalize to "jamarr chase".
+        const name = (p.full_name || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
         if (name) map[name] = id;
       }
       setSleeperIdByName(map);
@@ -212,7 +214,8 @@ export function DynastyRankingsPage() {
                   </tr>
                 ) : null}
                 {filteredPlayers.map((player, index) => {
-                  const sleeperIdForHeadshot = sleeperIdByName[player.full_name.toLowerCase().trim()] || player.player_id;
+                  const normName = player.full_name.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+                  const sleeperIdForHeadshot = sleeperIdByName[normName] || player.player_id;
                   return (
                   <tr
                     key={player.player_id}
