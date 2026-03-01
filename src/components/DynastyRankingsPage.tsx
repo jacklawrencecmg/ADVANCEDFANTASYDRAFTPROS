@@ -6,7 +6,7 @@ import { generateRankingsMetaTags, generatePlayerSlug } from '../lib/seo/meta';
 import { generateRankingsStructuredData, injectStructuredData } from '../lib/seo/structuredData';
 import { TableSkeleton } from './LoadingSkeleton';
 import { PlayerAvatar } from './PlayerAvatar';
-import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
+import { warmEspnIdCache, getEspnIdFromCache, getSleeperIdByName } from '../services/sleeperApi';
 
 interface RankedPlayer {
   player_id: string;
@@ -198,7 +198,9 @@ export function DynastyRankingsPage() {
                     </td>
                   </tr>
                 ) : null}
-                {filteredPlayers.map((player, index) => (
+                {filteredPlayers.map((player, index) => {
+                  const sleeperIdForHeadshot = getSleeperIdByName(player.full_name) || player.player_id;
+                  return (
                   <tr
                     key={player.player_id}
                     className="border-b border-fdp-border-1 hover:bg-fdp-surface-2 transition-colors"
@@ -212,8 +214,8 @@ export function DynastyRankingsPage() {
                         className="flex items-center gap-3 group"
                       >
                         <PlayerAvatar
-                          playerId={player.player_id}
-                          espnId={getEspnIdFromCache(player.player_id)}
+                          playerId={sleeperIdForHeadshot}
+                          espnId={getEspnIdFromCache(sleeperIdForHeadshot)}
                           playerName={player.full_name}
                           team={player.team}
                           position={player.position}
@@ -254,7 +256,8 @@ export function DynastyRankingsPage() {
                       )}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
