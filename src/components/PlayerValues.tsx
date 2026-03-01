@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, TrendingUp, TrendingDown, Minus, Info, DollarSign, Filter, RefreshCw, Calendar, AlertCircle, Award, BarChart3, Star, Settings } from 'lucide-react';
+import { StatSparkline } from './StatSparkline';
 import { playerValuesApi, PlayerValue, PlayerValueChange, DynastyDraftPick } from '../services/playerValuesApi';
 import { syncPlayerValuesToDatabase } from '../utils/syncPlayerValues';
 import { useAuth } from '../hooks/useAuth';
@@ -332,6 +333,18 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
         {value > 0 ? '+' : ''}{playerValuesApi.formatValue(value)} ({percent > 0 ? '+' : ''}{percent.toFixed(1)}%)
       </span>
     );
+  };
+
+  // Build a mini 3-point sparkline from available value change history
+  const getSparklineData = (player: PlayerValue): number[] | null => {
+    const change = valueChanges.get(player.player_id);
+    if (!change) return null;
+    const current = getAdjustedValue(player);
+    const ago30 = current - (change.change_30d ?? 0);
+    const ago7  = current - (change.change_7d  ?? 0);
+    // Only show if there's actual movement
+    if (ago30 === current && ago7 === current) return null;
+    return [ago30, ago7, current];
   };
 
   const positions = ['ALL', 'QB', 'RB', 'WR', 'TE'];
@@ -856,15 +869,16 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
                     <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">Rank</th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">Player</th>
                     <th className="px-4 py-3 text-center text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">Details</th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-fdp-text-3 uppercase tracking-wider hidden sm:table-cell">Trend</th>
                     <th className="px-4 py-3 text-center text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">7d Change</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">Base Value</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-3 uppercase tracking-wider hidden md:table-cell">Base Value</th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-3 uppercase tracking-wider"><span className="text-fdp-accent-2">FDP Value</span></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-fdp-border-1">
                   {filteredPlayers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-4 py-8 text-center text-fdp-text-3">No players found</td>
+                      <td colSpan={7} className="px-4 py-8 text-center text-fdp-text-3">No players found</td>
                     </tr>
                   ) : (
                     filteredPlayers.map((player, index) => (
@@ -945,8 +959,28 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
                             )}
                           </div>
                         </td>
+                        <td className="px-4 py-3 hidden sm:table-cell">
+                          {(() => {
+                            const sparkData = getSparklineData(player);
+                            if (sparkData) {
+                              const rising = sparkData[sparkData.length - 1] > sparkData[0];
+                              const falling = sparkData[sparkData.length - 1] < sparkData[0];
+                              return (
+                                <div className="flex justify-center">
+                                  <StatSparkline
+                                    data={sparkData}
+                                    color={rising ? 'green' : falling ? 'red' : 'cyan'}
+                                    height={28}
+                                    showTrend={false}
+                                  />
+                                </div>
+                              );
+                            }
+                            return <div className="flex justify-center">{getTrendIcon(player.trend)}</div>;
+                          })()}
+                        </td>
                         <td className="px-4 py-3 text-center">{getValueChangeDisplay(player.player_id, '7d')}</td>
-                        <td className="px-4 py-3 text-right text-fdp-text-1 font-medium">{playerValuesApi.formatValue(player.base_value)}</td>
+                        <td className="px-4 py-3 text-right text-fdp-text-1 font-medium hidden md:table-cell">{playerValuesApi.formatValue(player.base_value)}</td>
                         <td className="px-4 py-3 text-right text-fdp-accent-2 font-bold">{playerValuesApi.formatValue(getAdjustedValue(player))}</td>
                       </tr>
                     ))

@@ -1915,18 +1915,18 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
             </div>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-4 mb-6">
-            <div className="card-glow p-4">
-              <div className="stat-label mb-1">{teamAName} Value</div>
-              <div className="text-2xl font-bold text-fdp-text-1">{analysis.teamAValue}</div>
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="card-glow p-3 sm:p-4 text-center">
+              <div className="stat-label mb-1 text-xs sm:text-xs">{teamAName}</div>
+              <div className="text-xl sm:text-2xl font-bold text-fdp-text-1">{analysis.teamAValue}</div>
             </div>
-            <div className="card-glow p-4">
-              <div className="stat-label mb-1">{teamBName} Value</div>
-              <div className="text-2xl font-bold text-fdp-text-1">{analysis.teamBValue}</div>
+            <div className="card-glow p-3 sm:p-4 text-center border-fdp-accent-1/30">
+              <div className="stat-label mb-1 text-xs">Diff</div>
+              <div className="text-xl sm:text-2xl font-bold text-gradient">{analysis.difference}</div>
             </div>
-            <div className="card-glow p-4">
-              <div className="stat-label mb-1">Difference</div>
-              <div className="text-2xl font-bold text-gradient">{analysis.difference}</div>
+            <div className="card-glow p-3 sm:p-4 text-center">
+              <div className="stat-label mb-1 text-xs sm:text-xs">{teamBName}</div>
+              <div className="text-xl sm:text-2xl font-bold text-fdp-text-1">{analysis.teamBValue}</div>
             </div>
           </div>
 
@@ -2030,7 +2030,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                   <button
                     onClick={shareTrade}
                     disabled={sharing}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                    className="btn-primary px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                   >
                     <Share2 className="w-5 h-5" />
                     {sharing ? 'Creating Link...' : 'Share This Trade'}
@@ -2041,16 +2041,16 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                       <Check className="w-5 h-5 text-green-400" />
                       <span className="text-green-400 font-semibold">Share link created!</span>
                     </div>
-                    <div className="flex items-center gap-2 max-w-2xl mx-auto">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-2xl mx-auto">
                       <input
                         type="text"
                         value={shareUrl}
                         readOnly
-                        className="flex-1 px-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-fdp-text-2 text-sm"
+                        className="flex-1 px-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-fdp-text-2 text-sm min-w-0"
                       />
                       <button
                         onClick={copyShareLink}
-                        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition-colors"
+                        className="btn-ghost px-4 py-2"
                       >
                         {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                         {copied ? 'Copied!' : 'Copy'}

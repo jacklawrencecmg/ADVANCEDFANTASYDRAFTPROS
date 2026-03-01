@@ -46,6 +46,7 @@ const KTCWRRankings = lazy(() => import('./KTCWRRankings'));
 const KTCTERankings = lazy(() => import('./KTCTERankings'));
 const KTCMultiPositionSync = lazy(() => import('./KTCMultiPositionSync'));
 const UnifiedRankings = lazy(() => import('./UnifiedRankings'));
+const PlayerCompareWidget = lazy(() => import('./PlayerCompareWidget').then(m => ({ default: m.PlayerCompareWidget })));
 const PlayerSearch = lazy(() => import('./PlayerSearch'));
 const PlayerDetail = lazy(() => import('./PlayerDetail'));
 const SleeperLeagueAnalysis = lazy(() => import('./SleeperLeagueAnalysis'));
@@ -76,7 +77,7 @@ type TabType =
   // Rankings
   'values' | 'unifiedRankings' | 'ktcRankings' | 'ktcRBRankings' | 'ktcWRRankings' |
   'ktcTERankings' | 'idpRankings' | 'pickValues' | 'trending' | 'market' | 'trends' |
-  'watchlist' | 'draft' | 'keeper' |
+  'watchlist' | 'draft' | 'keeper' | 'compare' |
   // Reports
   'reports' | 'reportDetail' | 'news' | 'export' | 'pricing' | 'contact' |
   // Admin
@@ -103,6 +104,9 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
   const [selectedReportSlug, setSelectedReportSlug] = useState<string | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState<string | undefined>(undefined);
+  const [onboardingDismissed, setOnboardingDismissed] = useState(() =>
+    localStorage.getItem('fdp_onboarding_dismissed') === '1'
+  );
 
   // Switch primary tab and set a sensible default sub-tab
   function switchPrimary(tab: PrimaryTab) {
@@ -359,6 +363,38 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
 
+        {/* Onboarding callout — shown to new users with no leagues */}
+        {!loading && leagues.length === 0 && !onboardingDismissed && (
+          <div className="mb-5 relative overflow-hidden rounded-xl border border-fdp-accent-1/40 bg-gradient-to-r from-fdp-accent-1/10 to-fdp-accent-2/5 p-4 animate-fade-up">
+            <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse at top left, rgba(124,58,237,0.12) 0%, transparent 60%)' }} />
+            <div className="relative flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-fdp-accent-1/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Trophy className="w-5 h-5 text-fdp-accent-2" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-fdp-text-1 text-sm">Connect your league to unlock everything</p>
+                <p className="text-fdp-text-3 text-xs mt-1 leading-relaxed">
+                  Add your Sleeper, ESPN, or Yahoo league to get Power Rankings, Team Advice, Waiver Wire, and personalized trade suggestions.
+                </p>
+                <button
+                  onClick={() => setShowAddLeague(true)}
+                  className="mt-3 btn-primary py-1.5 px-4 text-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  Add Your League
+                </button>
+              </div>
+              <button
+                onClick={() => { setOnboardingDismissed(true); localStorage.setItem('fdp_onboarding_dismissed', '1'); }}
+                className="p-1 text-fdp-text-3 hover:text-fdp-text-1 transition-colors flex-shrink-0"
+                title="Dismiss"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Usage meters (free users) */}
         {!isPro && (
           <div className="grid sm:grid-cols-2 gap-3 mb-5">
@@ -459,9 +495,11 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                     { tab: 'watchlist', label: 'Watchlist', icon: Award },
                     { tab: 'draft', label: 'Draft Kit', icon: Clipboard },
                     { tab: 'keeper', label: 'Keeper Calc', icon: Shield },
+                    { tab: 'compare', label: 'Compare', icon: ArrowLeftRight },
                   ]}
                 />
                 <Suspense fallback={tabContentFallback}>
+                  {activeTab === 'compare' && <PlayerCompareWidget />}
                   {activeTab === 'values' && <PlayerValues leagueId={currentLeague?.league_id ?? ''} isSuperflex={currentLeague?.is_superflex ?? false} />}
                   {activeTab === 'unifiedRankings' && <UnifiedRankings />}
                   {activeTab === 'ktcRankings' && <KTCQBRankings />}
