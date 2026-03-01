@@ -6,7 +6,7 @@ import { generateRankingsMetaTags, generatePlayerSlug } from '../lib/seo/meta';
 import { generateRankingsStructuredData, injectStructuredData } from '../lib/seo/structuredData';
 import { TableSkeleton } from './LoadingSkeleton';
 import { PlayerAvatar } from './PlayerAvatar';
-import { warmEspnIdCache, getEspnIdFromCache, getSleeperIdByName } from '../services/sleeperApi';
+import { fetchAllPlayers, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface RankedPlayer {
   player_id: string;
@@ -26,6 +26,8 @@ export function DynastyRankingsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [positionFilter, setPositionFilter] = useState<string>('ALL');
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  // name (lowercase) → canonical Sleeper player_id, for correct headshots
+  const [sleeperIdByName, setSleeperIdByName] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const metaTags = generateRankingsMetaTags('dynasty');
@@ -46,7 +48,18 @@ export function DynastyRankingsPage() {
     injectStructuredData(structuredData);
 
     loadRankings();
-    warmEspnIdCache();
+
+    // Fetch Sleeper player list to build a name→id map for correct headshots.
+    // DB player_ids in latest_player_values can differ from Sleeper IDs, causing
+    // wrong headshots when sleepercdn.com URLs are built from the DB id.
+    fetchAllPlayers().then(allPlayers => {
+      const map: Record<string, string> = {};
+      for (const [id, p] of Object.entries(allPlayers)) {
+        const name = (p.full_name || '').toLowerCase().trim();
+        if (name) map[name] = id;
+      }
+      setSleeperIdByName(map);
+    }).catch(() => {});
   }, []);
 
   async function loadRankings() {
@@ -199,7 +212,7 @@ export function DynastyRankingsPage() {
                   </tr>
                 ) : null}
                 {filteredPlayers.map((player, index) => {
-                  const sleeperIdForHeadshot = getSleeperIdByName(player.full_name) || player.player_id;
+                  const sleeperIdForHeadshot = sleeperIdByName[player.full_name.toLowerCase().trim()] || player.player_id;
                   return (
                   <tr
                     key={player.player_id}
