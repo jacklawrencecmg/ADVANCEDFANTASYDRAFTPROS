@@ -9,6 +9,7 @@ import {
   fetchTradedPicks,
   clearPlayerValuesCache,
   getEspnIdFromCache,
+  getSleeperIdByName,
   warmEspnIdCache,
   type SleeperPlayer,
   type SleeperRoster,
@@ -144,19 +145,23 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
 
       const data = await response.json();
 
-      const results: SleeperPlayer[] = (data.results || []).map((p: any) => ({
-        player_id: p.id,
-        full_name: p.name,
-        first_name: (p.name || '').split(' ')[0] || '',
-        last_name: (p.name || '').split(' ').slice(1).join(' ') || '',
-        position: p.position,
-        team: p.team,
-        age: 0,
-        injury_status: null,
-        status: 'Active',
-        // espn_id from Edge Function (once deployed) or from local Sleeper cache
-        espn_id: p.espn_id ?? getEspnIdFromCache(p.id),
-      }));
+      const results: SleeperPlayer[] = (data.results || []).map((p: any) => {
+        // Resolve the correct Sleeper player ID by name in case DB has wrong player_id mappings
+        const resolvedSleeperHeadshotId = getSleeperIdByName(p.name) || p.id;
+        return {
+          player_id: p.id,
+          full_name: p.name,
+          first_name: (p.name || '').split(' ')[0] || '',
+          last_name: (p.name || '').split(' ').slice(1).join(' ') || '',
+          position: p.position,
+          team: p.team,
+          age: 0,
+          injury_status: null,
+          status: 'Active',
+          espn_id: getEspnIdFromCache(resolvedSleeperHeadshotId),
+          headshot_id: resolvedSleeperHeadshotId !== p.id ? resolvedSleeperHeadshotId : undefined,
+        };
+      });
 
       setResults(results);
 
@@ -1372,7 +1377,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                           team={player.team ?? undefined}
                           position={player.position}
                           size="md"
-                          playerId={player.player_id}
+                          playerId={player.headshot_id || player.player_id}
                           espnId={player.espn_id}
                         />
                         <div className="flex-1">
@@ -1397,7 +1402,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                       className="flex items-center gap-3 bg-fdp-surface-2 px-4 py-3 rounded-lg border border-fdp-border-1 hover-lift card-enter"
                     >
                       <PlayerAvatar
-                        playerId={playerId}
+                        playerId={player.headshot_id || playerId}
                         espnId={player.espn_id}
                         playerName={player.full_name}
                         team={player.team ?? undefined}
@@ -1554,7 +1559,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                           team={player.team ?? undefined}
                           position={player.position}
                           size="md"
-                          playerId={player.player_id}
+                          playerId={player.headshot_id || player.player_id}
                           espnId={player.espn_id}
                         />
                         <div className="flex-1">
@@ -1579,7 +1584,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                       className="flex items-center gap-3 bg-fdp-surface-2 px-4 py-3 rounded-lg border border-fdp-border-1 hover-lift card-enter"
                     >
                       <PlayerAvatar
-                        playerId={playerId}
+                        playerId={player.headshot_id || playerId}
                         espnId={player.espn_id}
                         playerName={player.full_name}
                         team={player.team ?? undefined}
@@ -1823,7 +1828,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                     <div className="flex items-center gap-3">
                       {item.type === 'player' && (
                         <PlayerAvatar
-                          playerId={item.id}
+                          playerId={players[item.id]?.headshot_id || item.id}
                           espnId={players[item.id]?.espn_id}
                           playerName={item.name}
                           position={item.position}
@@ -1870,7 +1875,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                     <div className="flex items-center gap-3">
                       {item.type === 'player' && (
                         <PlayerAvatar
-                          playerId={item.id}
+                          playerId={players[item.id]?.headshot_id || item.id}
                           espnId={players[item.id]?.espn_id}
                           playerName={item.name}
                           position={item.position}

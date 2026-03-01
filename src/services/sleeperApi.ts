@@ -59,6 +59,20 @@ export function getEspnIdFromCache(playerId: string): number | undefined {
   return (cached.data[playerId] as any)?.espn_id ?? undefined;
 }
 
+// Returns the Sleeper player_id for a given full name from the in-memory cache.
+// Used to resolve correct headshot IDs when DB player_id mappings are wrong.
+export function getSleeperIdByName(name: string): string | undefined {
+  const cached = cache.get('all_players');
+  if (!cached) return undefined;
+  const nameLower = name.toLowerCase().trim();
+  for (const [id, player] of Object.entries(cached.data)) {
+    const p = player as any;
+    const fullName = (p.full_name || `${p.first_name || ''} ${p.last_name || ''}`.trim()).toLowerCase();
+    if (fullName === nameLower) return id;
+  }
+  return undefined;
+}
+
 // Fetches all Sleeper players in the background and warms the ESPN ID cache.
 // Non-blocking — caller does not await this.
 export function warmEspnIdCache(): void {
@@ -79,6 +93,7 @@ export interface SleeperPlayer {
   fantasy_positions?: string[];
   years_exp?: number;
   espn_id?: number;
+  headshot_id?: string; // resolved Sleeper ID for headshot when DB player_id mapping is wrong
 }
 
 export function getPlayerImageUrl(playerId: string): string {
