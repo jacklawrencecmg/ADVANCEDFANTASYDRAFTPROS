@@ -31,9 +31,16 @@ export function DynastyRankingsPage() {
     const metaTags = generateRankingsMetaTags('dynasty');
     document.title = metaTags.title;
     const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute('content', metaTags.description);
+    if (metaDesc) metaDesc.setAttribute('content', metaTags.description);
+
+    // Set canonical URL
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement('link') as HTMLLinkElement;
+      canonical.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonical);
     }
+    canonical.setAttribute('href', metaTags.canonical || 'https://www.fantasydraftpros.com/dynasty-rankings');
 
     const structuredData = generateRankingsStructuredData('dynasty');
     injectStructuredData(structuredData);

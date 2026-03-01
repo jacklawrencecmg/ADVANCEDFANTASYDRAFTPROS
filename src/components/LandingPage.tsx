@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import TradeAnalyzer from './TradeAnalyzer';
 import { TodayInDynasty } from './TodayInDynasty';
-import { LogIn, UserPlus, TrendingUp, Target, Bell, Users, BarChart2, Star, Shield, Zap, Trophy, ChevronRight } from 'lucide-react';
+import { LogIn, UserPlus, TrendingUp, Target, Bell, Users, BarChart2, Star, Shield, Zap, Trophy, ChevronRight, ChevronDown } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export function LandingPage() {
@@ -215,9 +215,36 @@ export function LandingPage() {
   ];
 
   const rankingCards = [
-    { href: '/dynasty-rankings', icon: BarChart2, title: 'Dynasty Rankings',  desc: 'Top 1000 dynasty values updated daily with tiers, trends, and trade analysis.' },
-    { href: '/top1000',           icon: Trophy,   title: 'Top 1000 Values',   desc: 'Complete player value database, filterable by position and league settings.' },
-    { href: '/trade-calculator',  icon: TrendingUp,title: 'Trade Calculator', desc: 'Instant fairness ratings for trades with picks, IDP, and FAAB included.' },
+    { href: '/dynasty-rankings',          icon: BarChart2,  title: 'Dynasty Rankings 2026',         desc: 'Top 1000 dynasty player values updated daily. Tiers, trends, and positional rankings for standard and PPR formats.' },
+    { href: '/dynasty-superflex-rankings',icon: Trophy,     title: 'Superflex Dynasty Rankings',     desc: 'Superflex-specific player values with QB premium applied. The most accurate superflex dynasty rankings available.' },
+    { href: '/dynasty-idp-rankings',      icon: Shield,     title: 'IDP Dynasty Rankings',           desc: 'Defensive player values tuned by position and scoring system. The only trade calculator with IDP built in.' },
+  ];
+
+  const faqItems = [
+    {
+      q: 'What makes Fantasy Draft Pros the best dynasty trade analyzer?',
+      a: 'Fantasy Draft Pros is the only dynasty trade calculator that combines offensive players, IDP (Individual Defensive Players), FAAB budget, and draft pick values in a single trade. No other tool supports all four asset types simultaneously. Values cover 9,000+ players across QB, RB, WR, TE, and all IDP positions, updated daily.'
+    },
+    {
+      q: 'Is the dynasty trade calculator free?',
+      a: 'Yes — the full trade analyzer is free with no account required. You can analyze unlimited trades, share trade links, and view dynasty rankings without signing up. Pro features ($2.99/month) add league imports, AI trade suggestions, power rankings, and personalized roster advice.'
+    },
+    {
+      q: 'Does it support IDP dynasty leagues?',
+      a: 'Yes. Fantasy Draft Pros is the only dynasty analyzer with full IDP support in the trade calculator. Add linebackers, defensive linemen, and defensive backs alongside your offensive players and draft picks in the same trade.'
+    },
+    {
+      q: 'Does Fantasy Draft Pros have superflex dynasty rankings?',
+      a: 'Yes. Dedicated superflex rankings with QB premium values are available at fantasydraftpros.com/dynasty-superflex-rankings. Values reflect the increased QB scarcity in superflex and 2QB formats.'
+    },
+    {
+      q: 'How often are dynasty player values updated?',
+      a: 'Player values are updated daily, reflecting the latest injuries, news, and market consensus. Rookie values are updated after every NFL draft and preseason game.'
+    },
+    {
+      q: 'What league platforms are supported?',
+      a: 'League imports work with Sleeper, ESPN, Yahoo, and MFL. The free trade analyzer works for any dynasty league regardless of platform — just search and add players manually.'
+    },
   ];
 
   return (
@@ -270,7 +297,7 @@ export function LandingPage() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-fdp-accent-1/10 border border-fdp-accent-1/30 rounded-full px-4 py-1.5 mb-8 animate-fade-up">
             <Zap className="w-3.5 h-3.5 text-fdp-accent-1" />
-            <span className="text-xs font-bold text-fdp-accent-2 uppercase tracking-widest">Offensive · IDP · FAAB · Draft Picks</span>
+            <span className="text-xs font-bold text-fdp-accent-2 uppercase tracking-widest">#1 Dynasty Fantasy Football Trade Calculator — Free</span>
           </div>
 
           {/* Headline */}
@@ -288,7 +315,7 @@ export function LandingPage() {
             className="text-fdp-text-3 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-up"
             style={{ animationDelay: '0.16s' }}
           >
-            The world's only analyzer combining offensive players, IDP, FAAB budget, and draft picks in one seamless trade calculator.
+            The free dynasty fantasy football trade analyzer trusted by thousands of dynasty managers. Combines offensive players, IDP, FAAB budget, and draft picks — 9,000+ player values updated daily.
           </p>
 
           {/* CTAs */}
@@ -334,8 +361,8 @@ export function LandingPage() {
           <div className="gradient-border rounded-2xl overflow-hidden shadow-card-lg">
             <div className="bg-fdp-surface-2 px-6 py-4 border-b border-fdp-border-1 flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-bold text-fdp-text-1">Dynasty Trade Analyzer</h2>
-                <p className="text-xs text-fdp-text-3 mt-0.5">Free to use — no account required</p>
+                <h2 className="text-lg font-bold text-fdp-text-1">Free Dynasty Trade Analyzer — 2026 Player Values</h2>
+                <p className="text-xs text-fdp-text-3 mt-0.5">No account required · Offensive + IDP + FAAB + Draft Picks</p>
               </div>
               <div className="hidden sm:flex items-center gap-2 text-xs font-semibold text-fdp-accent-2 bg-fdp-accent-1/10 border border-fdp-accent-1/20 rounded-lg px-3 py-1.5">
                 <Zap className="w-3.5 h-3.5 flex-shrink-0" />
@@ -356,9 +383,9 @@ export function LandingPage() {
         {/* ─── Rankings Cards ─── */}
         <section className="max-w-5xl mx-auto px-4 pb-20">
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-fdp-text-1 mb-3">Player Rankings & Values</h2>
+            <h2 className="text-3xl font-bold text-fdp-text-1 mb-3">2026 Dynasty Rankings & Player Values</h2>
             <p className="text-fdp-text-3 max-w-lg mx-auto text-sm leading-relaxed">
-              Comprehensive dynasty values updated daily — filterable by position, league format, and scoring system.
+              Comprehensive dynasty fantasy football rankings updated daily — standard, PPR, half-PPR, and superflex formats. Filter by position, age, or scoring system.
             </p>
           </div>
 
@@ -422,6 +449,40 @@ export function LandingPage() {
             </button>
             <p className="text-fdp-text-3 text-sm mt-3">Cancel anytime. No long-term commitment.</p>
           </div>
+        </section>
+
+        {/* ─── FAQ ─── */}
+        <section className="max-w-3xl mx-auto px-4 pb-20">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-fdp-text-1 mb-3">Frequently Asked Questions</h2>
+            <p className="text-fdp-text-3 text-sm">Everything you need to know about dynasty fantasy football trade analysis</p>
+          </div>
+          <div className="space-y-3">
+            {faqItems.map(({ q, a }) => (
+              <details key={q} className="card group">
+                <summary className="flex items-center justify-between gap-4 px-5 py-4 cursor-pointer list-none select-none text-fdp-text-1 font-semibold text-sm hover:text-fdp-accent-2 transition-colors">
+                  <span>{q}</span>
+                  <ChevronDown className="w-4 h-4 flex-shrink-0 text-fdp-text-3 group-open:rotate-180 transition-transform duration-200" />
+                </summary>
+                <div className="px-5 pb-5">
+                  <p className="text-fdp-text-3 text-sm leading-relaxed">{a}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        {/* ─── SEO text footer ─── */}
+        <section className="max-w-4xl mx-auto px-4 pb-16 text-center">
+          <p className="text-fdp-text-3 text-xs leading-loose max-w-2xl mx-auto">
+            Fantasy Draft Pros provides free{' '}
+            <a href="/dynasty-rankings" className="text-fdp-accent-2 hover:underline">dynasty fantasy football rankings</a>,{' '}
+            <a href="/dynasty-superflex-rankings" className="text-fdp-accent-2 hover:underline">superflex dynasty rankings</a>,{' '}
+            <a href="/dynasty-rookie-rankings" className="text-fdp-accent-2 hover:underline">dynasty rookie rankings</a>, and{' '}
+            <a href="/dynasty-idp-rankings" className="text-fdp-accent-2 hover:underline">IDP dynasty rankings</a>{' '}
+            alongside the most comprehensive dynasty trade analyzer available in 2026.
+            Trade values are updated daily for 9,000+ players across all positions and scoring formats.
+          </p>
         </section>
       </div>
     </div>

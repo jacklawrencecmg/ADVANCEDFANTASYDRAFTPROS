@@ -17,9 +17,9 @@ export function generateMetaTags(config: MetaTagsConfig): void {
 
   setMetaTag('description', config.description);
 
-  if (config.canonical) {
-    setLinkTag('canonical', config.canonical);
-  }
+  // Always set canonical — critical for avoiding duplicate content
+  const canonicalHref = config.canonical || window.location.href.split('?')[0];
+  setLinkTag('canonical', canonicalHref);
 
   setMetaTag('og:title', config.ogTitle || config.title, 'property');
   setMetaTag('og:description', config.ogDescription || config.description, 'property');
