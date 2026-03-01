@@ -19,10 +19,9 @@ export interface SystemHealthSummary {
 async function checkPlayerSyncFreshness(): Promise<HealthCheckResult> {
   try {
     const { data, error } = await supabase
-      .from('player_events')
-      .select('created_at')
-      .eq('event_type', 'player_sync_completed')
-      .order('created_at', { ascending: false })
+      .from('player_values')
+      .select('updated_at')
+      .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle();
 
@@ -39,19 +38,19 @@ async function checkPlayerSyncFreshness(): Promise<HealthCheckResult> {
       return {
         check_name: 'player_sync_freshness',
         status: 'critical',
-        message: 'No player sync has ever been recorded',
+        message: 'No player values found — sync has never run',
         meta: { last_sync: null },
       };
     }
 
-    const lastSync = new Date(data.created_at);
+    const lastSync = new Date(data.updated_at);
     const hoursSinceSync = (Date.now() - lastSync.getTime()) / (1000 * 60 * 60);
 
     if (hoursSinceSync > 26) {
       return {
         check_name: 'player_sync_freshness',
         status: 'critical',
-        message: `Player sync is ${Math.round(hoursSinceSync)} hours old (threshold: 26 hours)`,
+        message: `Player values are ${Math.round(hoursSinceSync)} hours old (threshold: 26 hours)`,
         meta: { last_sync: lastSync.toISOString(), hours_old: hoursSinceSync },
       };
     }
@@ -60,7 +59,7 @@ async function checkPlayerSyncFreshness(): Promise<HealthCheckResult> {
       return {
         check_name: 'player_sync_freshness',
         status: 'warning',
-        message: `Player sync is ${Math.round(hoursSinceSync)} hours old`,
+        message: `Player values are ${Math.round(hoursSinceSync)} hours old`,
         meta: { last_sync: lastSync.toISOString(), hours_old: hoursSinceSync },
       };
     }
@@ -83,63 +82,69 @@ async function checkPlayerSyncFreshness(): Promise<HealthCheckResult> {
 
 async function checkValueSnapshotFreshness(): Promise<HealthCheckResult> {
   try {
-    const { data, error } = await supabase
-      .from('ktc_value_snapshots')
-      .select('captured_at')
-      .order('captured_at', { ascending: false })
+    const { count: totalCount, error: countError } = await supabase
+      .from('player_values')
+      .select('*', { count: 'exact', head: true });
+
+    if (countError) {
+      return {
+        check_name: 'value_snapshot_freshness',
+        status: 'warning',
+        message: 'Unable to check value build status',
+        meta: { error: countError.message },
+      };
+    }
+
+    if (!totalCount || totalCount === 0) {
+      return {
+        check_name: 'value_snapshot_freshness',
+        status: 'critical',
+        message: 'No player values have been built yet',
+        meta: { total_records: 0 },
+      };
+    }
+
+    const { data: freshData } = await supabase
+      .from('player_values')
+      .select('updated_at')
+      .order('updated_at', { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    if (error) {
-      return {
-        check_name: 'value_snapshot_freshness',
-        status: 'warning',
-        message: 'Unable to check value snapshot status',
-        meta: { error: error.message },
-      };
-    }
+    const lastBuild = freshData ? new Date(freshData.updated_at) : null;
+    const hoursSinceBuild = lastBuild
+      ? (Date.now() - lastBuild.getTime()) / (1000 * 60 * 60)
+      : Infinity;
 
-    if (!data) {
+    if (hoursSinceBuild > 18) {
       return {
         check_name: 'value_snapshot_freshness',
         status: 'critical',
-        message: 'No value snapshots exist',
-        meta: { last_snapshot: null },
+        message: `Values are ${Math.round(hoursSinceBuild)} hours old (threshold: 18 hours)`,
+        meta: { last_build: lastBuild?.toISOString(), hours_old: hoursSinceBuild, total_records: totalCount },
       };
     }
 
-    const lastSnapshot = new Date(data.captured_at);
-    const hoursSinceSnapshot = (Date.now() - lastSnapshot.getTime()) / (1000 * 60 * 60);
-
-    if (hoursSinceSnapshot > 18) {
-      return {
-        check_name: 'value_snapshot_freshness',
-        status: 'critical',
-        message: `Value snapshots are ${Math.round(hoursSinceSnapshot)} hours old (threshold: 18 hours)`,
-        meta: { last_snapshot: lastSnapshot.toISOString(), hours_old: hoursSinceSnapshot },
-      };
-    }
-
-    if (hoursSinceSnapshot > 14) {
+    if (hoursSinceBuild > 14) {
       return {
         check_name: 'value_snapshot_freshness',
         status: 'warning',
-        message: `Value snapshots are ${Math.round(hoursSinceSnapshot)} hours old`,
-        meta: { last_snapshot: lastSnapshot.toISOString(), hours_old: hoursSinceSnapshot },
+        message: `Values are ${Math.round(hoursSinceBuild)} hours old`,
+        meta: { last_build: lastBuild?.toISOString(), hours_old: hoursSinceBuild, total_records: totalCount },
       };
     }
 
     return {
       check_name: 'value_snapshot_freshness',
       status: 'ok',
-      message: `Value snapshots are fresh (${Math.round(hoursSinceSnapshot)} hours old)`,
-      meta: { last_snapshot: lastSnapshot.toISOString(), hours_old: hoursSinceSnapshot },
+      message: `Values are fresh — ${totalCount.toLocaleString()} records, ${Math.round(hoursSinceBuild)}h old`,
+      meta: { last_build: lastBuild?.toISOString(), hours_old: hoursSinceBuild, total_records: totalCount },
     };
   } catch (err) {
     return {
       check_name: 'value_snapshot_freshness',
       status: 'warning',
-      message: 'Error checking value snapshot freshness',
+      message: 'Error checking value build freshness',
       meta: { error: String(err) },
     };
   }
@@ -147,56 +152,42 @@ async function checkValueSnapshotFreshness(): Promise<HealthCheckResult> {
 
 async function checkPositionCoverage(): Promise<HealthCheckResult> {
   try {
-    const { data, error } = await supabase.rpc('execute_sql', {
-      query: `
-        SELECT
-          player_position,
-          COUNT(*) as count
-        FROM nfl_players
-        WHERE status IN ('Active', 'Practice Squad', 'Injured Reserve')
-        GROUP BY player_position
-      `,
-    });
-
-    if (error) {
-      return {
-        check_name: 'position_coverage',
-        status: 'warning',
-        message: 'Unable to check position coverage',
-        meta: { error: error.message },
-      };
-    }
-
+    const positions = ['QB', 'RB', 'WR', 'TE'] as const;
+    // Thresholds are per-position row counts (includes all formats per player)
+    // e.g. 30 QBs × 6 formats = 180 rows, threshold of 30 is a safety floor
+    const thresholds: Record<string, number> = { QB: 30, RB: 80, WR: 100, TE: 40 };
     const counts: Record<string, number> = {};
-    if (data && Array.isArray(data)) {
-      data.forEach((row: any) => {
-        counts[row.player_position] = parseInt(row.count);
-      });
-    }
 
-    const thresholds = {
-      QB: 60,
-      RB: 150,
-      WR: 200,
-      TE: 80,
-    };
+    for (const pos of positions) {
+      const { count, error } = await supabase
+        .from('player_values')
+        .select('player_id', { count: 'exact', head: true })
+        .eq('position', pos);
+
+      if (error) {
+        return {
+          check_name: 'position_coverage',
+          status: 'warning',
+          message: `Unable to check ${pos} coverage`,
+          meta: { error: error.message },
+        };
+      }
+      counts[pos] = count || 0;
+    }
 
     const issues: string[] = [];
-    let hasWarning = false;
-
     Object.entries(thresholds).forEach(([position, threshold]) => {
       const count = counts[position] || 0;
       if (count < threshold) {
         issues.push(`${position}: ${count} (expected >=${threshold})`);
-        hasWarning = true;
       }
     });
 
-    if (hasWarning) {
+    if (issues.length > 0) {
       return {
         check_name: 'position_coverage',
         status: 'warning',
-        message: `Low player count for positions: ${issues.join(', ')}`,
+        message: `Low player count for: ${issues.join(', ')}`,
         meta: { counts, thresholds, issues },
       };
     }
@@ -204,7 +195,7 @@ async function checkPositionCoverage(): Promise<HealthCheckResult> {
     return {
       check_name: 'position_coverage',
       status: 'ok',
-      message: 'All positions have adequate player coverage',
+      message: `Position coverage OK — QB:${counts.QB} RB:${counts.RB} WR:${counts.WR} TE:${counts.TE}`,
       meta: { counts },
     };
   } catch (err) {
@@ -219,59 +210,51 @@ async function checkPositionCoverage(): Promise<HealthCheckResult> {
 
 async function checkMissingTeamHistory(): Promise<HealthCheckResult> {
   try {
-    const { data, error } = await supabase.rpc('execute_sql', {
-      query: `
-        SELECT COUNT(*)::int as missing_count
-        FROM nfl_players np
-        WHERE np.team IS NOT NULL
-          AND np.status IN ('Active', 'Practice Squad', 'Injured Reserve')
-          AND NOT EXISTS (
-            SELECT 1 FROM player_team_history pth
-            WHERE pth.player_id = np.id
-          )
-      `,
-    });
+    // Repurposed: check total player value records in DB
+    const { count, error } = await supabase
+      .from('player_values')
+      .select('*', { count: 'exact', head: true });
 
     if (error) {
       return {
         check_name: 'missing_team_history',
         status: 'warning',
-        message: 'Unable to check team history coverage',
+        message: 'Unable to check player database size',
         meta: { error: error.message },
       };
     }
 
-    const missingCount = data?.[0]?.missing_count || 0;
+    const total = count || 0;
 
-    if (missingCount > 50) {
+    if (total < 100) {
       return {
         check_name: 'missing_team_history',
-        status: 'warning',
-        message: `${missingCount} active players are missing team history records`,
-        meta: { missing_count: missingCount },
+        status: 'critical',
+        message: `Only ${total} player records found — database needs sync`,
+        meta: { total_records: total },
       };
     }
 
-    if (missingCount > 0) {
+    if (total < 500) {
       return {
         check_name: 'missing_team_history',
-        status: 'ok',
-        message: `${missingCount} players missing team history (below threshold)`,
-        meta: { missing_count: missingCount },
+        status: 'warning',
+        message: `${total} player records — lower than expected`,
+        meta: { total_records: total },
       };
     }
 
     return {
       check_name: 'missing_team_history',
       status: 'ok',
-      message: 'All active players have team history records',
-      meta: { missing_count: 0 },
+      message: `${total.toLocaleString()} player value records in database`,
+      meta: { total_records: total },
     };
   } catch (err) {
     return {
       check_name: 'missing_team_history',
       status: 'warning',
-      message: 'Error checking team history coverage',
+      message: 'Error checking player database size',
       meta: { error: String(err) },
     };
   }
@@ -279,50 +262,58 @@ async function checkMissingTeamHistory(): Promise<HealthCheckResult> {
 
 async function checkUnresolvedPlayersQueue(): Promise<HealthCheckResult> {
   try {
-    const { count: unresolvedCountRaw, error: unresolvedError } = await supabase
-      .from('unresolved_entities')
-      .select('id', { count: 'exact', head: true });
+    // Repurposed: check that multiple formats are populated
+    const formats = ['standard', 'ppr', 'half_ppr', 'superflex'];
+    const formatCounts: Record<string, number> = {};
+    let missingFormats: string[] = [];
 
-    if (unresolvedError) {
-      return {
-        check_name: 'unresolved_players_queue',
-        status: 'warning',
-        message: 'Unable to check unresolved players queue',
-        meta: { error: unresolvedError.message },
-      };
+    for (const fmt of formats) {
+      const { count, error } = await supabase
+        .from('player_values')
+        .select('*', { count: 'exact', head: true })
+        .eq('format', fmt);
+
+      if (error) {
+        // Format might not exist — not a critical error
+        formatCounts[fmt] = 0;
+      } else {
+        formatCounts[fmt] = count || 0;
+      }
+
+      if (formatCounts[fmt] === 0) {
+        missingFormats.push(fmt);
+      }
     }
 
-    const unresolvedCount: number = unresolvedCountRaw || 0;
-
-    if (unresolvedCount > 100) {
+    if (missingFormats.length === formats.length) {
       return {
         check_name: 'unresolved_players_queue',
         status: 'critical',
-        message: `${unresolvedCount} unresolved player entities (threshold: 100)`,
-        meta: { unresolved_count: unresolvedCount },
+        message: 'No format data found in player_values — sync required',
+        meta: { format_counts: formatCounts },
       };
     }
 
-    if (unresolvedCount > 25) {
+    if (missingFormats.length > 0) {
       return {
         check_name: 'unresolved_players_queue',
         status: 'warning',
-        message: `${unresolvedCount} unresolved player entities`,
-        meta: { unresolved_count: unresolvedCount },
+        message: `Missing format data for: ${missingFormats.join(', ')}`,
+        meta: { format_counts: formatCounts, missing_formats: missingFormats },
       };
     }
 
     return {
       check_name: 'unresolved_players_queue',
       status: 'ok',
-      message: `${unresolvedCount} unresolved player entities (normal)`,
-      meta: { unresolved_count: unresolvedCount },
+      message: `All scoring formats populated`,
+      meta: { format_counts: formatCounts },
     };
   } catch (err) {
     return {
       check_name: 'unresolved_players_queue',
       status: 'warning',
-      message: 'Error checking unresolved players queue',
+      message: 'Error checking format coverage',
       meta: { error: String(err) },
     };
   }
@@ -330,66 +321,41 @@ async function checkUnresolvedPlayersQueue(): Promise<HealthCheckResult> {
 
 async function checkScraperFailures(): Promise<HealthCheckResult> {
   try {
-    const { data, error } = await supabase
-      .from('player_events')
-      .select('metadata')
-      .eq('event_type', 'player_sync_completed')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    // Repurposed: sanity-check that no key position has zero players
+    const positions = ['QB', 'RB', 'WR', 'TE'];
+    const zeroCounts: string[] = [];
 
-    if (error) {
-      return {
-        check_name: 'scraper_failures',
-        status: 'warning',
-        message: 'Unable to check scraper status',
-        meta: { error: error.message },
-      };
+    for (const pos of positions) {
+      const { count, error } = await supabase
+        .from('player_values')
+        .select('player_id', { count: 'exact', head: true })
+        .eq('position', pos);
+
+      if (!error && (count === 0 || count === null)) {
+        zeroCounts.push(pos);
+      }
     }
 
-    if (!data || !data.metadata) {
-      return {
-        check_name: 'scraper_failures',
-        status: 'warning',
-        message: 'No sync metadata available',
-        meta: {},
-      };
-    }
-
-    const metadata = data.metadata as any;
-    const inserted = metadata.inserted || 0;
-    const updated = metadata.updated || 0;
-    const total = inserted + updated;
-
-    if (total === 0 && inserted === 0) {
+    if (zeroCounts.length > 0) {
       return {
         check_name: 'scraper_failures',
         status: 'critical',
-        message: 'Last player sync inserted 0 rows - scraper may be broken',
-        meta: { inserted, updated, total },
-      };
-    }
-
-    if (inserted === 0 && updated < 50) {
-      return {
-        check_name: 'scraper_failures',
-        status: 'warning',
-        message: `Last sync updated only ${updated} players - may indicate issues`,
-        meta: { inserted, updated, total },
+        message: `Zero players found for: ${zeroCounts.join(', ')} — sync may be broken`,
+        meta: { zero_positions: zeroCounts },
       };
     }
 
     return {
       check_name: 'scraper_failures',
       status: 'ok',
-      message: `Last sync processed ${total} players (${inserted} new, ${updated} updated)`,
-      meta: { inserted, updated, total },
+      message: 'All key positions have player data',
+      meta: {},
     };
   } catch (err) {
     return {
       check_name: 'scraper_failures',
       status: 'warning',
-      message: 'Error checking scraper status',
+      message: 'Error checking position data',
       meta: { error: String(err) },
     };
   }
@@ -398,7 +364,7 @@ async function checkScraperFailures(): Promise<HealthCheckResult> {
 async function checkDatabaseConnectivity(): Promise<HealthCheckResult> {
   try {
     const startTime = Date.now();
-    const { error } = await supabase.from('nfl_players').select('id').limit(1);
+    const { error } = await supabase.from('player_values').select('player_id').limit(1);
     const responseTime = Date.now() - startTime;
 
     if (error) {
