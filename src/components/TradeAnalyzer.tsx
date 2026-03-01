@@ -827,8 +827,8 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
           pickKeys.add(key);
           picks.push({
             id: `${pick.season}-${pick.round}-${roster.roster_id}-${index}`,
-            year: pick.season,
-            round: pick.round,
+            year: Number(pick.season),
+            round: Number(pick.round),
             displayName: `${pick.season} Round ${pick.round} Pick`,
             pickNumber: undefined,
           });
@@ -843,8 +843,8 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
           pickKeys.add(key);
           picks.push({
             id: `${pick.season}-${pick.round}-${roster.roster_id}-traded`,
-            year: pick.season,
-            round: pick.round,
+            year: Number(pick.season),
+            round: Number(pick.round),
             displayName: `${pick.season} Round ${pick.round} Pick`,
             pickNumber: undefined,
           });
@@ -1410,41 +1410,57 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
                 {searchLoadingA && (
                   <div className="absolute right-3 top-3 w-5 h-5 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin z-10" />
                 )}
-                {searchTermA.length >= 2 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-[min(240px,50vh)] overflow-y-auto z-50 shadow-xl">
-                  {searchResultsA.length === 0 && !searchLoadingA && (
-                    <div className="px-4 py-3 text-sm text-fdp-text-3">No players found</div>
-                  )}
-                  {searchResultsA.map((player) => {
-                    const isSelected = teamAGives.includes(player.player_id);
-                    return (
-                      <button
-                        key={player.player_id}
-                        onClick={() => addPlayer(player.player_id, 'A', 'gives')}
-                        className={`w-full px-4 py-2 text-left transition-colors flex items-center gap-3 group ${
-                          isSelected
-                            ? 'bg-fdp-accent-1/20 border-l-4 border-fdp-accent-1 hover:bg-fdp-accent-1/30'
-                            : 'hover:bg-fdp-surface-1'
-                        }`}
-                      >
-                        <PlayerAvatar
-                          playerName={player.full_name}
-                          team={player.team ?? undefined}
-                          position={player.position}
-                          size="md"
-                          playerId={player.headshot_id || player.player_id}
-                          espnId={player.espn_id}
-                        />
-                        <div className="flex-1">
-                          <span className="text-white font-medium">{player.full_name}</span>
-                          <div className="text-sm text-fdp-text-3">{player.position} - {player.team || 'FA'}</div>
-                        </div>
-                        <Plus className="w-5 h-5 text-fdp-text-3 group-hover:text-fdp-accent-1" />
-                      </button>
-                    );
-                  })}
-                </div>
-                )}
+                {searchTermA.length >= 2 && (() => {
+                  const pickResultsA = getFilteredResults(searchTermA).filter(r => r.type === 'pick');
+                  return (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-[min(240px,50vh)] overflow-y-auto z-50 shadow-xl">
+                    {pickResultsA.length === 0 && searchResultsA.length === 0 && !searchLoadingA && (
+                      <div className="px-4 py-3 text-sm text-fdp-text-3">No results found</div>
+                    )}
+                    {pickResultsA.map((result) => {
+                      const pick = result.pick!;
+                      return (
+                        <button
+                          key={`pick-${pick.year}-${pick.round}-${pick.pickNumber}`}
+                          onClick={() => addPickFromSearch(pick.year, pick.round, pick.pickNumber, pick.displayName, 'A', 'gives')}
+                          className="w-full px-4 py-2 text-left hover:bg-fdp-surface-1 transition-colors flex items-center gap-3"
+                        >
+                          <Calendar className="w-5 h-5 text-fdp-accent-1 flex-shrink-0" />
+                          <span className="text-white font-medium">{pick.displayName}</span>
+                        </button>
+                      );
+                    })}
+                    {searchResultsA.map((player) => {
+                      const isSelected = teamAGives.includes(player.player_id);
+                      return (
+                        <button
+                          key={player.player_id}
+                          onClick={() => addPlayer(player.player_id, 'A', 'gives')}
+                          className={`w-full px-4 py-2 text-left transition-colors flex items-center gap-3 group ${
+                            isSelected
+                              ? 'bg-fdp-accent-1/20 border-l-4 border-fdp-accent-1 hover:bg-fdp-accent-1/30'
+                              : 'hover:bg-fdp-surface-1'
+                          }`}
+                        >
+                          <PlayerAvatar
+                            playerName={player.full_name}
+                            team={player.team ?? undefined}
+                            position={player.position}
+                            size="md"
+                            playerId={player.headshot_id || player.player_id}
+                            espnId={player.espn_id}
+                          />
+                          <div className="flex-1">
+                            <span className="text-white font-medium">{player.full_name}</span>
+                            <div className="text-sm text-fdp-text-3">{player.position} - {player.team || 'FA'}</div>
+                          </div>
+                          <Plus className="w-5 h-5 text-fdp-text-3 group-hover:text-fdp-accent-1" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  );
+                })()}
               </div>
               <div className="mt-3 space-y-2">
                 {teamAGives.map((playerId) => {
@@ -1593,41 +1609,57 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
                 {searchLoadingB && (
                   <div className="absolute right-3 top-3 w-5 h-5 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin z-10" />
                 )}
-                {searchTermB.length >= 2 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-[min(240px,50vh)] overflow-y-auto z-50 shadow-xl">
-                  {searchResultsB.length === 0 && !searchLoadingB && (
-                    <div className="px-4 py-3 text-sm text-fdp-text-3">No players found</div>
-                  )}
-                  {searchResultsB.map((player) => {
-                    const isSelected = teamAGets.includes(player.player_id);
-                    return (
-                      <button
-                        key={player.player_id}
-                        onClick={() => addPlayer(player.player_id, 'A', 'gets')}
-                        className={`w-full px-4 py-2 text-left transition-colors flex items-center gap-3 group ${
-                          isSelected
-                            ? 'bg-fdp-accent-1/20 border-l-4 border-fdp-accent-1 hover:bg-fdp-accent-1/30'
-                            : 'hover:bg-fdp-surface-1'
-                        }`}
-                      >
-                        <PlayerAvatar
-                          playerName={player.full_name}
-                          team={player.team ?? undefined}
-                          position={player.position}
-                          size="md"
-                          playerId={player.headshot_id || player.player_id}
-                          espnId={player.espn_id}
-                        />
-                        <div className="flex-1">
-                          <span className="text-white font-medium">{player.full_name}</span>
-                          <div className="text-sm text-fdp-text-3">{player.position} - {player.team || 'FA'}</div>
-                        </div>
-                        <Plus className="w-5 h-5 text-fdp-text-3 group-hover:text-fdp-accent-1" />
-                      </button>
-                    );
-                  })}
-                </div>
-                )}
+                {searchTermB.length >= 2 && (() => {
+                  const pickResultsB = getFilteredResults(searchTermB).filter(r => r.type === 'pick');
+                  return (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-[min(240px,50vh)] overflow-y-auto z-50 shadow-xl">
+                    {pickResultsB.length === 0 && searchResultsB.length === 0 && !searchLoadingB && (
+                      <div className="px-4 py-3 text-sm text-fdp-text-3">No results found</div>
+                    )}
+                    {pickResultsB.map((result) => {
+                      const pick = result.pick!;
+                      return (
+                        <button
+                          key={`pick-${pick.year}-${pick.round}-${pick.pickNumber}`}
+                          onClick={() => addPickFromSearch(pick.year, pick.round, pick.pickNumber, pick.displayName, 'A', 'gets')}
+                          className="w-full px-4 py-2 text-left hover:bg-fdp-surface-1 transition-colors flex items-center gap-3"
+                        >
+                          <Calendar className="w-5 h-5 text-fdp-accent-1 flex-shrink-0" />
+                          <span className="text-white font-medium">{pick.displayName}</span>
+                        </button>
+                      );
+                    })}
+                    {searchResultsB.map((player) => {
+                      const isSelected = teamAGets.includes(player.player_id);
+                      return (
+                        <button
+                          key={player.player_id}
+                          onClick={() => addPlayer(player.player_id, 'A', 'gets')}
+                          className={`w-full px-4 py-2 text-left transition-colors flex items-center gap-3 group ${
+                            isSelected
+                              ? 'bg-fdp-accent-1/20 border-l-4 border-fdp-accent-1 hover:bg-fdp-accent-1/30'
+                              : 'hover:bg-fdp-surface-1'
+                          }`}
+                        >
+                          <PlayerAvatar
+                            playerName={player.full_name}
+                            team={player.team ?? undefined}
+                            position={player.position}
+                            size="md"
+                            playerId={player.headshot_id || player.player_id}
+                            espnId={player.espn_id}
+                          />
+                          <div className="flex-1">
+                            <span className="text-white font-medium">{player.full_name}</span>
+                            <div className="text-sm text-fdp-text-3">{player.position} - {player.team || 'FA'}</div>
+                          </div>
+                          <Plus className="w-5 h-5 text-fdp-text-3 group-hover:text-fdp-accent-1" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  );
+                })()}
               </div>
               <div className="mt-3 space-y-2">
                 {teamAGets.map((playerId) => {
