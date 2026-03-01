@@ -60,27 +60,32 @@ Deno.serve(async (req: Request) => {
     const rosters = await rostersRes.json();
     const users = await usersRes.json();
 
-    const allPlayerIds = new Set<string>();
-    for (const roster of rosters) {
-      for (const pid of roster.players || []) allPlayerIds.add(pid);
-    }
-    const playerIdList = Array.from(allPlayerIds);
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Sleeper roster player IDs are Sleeper IDs; latest_player_values uses DB/KTC IDs.
+    // They don't match, so we load all dynasty players and look up by normalized name instead.
     const [dbResult, sleeperPlayers] = await Promise.all([
       supabase
         .from('latest_player_values')
         .select('player_id, player_name, position, team, adjusted_value')
-        .in('player_id', playerIdList),
+        .eq('format', 'dynasty')
+        .in('position', ['QB', 'RB', 'WR', 'TE', 'LB', 'DL', 'DB'])
+        .limit(1500),
       getSleeperPlayers(),
     ]);
 
-    const dbMap = new Map<string, any>();
+    // Build a normalized name → DB record map for matching
+    function normalizeName(name: string): string {
+      return name.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+    }
+
+    const nameToDbPlayer = new Map<string, any>();
     for (const p of dbResult.data || []) {
-      dbMap.set(p.player_id, p);
+      if (p.player_name) {
+        nameToDbPlayer.set(normalizeName(p.player_name), p);
+      }
     }
 
     const userMap = new Map(users.map((u: any) => [u.user_id, u]));
@@ -89,9 +94,14 @@ Deno.serve(async (req: Request) => {
       const owner = userMap.get(roster.owner_id);
       const players = (roster.players || []).map((playerId: string) => {
         const sleeperPlayer = sleeperPlayers[playerId];
-        const dbPlayer = dbMap.get(playerId);
-
         const liveTeam = sleeperPlayer?.team || null;
+
+        const fullName = sleeperPlayer
+          ? (sleeperPlayer.full_name || `${sleeperPlayer.first_name || ''} ${sleeperPlayer.last_name || ''}`.trim())
+          : '';
+
+        // Look up by normalized name since Sleeper IDs ≠ DB/KTC IDs in latest_player_values
+        const dbPlayer = fullName ? nameToDbPlayer.get(normalizeName(fullName)) : undefined;
 
         if (dbPlayer) {
           return {
@@ -106,8 +116,6 @@ Deno.serve(async (req: Request) => {
         }
 
         if (sleeperPlayer) {
-          const fullName = sleeperPlayer.full_name ||
-            `${sleeperPlayer.first_name || ''} ${sleeperPlayer.last_name || ''}`.trim();
           return {
             player_id: playerId,
             name: fullName || playerId,
