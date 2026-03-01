@@ -3,7 +3,7 @@ import { Search, Filter, Award } from 'lucide-react';
 import { ListSkeleton } from './LoadingSkeleton';
 import { supabase } from '../lib/supabase';
 import { PlayerAvatar } from './PlayerAvatar';
-import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
+import { fetchAllPlayers, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface QBValue {
   position_rank: number;
@@ -25,10 +25,20 @@ export default function KTCQBRankings() {
   const [teamFilter, setTeamFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
+  const [sleeperIdMap, setSleeperIdMap] = useState<Map<string, string>>(new Map());
+  const sleeperIdFor = (name: string, fallback: string): string =>
+    sleeperIdMap.get(name.toLowerCase().trim()) ?? fallback;
 
   useEffect(() => {
     fetchQBValues();
-    warmEspnIdCache();
+    fetchAllPlayers().then(allPlayers => {
+      const map = new Map<string, string>();
+      for (const [id, p] of Object.entries(allPlayers)) {
+        const name = ((p as any).full_name || '').toLowerCase().trim();
+        if (name) map.set(name, id);
+      }
+      setSleeperIdMap(map);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -210,8 +220,8 @@ export default function KTCQBRankings() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-3">
                       <PlayerAvatar
-                        playerId={qb.player_id}
-                        espnId={getEspnIdFromCache(qb.player_id)}
+                        playerId={sleeperIdFor(qb.player_name, qb.player_id)}
+                        espnId={getEspnIdFromCache(sleeperIdFor(qb.player_name, qb.player_id))}
                         playerName={qb.full_name}
                         team={qb.team || undefined}
                         position="QB"

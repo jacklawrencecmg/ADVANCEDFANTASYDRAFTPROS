@@ -3,7 +3,7 @@ import { Search, Filter, TrendingUp, Award, Zap } from 'lucide-react';
 import { ListSkeleton } from './LoadingSkeleton';
 import { supabase } from '../lib/supabase';
 import { PlayerAvatar } from './PlayerAvatar';
-import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
+import { fetchAllPlayers, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface TEValue {
   position_rank: number;
@@ -25,10 +25,20 @@ export default function KTCTERankings() {
   const [teamFilter, setTeamFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 25;
+  const [sleeperIdMap, setSleeperIdMap] = useState<Map<string, string>>(new Map());
+  const sleeperIdFor = (name: string, fallback: string): string =>
+    sleeperIdMap.get(name.toLowerCase().trim()) ?? fallback;
 
   useEffect(() => {
     fetchTEValues();
-    warmEspnIdCache();
+    fetchAllPlayers().then(allPlayers => {
+      const map = new Map<string, string>();
+      for (const [id, p] of Object.entries(allPlayers)) {
+        const name = ((p as any).full_name || '').toLowerCase().trim();
+        if (name) map.set(name, id);
+      }
+      setSleeperIdMap(map);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -248,8 +258,8 @@ export default function KTCTERankings() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <PlayerAvatar
-                        playerId={te.player_id}
-                        espnId={getEspnIdFromCache(te.player_id)}
+                        playerId={sleeperIdFor(te.player_name, te.player_id)}
+                        espnId={getEspnIdFromCache(sleeperIdFor(te.player_name, te.player_id))}
                         playerName={te.full_name}
                         team={te.team || undefined}
                         position="TE"

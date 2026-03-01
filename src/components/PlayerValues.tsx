@@ -7,7 +7,7 @@ import { ListSkeleton } from './LoadingSkeleton';
 import { useToast } from './Toast';
 import Tooltip from './Tooltip';
 import { PlayerAvatar } from './PlayerAvatar';
-import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
+import { fetchAllPlayers, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface PlayerValuesProps {
   leagueId: string;
@@ -47,6 +47,13 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
   const [searchMaxResults, setSearchMaxResults] = useState(50);
   const [searchDebounceMs, setSearchDebounceMs] = useState(300);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Maps DB player names (lowercase) → Sleeper player_id for correct avatar CDN URLs
+  const [sleeperIdMap, setSleeperIdMap] = useState<Map<string, string>>(new Map());
+
+  // Resolve the correct Sleeper player_id for avatar display (DB uses KTC IDs, not Sleeper IDs)
+  const sleeperIdFor = (playerName: string, fallback: string): string => {
+    return sleeperIdMap.get(playerName.toLowerCase().trim()) ?? fallback;
+  };
 
   useEffect(() => {
     const savedSettings = localStorage.getItem('playerValuesSettings');
@@ -64,7 +71,14 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
     }
     loadPlayerValues(true);
     loadDraftPicks();
-    warmEspnIdCache();
+    fetchAllPlayers().then(allPlayers => {
+      const map = new Map<string, string>();
+      for (const [id, p] of Object.entries(allPlayers)) {
+        const name = ((p as any).full_name || '').toLowerCase().trim();
+        if (name) map.set(name, id);
+      }
+      setSleeperIdMap(map);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -591,8 +605,8 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <PlayerAvatar
-                            playerId={player.player_id}
-                            espnId={getEspnIdFromCache(player.player_id)}
+                            playerId={sleeperIdFor(player.player_name, player.player_id)}
+                            espnId={getEspnIdFromCache(sleeperIdFor(player.player_name, player.player_id))}
                             playerName={player.player_name}
                             team={player.team || undefined}
                             position={player.position}
@@ -773,8 +787,8 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
                         <div className="flex items-center gap-3">
                           <span className="text-fdp-text-3 font-bold text-sm w-6 shrink-0">#{index + 1}</span>
                           <PlayerAvatar
-                            playerId={player.player_id}
-                            espnId={getEspnIdFromCache(player.player_id)}
+                            playerId={sleeperIdFor(player.player_name, player.player_id)}
+                            espnId={getEspnIdFromCache(sleeperIdFor(player.player_name, player.player_id))}
                             playerName={player.player_name}
                             team={player.team || undefined}
                             position={player.position}
@@ -809,8 +823,8 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
                         <div className="flex items-center gap-3">
                           <span className="text-fdp-text-3 font-bold text-sm w-6 shrink-0">#{index + 1}</span>
                           <PlayerAvatar
-                            playerId={player.player_id}
-                            espnId={getEspnIdFromCache(player.player_id)}
+                            playerId={sleeperIdFor(player.player_name, player.player_id)}
+                            espnId={getEspnIdFromCache(sleeperIdFor(player.player_name, player.player_id))}
                             playerName={player.player_name}
                             team={player.team || undefined}
                             position={player.position}
@@ -859,7 +873,8 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
                             <PlayerAvatar
-                              playerId={player.player_id}
+                              playerId={sleeperIdFor(player.player_name, player.player_id)}
+                              espnId={getEspnIdFromCache(sleeperIdFor(player.player_name, player.player_id))}
                               playerName={player.player_name}
                               team={player.team || undefined}
                               position={player.position}
