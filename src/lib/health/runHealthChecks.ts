@@ -487,7 +487,7 @@ export async function getSystemHealthStatus(): Promise<SystemHealthSummary | nul
   try {
     const { data, error } = await supabase.from('current_system_health').select('*');
 
-    if (error || !data) {
+    if (error || !data || data.length === 0) {
       return null;
     }
 

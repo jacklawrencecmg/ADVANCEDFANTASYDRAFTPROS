@@ -34,8 +34,15 @@ export default function SystemHealthDashboard() {
   const [safeMode, setSafeMode] = useState(false);
 
   useEffect(() => {
-    loadHealthData();
-    checkSafeMode();
+    async function init() {
+      const hasData = await loadHealthData();
+      checkSafeMode();
+      // Auto-run checks on first load if no persisted data exists in DB
+      if (!hasData) {
+        handleRunChecks();
+      }
+    }
+    init();
     const interval = setInterval(() => {
       loadHealthData();
       checkSafeMode();
@@ -43,7 +50,7 @@ export default function SystemHealthDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  async function loadHealthData() {
+  async function loadHealthData(): Promise<boolean> {
     try {
       const [status, alertsData] = await Promise.all([
         getSystemHealthStatus(),
@@ -58,8 +65,11 @@ export default function SystemHealthDashboard() {
       if (alertsData.data) {
         setAlerts(alertsData.data);
       }
+
+      return !!status;
     } catch (err) {
       console.error('Error loading health data:', err);
+      return false;
     } finally {
       setLoading(false);
     }
@@ -88,7 +98,9 @@ export default function SystemHealthDashboard() {
       const result = await runSystemHealthChecks();
       setHealthStatus(result);
       setLastRun(result.checked_at);
-      await loadHealthData();
+      // Refresh alerts only — don't re-query the VIEW or it overwrites live results
+      const alertsData = await supabase.from('active_system_alerts').select('*');
+      if (alertsData.data) setAlerts(alertsData.data);
     } catch (err) {
       console.error('Error running health checks:', err);
     } finally {
