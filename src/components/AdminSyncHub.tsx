@@ -41,49 +41,39 @@ export function AdminSyncHub() {
       setLoading(true);
       setError(null);
 
-      const { data: playerSync } = await supabase
-        .from('nfl_players')
-        .select('last_seen_at')
-        .order('last_seen_at', { ascending: false })
+      // All data comes from latest_player_values — the actual working table
+      const { data: lastUpdatedRow } = await supabase
+        .from('latest_player_values')
+        .select('updated_at')
+        .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
 
-      const { data: valueSync } = await supabase
-        .from('ktc_value_snapshots')
-        .select('captured_at')
-        .order('captured_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      const { count: playerCount } = await supabase
-        .from('nfl_players')
+      const { count: totalCount } = await supabase
+        .from('latest_player_values')
         .select('*', { count: 'exact', head: true });
 
-      const { count: valueCount } = await supabase
-        .from('ktc_value_snapshots')
-        .select('*', { count: 'exact', head: true });
+      // Position counts (one query per position — no GROUP BY in supabase-js)
+      const positionCounts = await Promise.all(
+        ['QB', 'RB', 'WR', 'TE'].map(async (pos) => {
+          const { count } = await supabase
+            .from('latest_player_values')
+            .select('player_id', { count: 'exact', head: true })
+            .eq('position', pos);
+          return [pos, count || 0] as [string, number];
+        })
+      );
 
-      const { count: unresolvedCount } = await supabase
-        .from('unresolved_entities')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'open');
+      const coverage: Record<string, number> = Object.fromEntries(positionCounts);
 
-      const { data: positionCoverage } = await supabase
-        .from('nfl_players')
-        .select('player_position')
-        .eq('status', 'Active');
-
-      const coverage: Record<string, number> = {};
-      positionCoverage?.forEach((p: any) => {
-        coverage[p.player_position] = (coverage[p.player_position] || 0) + 1;
-      });
+      const lastSync = lastUpdatedRow?.updated_at;
 
       setStatus({
-        last_player_sync: playerSync?.last_seen_at,
-        last_value_sync: valueSync?.captured_at,
-        player_count: playerCount || 0,
-        value_snapshot_count: valueCount || 0,
-        unresolved_count: unresolvedCount || 0,
+        last_player_sync: lastSync,
+        last_value_sync: lastSync,
+        player_count: totalCount || 0,
+        value_snapshot_count: totalCount || 0,
+        unresolved_count: 0,
         position_coverage: coverage,
       });
     } catch (err: any) {

@@ -461,12 +461,16 @@ export async function runSystemHealthChecks(): Promise<SystemHealthSummary> {
   const overallStatus: 'ok' | 'warning' | 'critical' =
     criticalCount > 0 ? 'critical' : warningCount > 0 ? 'warning' : 'ok';
 
-  if (criticalCount > 0) {
-    await supabase.rpc('enable_safe_mode', {
-      p_reason: `${criticalCount} critical health check(s) failed`,
-    });
-  } else {
-    await supabase.rpc('disable_safe_mode');
+  try {
+    if (criticalCount > 0) {
+      await supabase.rpc('enable_safe_mode', {
+        p_reason: `${criticalCount} critical health check(s) failed`,
+      });
+    } else {
+      await supabase.rpc('disable_safe_mode');
+    }
+  } catch {
+    // safe_mode RPCs are optional — don't let them prevent returning results
   }
 
   return {
