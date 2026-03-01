@@ -339,17 +339,17 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
               <button
                 key={id}
                 onClick={() => switchPrimary(id)}
-                className={`relative flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
+                className={`relative flex items-center gap-2 px-5 py-2.5 text-sm font-semibold transition-all duration-150 whitespace-nowrap ${
                   primaryTab === id
-                    ? 'text-fdp-accent-1 text-glow'
-                    : 'text-fdp-text-3 hover:text-fdp-text-2'
+                    ? 'text-fdp-accent-2 text-glow'
+                    : 'text-fdp-text-3 hover:text-fdp-text-1 hover:bg-fdp-surface-2/60'
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className={`w-4 h-4 transition-transform duration-150 ${primaryTab === id ? 'scale-110' : ''}`} />
                 {label}
-                {/* Active indicator bar */}
+                {/* Active indicator bar — gradient with glow */}
                 {primaryTab === id && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-fdp-accent-1 to-fdp-accent-2 rounded-t-full shadow-glow-sm" />
+                  <span className="absolute bottom-0 left-2 right-2 h-[2px] bg-gradient-to-r from-fdp-accent-1 via-fdp-accent-glow to-fdp-accent-2 rounded-full shadow-glow" />
                 )}
               </button>
             ))}
