@@ -1,0 +1,64 @@
+name: Daily Player Values Sync
+
+on:
+  schedule:
+    # Runs at 8:00 AM UTC every day (3 AM ET / midnight PT)
+    - cron: '0 8 * * *'
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      sync_type:
+        description: 'Which sync to run'
+        required: false
+        default: 'values'
+        type: choice
+        options:
+          - values
+          - rebuild
+          - full
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Determine sync function
+        id: config
+        run: |
+          SYNC_TYPE="${{ github.event.inputs.sync_type || 'values' }}"
+          case $SYNC_TYPE in
+            rebuild) FUNCTION="rebuild-player-values-v2" ;;
+            full)    FUNCTION="sync-full-pipeline" ;;
+            *)       FUNCTION="sync-values-all" ;;
+          esac
+          echo "function=$FUNCTION" >> $GITHUB_OUTPUT
+          echo "sync_type=$SYNC_TYPE" >> $GITHUB_OUTPUT
+
+      - name: Run player values sync
+        run: |
+          FUNCTION="${{ steps.config.outputs.function }}"
+          SUPABASE_URL="${{ secrets.VITE_SUPABASE_URL }}"
+
+          echo "Calling edge function: $FUNCTION"
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            --max-time 300 \
+            -X POST \
+            "${SUPABASE_URL}/functions/v1/${FUNCTION}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{}')
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response body: $BODY"
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -gt 299 ]; then
+            echo "::error::Sync failed — HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "Sync completed successfully"
