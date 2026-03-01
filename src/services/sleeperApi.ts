@@ -51,6 +51,21 @@ export function clearAllCaches(): void {
   console.log('All caches cleared');
 }
 
+// Returns espn_id for a player from the in-memory cache without triggering a fetch.
+// Works for any user whose league data has already been loaded.
+export function getEspnIdFromCache(playerId: string): number | undefined {
+  const cached = cache.get('all_players');
+  if (!cached) return undefined;
+  return (cached.data[playerId] as any)?.espn_id ?? undefined;
+}
+
+// Fetches all Sleeper players in the background and warms the ESPN ID cache.
+// Non-blocking — caller does not await this.
+export function warmEspnIdCache(): void {
+  if (cache.get('all_players')) return; // already warm
+  fetchAllPlayers().catch(() => {}); // fire and forget
+}
+
 export interface SleeperPlayer {
   player_id: string;
   full_name: string;

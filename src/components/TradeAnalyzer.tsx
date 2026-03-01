@@ -8,6 +8,8 @@ import {
   fetchLeagueUsers,
   fetchTradedPicks,
   clearPlayerValuesCache,
+  getEspnIdFromCache,
+  warmEspnIdCache,
   type SleeperPlayer,
   type SleeperRoster,
   type SleeperUser,
@@ -98,6 +100,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
   // Auto-sync player values on first mount if the database is empty.
   useEffect(() => {
     checkAndSyncPlayerValues();
+    warmEspnIdCache(); // background fetch so ESPN IDs are available for headshots
   }, []);
 
   // Preload player values for live display while building a trade.
@@ -151,7 +154,8 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
         age: 0,
         injury_status: null,
         status: 'Active',
-        espn_id: p.espn_id ?? undefined,
+        // espn_id from Edge Function (once deployed) or from local Sleeper cache
+        espn_id: p.espn_id ?? getEspnIdFromCache(p.id),
       }));
 
       setResults(results);
