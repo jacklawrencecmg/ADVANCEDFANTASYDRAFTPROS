@@ -95,6 +95,11 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
     }
   }, [leagueId]);
 
+  // Auto-sync player values on first mount if the database is empty.
+  useEffect(() => {
+    checkAndSyncPlayerValues();
+  }, []);
+
   // Preload player values for live display while building a trade.
   // Mirrors the same adjustments getPlayerValue() applies so badges match trade results.
   useEffect(() => {

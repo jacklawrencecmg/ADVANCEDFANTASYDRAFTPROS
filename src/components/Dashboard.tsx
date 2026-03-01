@@ -4,6 +4,7 @@ import { supabase, UserLeague } from '../lib/supabase';
 import { SEASON_CONTEXT } from '../config/seasonContext';
 import { LogOut, Plus, Settings, TrendingUp, Users, Trophy, Activity, History, Search, Shield, Clipboard, FileText, Swords, MessageCircle, Bell, Newspaper, Share2, ArrowLeftRight, ShoppingCart, RefreshCw, Calendar, DollarSign, Mail, Award, Edit, Sparkles, Target, Upload, Radio, Zap, ChevronRight, AlertCircle, X, Sliders, BarChart2, Lock } from 'lucide-react';
 import { LeagueManager } from './LeagueManager';
+import { ListSkeleton } from './LoadingSkeleton';
 import { useToast } from './Toast';
 import TradeAnalyzer from './TradeAnalyzer'; // eager — hero component
 import AlertsDropdown from './AlertsDropdown';
@@ -241,8 +242,8 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
   };
 
   const tabContentFallback = (
-    <div className="flex items-center justify-center h-48 text-fdp-text-3">
-      <RefreshCw className="w-5 h-5 animate-spin mr-2" /> Loading...
+    <div className="py-4">
+      <ListSkeleton count={4} />
     </div>
   );
 

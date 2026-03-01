@@ -1,20 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { Newspaper, TrendingUp, AlertCircle } from 'lucide-react';
+import { Newspaper, TrendingUp, AlertCircle, RefreshCw } from 'lucide-react';
+import { sportsDataAPI } from '../services/sportsdataApi';
+
+type NewsType = 'injury' | 'trade' | 'depth_chart' | 'performance';
+type NewsImpact = 'high' | 'medium' | 'low';
 
 interface NewsItem {
   id: string;
   player_name: string;
   title: string;
   description: string;
-  impact: 'high' | 'medium' | 'low';
-  type: 'injury' | 'trade' | 'depth_chart' | 'performance';
+  impact: NewsImpact;
+  type: NewsType;
   timestamp: string;
+  source?: string;
+}
+
+function classifyType(title: string, content: string): NewsType {
+  const text = `${title} ${content}`.toLowerCase();
+  if (/injur|questionable|doubtful|out|ir|placed on|hamstring|ankle|knee|shoulder|concussion|ill|sick/.test(text)) return 'injury';
+  if (/trade|traded|acquir|sign|signed|contract|extension|released|cut|waiv/.test(text)) return 'trade';
+  if (/depth chart|starter|benched|starting|demoted|promoted|role|snap|target/.test(text)) return 'depth_chart';
+  return 'performance';
+}
+
+function classifyImpact(title: string, content: string, type: NewsType): NewsImpact {
+  const text = `${title} ${content}`.toLowerCase();
+  if (type === 'injury') {
+    if (/out for season|season-ending|torn|fractur|surgery|ir|placed on/.test(text)) return 'high';
+    if (/questionable|doubtful|limited/.test(text)) return 'medium';
+    return 'low';
+  }
+  if (type === 'trade') {
+    if (/star|top|key|significant|major|first-round|1st round/.test(text)) return 'high';
+    return 'medium';
+  }
+  if (type === 'depth_chart') {
+    if (/starter|wr1|rb1|qb1|te1|lead back|primary/.test(text)) return 'high';
+    return 'medium';
+  }
+  return 'low';
 }
 
 export default function PlayerNewsFeed() {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<string>('all');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadNews();
@@ -22,67 +54,51 @@ export default function PlayerNewsFeed() {
 
   const loadNews = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const mockNews: NewsItem[] = [
-        {
-          id: '1',
-          player_name: 'Patrick Mahomes',
-          title: 'Mahomes practices in full, ready for Week 1',
-          description: 'Chiefs QB participated fully in practice and is expected to start Week 1.',
-          impact: 'low',
-          type: 'performance',
-          timestamp: new Date(Date.now() - 3600000).toISOString()
-        },
-        {
-          id: '2',
-          player_name: 'Jonathan Taylor',
-          title: 'Taylor listed as questionable for Week 1',
-          description: 'RB dealing with ankle injury, game-time decision expected.',
-          impact: 'high',
-          type: 'injury',
-          timestamp: new Date(Date.now() - 7200000).toISOString()
-        },
-        {
-          id: '3',
-          player_name: 'Davante Adams',
-          title: 'Adams moves up depth chart',
-          description: 'WR now listed as WR1 on official depth chart.',
-          impact: 'medium',
-          type: 'depth_chart',
-          timestamp: new Date(Date.now() - 10800000).toISOString()
-        },
-        {
-          id: '4',
-          player_name: 'Travis Kelce',
-          title: 'Kelce signs contract extension',
-          description: 'TE agrees to 2-year extension with Chiefs.',
-          impact: 'medium',
-          type: 'trade',
-          timestamp: new Date(Date.now() - 14400000).toISOString()
-        }
-      ];
+      const rawNews = await sportsDataAPI.getNews();
 
-      setNews(mockNews);
-    } catch (error) {
-      console.error('Error loading news:', error);
+      const mapped: NewsItem[] = rawNews
+        .filter(item => item.Title && item.Name)
+        .map(item => {
+          const type = classifyType(item.Title, item.Content || '');
+          const impact = classifyImpact(item.Title, item.Content || '', type);
+          return {
+            id: String(item.NewsID),
+            player_name: item.Name,
+            title: item.Title,
+            description: item.Content || item.Title,
+            impact,
+            type,
+            timestamp: item.Updated,
+            source: item.Source,
+          };
+        })
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+        .slice(0, 50);
+
+      setNews(mapped);
+    } catch (err) {
+      console.error('Error loading news:', err);
+      setError('Unable to load news. Check your SportsData.io API key.');
     }
     setLoading(false);
   };
 
-  const getImpactColor = (impact: string) => {
+  const getImpactColor = (impact: NewsImpact) => {
     switch (impact) {
       case 'high': return 'bg-red-500/20 border-red-500/30 text-red-400';
       case 'medium': return 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400';
       case 'low': return 'bg-green-500/20 border-green-500/30 text-green-400';
-      default: return 'bg-gray-500/20 border-gray-500/30 text-gray-400';
     }
   };
 
-  const getTypeIcon = (type: string) => {
+  const getTypeIcon = (type: NewsType) => {
     switch (type) {
-      case 'injury': return <AlertCircle className="w-5 h-5" />;
-      case 'trade': return <TrendingUp className="w-5 h-5" />;
-      default: return <Newspaper className="w-5 h-5" />;
+      case 'injury': return <AlertCircle className="w-5 h-5 text-red-400" />;
+      case 'trade': return <TrendingUp className="w-5 h-5 text-blue-400" />;
+      case 'depth_chart': return <TrendingUp className="w-5 h-5 text-yellow-400" />;
+      default: return <Newspaper className="w-5 h-5 text-gray-400" />;
     }
   };
 
@@ -98,52 +114,43 @@ export default function PlayerNewsFeed() {
 
         <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
           <div className="flex gap-2 flex-wrap">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
-                filter === 'all' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
-              }`}
-            >
-              All News
-            </button>
-            <button
-              onClick={() => setFilter('injury')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
-                filter === 'injury' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
-              }`}
-            >
-              Injuries
-            </button>
-            <button
-              onClick={() => setFilter('trade')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
-                filter === 'trade' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
-              }`}
-            >
-              Trades
-            </button>
-            <button
-              onClick={() => setFilter('depth_chart')}
-              className={`px-4 py-2 rounded-lg font-semibold transition ${
-                filter === 'depth_chart' ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
-              }`}
-            >
-              Depth Chart
-            </button>
+            {(['all', 'injury', 'trade', 'depth_chart', 'performance'] as const).map(f => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-4 py-2 rounded-lg font-semibold transition capitalize ${
+                  filter === f ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+              >
+                {f === 'all' ? 'All News' : f === 'depth_chart' ? 'Depth Chart' : f.charAt(0).toUpperCase() + f.slice(1) + 's'}
+              </button>
+            ))}
             <button
               onClick={loadNews}
               disabled={loading}
-              className="ml-auto px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition disabled:opacity-50"
+              className="ml-auto flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition disabled:opacity-50"
             >
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               {loading ? 'Loading...' : 'Refresh'}
             </button>
           </div>
         </div>
 
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6 text-red-400">
+            {error}
+          </div>
+        )}
+
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading news...</p>
+            <p className="text-gray-400">Loading live news...</p>
+          </div>
+        ) : filteredNews.length === 0 ? (
+          <div className="text-center py-12 text-gray-400">
+            <Newspaper className="w-12 h-12 mx-auto mb-4 opacity-30" />
+            <p>No news items found{filter !== 'all' ? ` for "${filter}"` : ''}.</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -153,25 +160,24 @@ export default function PlayerNewsFeed() {
                 className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 hover:border-blue-500 transition"
               >
                 <div className="flex items-start gap-4">
-                  <div className="p-3 bg-gray-700/50 rounded-lg">
+                  <div className="p-3 bg-gray-700/50 rounded-lg flex-shrink-0">
                     {getTypeIcon(item.type)}
                   </div>
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between mb-2 gap-2">
                       <div>
-                        <h3 className="text-xl font-bold mb-1">{item.title}</h3>
+                        <h3 className="text-lg font-bold mb-1 leading-tight">{item.title}</h3>
                         <p className="text-sm text-gray-400">{item.player_name}</p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getImpactColor(item.impact)}`}>
-                          {item.impact.toUpperCase()} IMPACT
-                        </span>
-                      </div>
+                      <span className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold border ${getImpactColor(item.impact)}`}>
+                        {item.impact.toUpperCase()}
+                      </span>
                     </div>
-                    <p className="text-gray-300 mb-3">{item.description}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(item.timestamp).toLocaleString()}
-                    </p>
+                    <p className="text-gray-300 mb-3 text-sm leading-relaxed">{item.description}</p>
+                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <span>{new Date(item.timestamp).toLocaleString()}</span>
+                      {item.source && <span>· {item.source}</span>}
+                    </div>
                   </div>
                 </div>
               </div>

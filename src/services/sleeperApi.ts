@@ -1279,3 +1279,43 @@ export async function simulatePlayoffOdds(
     };
   });
 }
+
+export interface SleeperMatchup {
+  roster_id: number;
+  matchup_id: number | null;
+  points: number;
+  starters: string[];
+  players: string[];
+  custom_points: number | null;
+}
+
+export async function fetchMatchups(leagueId: string, week: number): Promise<SleeperMatchup[]> {
+  const cacheKey = `matchups_${leagueId}_${week}`;
+  const cached = getCachedData(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(`${SLEEPER_API_BASE}/league/${leagueId}/matchups/${week}`);
+    if (!response.ok) throw new Error(`Failed to fetch matchups for week ${week}`);
+    const data = await response.json();
+    setCachedData(cacheKey, data ?? []);
+    return data ?? [];
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchAllSeasonMatchups(
+  leagueId: string,
+  regularSeasonWeeks: number
+): Promise<{ week: number; matchups: SleeperMatchup[] }[]> {
+  const weekNumbers = Array.from({ length: regularSeasonWeeks }, (_, i) => i + 1);
+  const results = await Promise.all(
+    weekNumbers.map(async (week) => ({
+      week,
+      matchups: await fetchMatchups(leagueId, week),
+    }))
+  );
+  // Filter out weeks with no data or unstarted matchups
+  return results.filter((r) => r.matchups.length > 0 && r.matchups.some((m) => m.points > 0));
+}

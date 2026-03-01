@@ -30,8 +30,9 @@ type Page = 'home' | 'faq' | 'help' | 'contact' | 'top1000' | 'dynasty-rankings'
 
 function PageLoader() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-fdp-bg-1 to-fdp-bg-0">
-      <div className="text-fdp-text-1 text-xl">Loading...</div>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-fdp-bg-1 to-fdp-bg-0 gap-4">
+      <div className="w-10 h-10 border-4 border-fdp-accent-1/30 border-t-fdp-accent-1 rounded-full animate-spin" />
+      <div className="text-fdp-text-3 text-sm">Loading Fantasy Draft Pros...</div>
     </div>
   );
 }
