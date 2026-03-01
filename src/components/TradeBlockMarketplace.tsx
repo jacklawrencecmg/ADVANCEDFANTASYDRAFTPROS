@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Plus, Trash2, RefreshCw } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { getPlayerValueById as getPlayerValue, fetchTradeBlockPlayers, TradeBlockPlayer } from '../services/sleeperApi';
+import { getPlayerValueById as getPlayerValue, fetchTradeBlockPlayers, TradeBlockPlayer, getEspnIdFromCache } from '../services/sleeperApi';
 import { PlayerAvatar } from './PlayerAvatar';
 
 interface TradeBlockItem {
@@ -190,6 +190,7 @@ export default function TradeBlockMarketplace({ leagueId, userId }: TradeBlockMa
                       <div className="flex items-start gap-3">
                         <PlayerAvatar
                           playerId={player.player_id}
+                          espnId={getEspnIdFromCache(player.player_id)}
                           playerName={player.player_name}
                           team={player.team || undefined}
                           position={player.position}

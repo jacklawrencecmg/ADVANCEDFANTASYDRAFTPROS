@@ -3,6 +3,7 @@ import { Search, Filter, Award } from 'lucide-react';
 import { ListSkeleton } from './LoadingSkeleton';
 import { supabase } from '../lib/supabase';
 import { PlayerAvatar } from './PlayerAvatar';
+import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface QBValue {
   position_rank: number;
@@ -27,6 +28,7 @@ export default function KTCQBRankings() {
 
   useEffect(() => {
     fetchQBValues();
+    warmEspnIdCache();
   }, []);
 
   useEffect(() => {
@@ -209,6 +211,7 @@ export default function KTCQBRankings() {
                     <div className="flex items-center gap-3">
                       <PlayerAvatar
                         playerId={qb.player_id}
+                        espnId={getEspnIdFromCache(qb.player_id)}
                         playerName={qb.full_name}
                         team={qb.team || undefined}
                         position="QB"

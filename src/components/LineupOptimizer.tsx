@@ -20,6 +20,7 @@ interface Player {
   value: number;
   projected_points?: number;
   injury_status?: string;
+  espn_id?: number;
 }
 
 interface LineupSlot {
@@ -150,7 +151,8 @@ export default function LineupOptimizer({ leagueId, rosterId }: LineupOptimizerP
             team: playerData.team || 'FA',
             value,
             projected_points: value / 100,
-            injury_status: playerData.injury_status
+            injury_status: playerData.injury_status,
+            espn_id: playerData.espn_id,
           };
         })
         .filter((p): p is NonNullable<typeof p> => p !== null);
@@ -276,6 +278,8 @@ export default function LineupOptimizer({ leagueId, rosterId }: LineupOptimizerP
         <div className="flex items-center gap-3">
           {slot.player && (
             <PlayerAvatar
+              playerId={slot.player.player_id}
+              espnId={slot.player.espn_id}
               playerName={slot.player.name}
               team={slot.player.team}
               position={slot.player.position}
@@ -452,6 +456,8 @@ export default function LineupOptimizer({ leagueId, rosterId }: LineupOptimizerP
                       <div key={player.player_id} className="bg-fdp-surface-1 backdrop-blur-sm rounded-lg border border-fdp-border-1 p-4 hover:border-fdp-accent-1 transition hover-lift card-enter">
                         <div className="flex items-center gap-3 mb-2">
                           <PlayerAvatar
+                            playerId={player.player_id}
+                            espnId={player.espn_id}
                             playerName={player.name}
                             team={player.team}
                             position={player.position}

@@ -17,6 +17,7 @@ interface PlayerHealth {
   bye_week: number;
   injury_body_part?: string;
   sportsdata_injury_notes?: string;
+  espn_id?: number;
 }
 
 interface RosterHealthProps {
@@ -75,7 +76,8 @@ export default function RosterHealth({ leagueId, rosterId }: RosterHealthProps) 
           injury_notes: player.injury_notes || '',
           bye_week: player.bye_week || 0,
           injury_body_part: sportsDataInjury?.InjuryBodyPart,
-          sportsdata_injury_notes: sportsDataInjury?.InjuryNotes
+          sportsdata_injury_notes: sportsDataInjury?.InjuryNotes,
+          espn_id: player.espn_id,
         };
       }).filter(Boolean) as PlayerHealth[];
 
@@ -194,6 +196,7 @@ export default function RosterHealth({ leagueId, rosterId }: RosterHealthProps) 
                     <div className="flex items-center gap-3 mb-2">
                       <PlayerAvatar
                         playerId={player.player_id}
+                        espnId={player.espn_id}
                         playerName={player.name}
                         team={player.team}
                         position={player.position}

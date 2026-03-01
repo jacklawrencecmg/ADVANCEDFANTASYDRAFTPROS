@@ -6,6 +6,7 @@ import { getIdpPreset, getPresetLabel, getPresetDescription, getPresetIcon, getP
 import { getPresetImpact } from '../lib/fdp/idpPresetMultipliers';
 import { ListSkeleton } from './LoadingSkeleton';
 import { PlayerAvatar } from './PlayerAvatar';
+import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface IDPPlayer {
   player_id: string;
@@ -33,6 +34,7 @@ export default function IDPRankings() {
 
   useEffect(() => {
     fetchRankings();
+    warmEspnIdCache();
   }, [position, format]);
 
   const fetchRankings = async () => {
@@ -248,6 +250,7 @@ export default function IDPRankings() {
                         <div className="flex items-center gap-3">
                           <PlayerAvatar
                             playerId={player.player_id}
+                            espnId={getEspnIdFromCache(player.player_id)}
                             playerName={player.full_name}
                             size="sm"
                             headshotUrl={player.headshot_url}

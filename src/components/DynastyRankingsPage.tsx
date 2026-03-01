@@ -6,6 +6,7 @@ import { generateRankingsMetaTags, generatePlayerSlug } from '../lib/seo/meta';
 import { generateRankingsStructuredData, injectStructuredData } from '../lib/seo/structuredData';
 import { TableSkeleton } from './LoadingSkeleton';
 import { PlayerAvatar } from './PlayerAvatar';
+import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface RankedPlayer {
   player_id: string;
@@ -38,6 +39,7 @@ export function DynastyRankingsPage() {
     injectStructuredData(structuredData);
 
     loadRankings();
+    warmEspnIdCache();
   }, []);
 
   async function loadRankings() {
@@ -204,6 +206,7 @@ export function DynastyRankingsPage() {
                       >
                         <PlayerAvatar
                           playerId={player.player_id}
+                          espnId={getEspnIdFromCache(player.player_id)}
                           playerName={player.full_name}
                           team={player.team}
                           position={player.position}

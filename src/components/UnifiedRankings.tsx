@@ -3,6 +3,7 @@ import { Trophy, TrendingUp, TrendingDown, Minus, Search, Filter, Users, AlertCi
 import { ListSkeleton } from './LoadingSkeleton';
 import PlayerDetail from './PlayerDetail';
 import { PlayerAvatar } from './PlayerAvatar';
+import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface Player {
   player_id: string;
@@ -38,6 +39,7 @@ export default function UnifiedRankings() {
 
   useEffect(() => {
     loadRankings();
+    warmEspnIdCache();
   }, [selectedPosition, selectedFormat]);
 
   const loadRankings = async () => {
@@ -284,6 +286,7 @@ export default function UnifiedRankings() {
                             >
                               <PlayerAvatar
                                 playerId={player.player_id}
+                                espnId={getEspnIdFromCache(player.player_id)}
                                 playerName={player.full_name}
                                 team={player.team || undefined}
                                 position={player.position}

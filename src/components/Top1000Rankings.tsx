@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Search, Download, Filter, TrendingUp, Users, Shield, RefreshCw, Calendar } from 'lucide-react';
 import { PlayerAvatar } from './PlayerAvatar';
+import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface Top1000Player {
   rank: number;
@@ -55,6 +56,7 @@ export default function Top1000Rankings() {
 
   useEffect(() => {
     loadTop1000();
+    warmEspnIdCache();
   }, []);
 
   async function loadTop1000() {
@@ -371,6 +373,7 @@ export default function Top1000Rankings() {
                     <div className="flex items-center gap-3">
                       <PlayerAvatar
                         playerId={player.player_id}
+                        espnId={getEspnIdFromCache(player.player_id)}
                         playerName={player.full_name}
                         team={player.team || undefined}
                         position={player.position}

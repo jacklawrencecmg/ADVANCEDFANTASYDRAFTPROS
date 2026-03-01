@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Trophy, TrendingUp, Users, X, ChevronLeft, ChevronRight, Calendar, DollarSign, RefreshCw } from 'lucide-react';
-import { calculatePowerRankings, type TeamRanking } from '../services/sleeperApi';
+import { calculatePowerRankings, type TeamRanking, getEspnIdFromCache } from '../services/sleeperApi';
 import { syncPlayerValuesToDatabase } from '../utils/syncPlayerValues';
 import { PlayerAvatar } from './PlayerAvatar';
 
@@ -289,6 +289,7 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                           <div className="relative flex-shrink-0">
                             <PlayerAvatar
                               playerId={player.player_id}
+                              espnId={getEspnIdFromCache(player.player_id)}
                               playerName={player.name}
                               team={player.team || undefined}
                               position={player.position}

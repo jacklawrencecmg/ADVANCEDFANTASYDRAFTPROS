@@ -7,6 +7,7 @@ import { ListSkeleton } from './LoadingSkeleton';
 import { useToast } from './Toast';
 import Tooltip from './Tooltip';
 import { PlayerAvatar } from './PlayerAvatar';
+import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface PlayerValuesProps {
   leagueId: string;
@@ -63,6 +64,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
     }
     loadPlayerValues(true);
     loadDraftPicks();
+    warmEspnIdCache();
   }, []);
 
   useEffect(() => {
@@ -590,6 +592,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <PlayerAvatar
                             playerId={player.player_id}
+                            espnId={getEspnIdFromCache(player.player_id)}
                             playerName={player.player_name}
                             team={player.team || undefined}
                             position={player.position}
@@ -771,6 +774,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
                           <span className="text-fdp-text-3 font-bold text-sm w-6 shrink-0">#{index + 1}</span>
                           <PlayerAvatar
                             playerId={player.player_id}
+                            espnId={getEspnIdFromCache(player.player_id)}
                             playerName={player.player_name}
                             team={player.team || undefined}
                             position={player.position}
@@ -806,6 +810,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
                           <span className="text-fdp-text-3 font-bold text-sm w-6 shrink-0">#{index + 1}</span>
                           <PlayerAvatar
                             playerId={player.player_id}
+                            espnId={getEspnIdFromCache(player.player_id)}
                             playerName={player.player_name}
                             team={player.team || undefined}
                             position={player.position}

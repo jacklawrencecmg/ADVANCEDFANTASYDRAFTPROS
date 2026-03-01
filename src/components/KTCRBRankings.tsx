@@ -3,6 +3,7 @@ import { Search, Filter, Award, AlertTriangle } from 'lucide-react';
 import { ListSkeleton } from './LoadingSkeleton';
 import { supabase } from '../lib/supabase';
 import { PlayerAvatar } from './PlayerAvatar';
+import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface RBValue {
   position_rank: number;
@@ -51,6 +52,7 @@ export default function KTCRBRankings() {
 
   useEffect(() => {
     fetchRBValues();
+    warmEspnIdCache();
   }, []);
 
   useEffect(() => {
@@ -248,6 +250,7 @@ export default function KTCRBRankings() {
                     <div className="flex items-center gap-3">
                       <PlayerAvatar
                         playerId={rb.player_id}
+                        espnId={getEspnIdFromCache(rb.player_id)}
                         playerName={rb.full_name}
                         team={rb.team || undefined}
                         position="RB"

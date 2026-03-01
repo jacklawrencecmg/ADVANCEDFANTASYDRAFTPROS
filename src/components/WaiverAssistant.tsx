@@ -14,6 +14,7 @@ interface Player {
   value: number;
   recommendation_score: number;
   reasoning: string;
+  espn_id?: number;
 }
 
 interface WaiverPlayer extends Player {
@@ -85,6 +86,7 @@ export default function WaiverAssistant({ leagueId, rosterId, userId }: WaiverAs
           status: player.status,
           injury_status: player.injury_status,
           years_exp: player.years_exp,
+          espn_id: player.espn_id,
           value: 0,
           recommendation_score: 0,
           reasoning: ''
@@ -290,6 +292,7 @@ export default function WaiverAssistant({ leagueId, rosterId, userId }: WaiverAs
                       <span className="text-2xl font-bold text-gray-500">#{index + 1}</span>
                       <PlayerAvatar
                         playerId={player.player_id}
+                        espnId={player.espn_id}
                         playerName={player.full_name}
                         team={player.team}
                         position={player.position}

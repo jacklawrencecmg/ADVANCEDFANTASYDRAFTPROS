@@ -3,6 +3,7 @@ import { Search, Filter, TrendingUp, Award, Zap } from 'lucide-react';
 import { ListSkeleton } from './LoadingSkeleton';
 import { supabase } from '../lib/supabase';
 import { PlayerAvatar } from './PlayerAvatar';
+import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
 
 interface TEValue {
   position_rank: number;
@@ -27,6 +28,7 @@ export default function KTCTERankings() {
 
   useEffect(() => {
     fetchTEValues();
+    warmEspnIdCache();
   }, []);
 
   useEffect(() => {
@@ -247,6 +249,7 @@ export default function KTCTERankings() {
                     <div className="flex items-center gap-3">
                       <PlayerAvatar
                         playerId={te.player_id}
+                        espnId={getEspnIdFromCache(te.player_id)}
                         playerName={te.full_name}
                         team={te.team || undefined}
                         position="TE"

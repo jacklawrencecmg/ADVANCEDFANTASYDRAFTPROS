@@ -228,18 +228,20 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
 
     setPlayersLoading(true);
     try {
-      const [rostersData, usersData, tradedPicksData, dbPlayers] = await Promise.all([
+      const [rostersData, usersData, tradedPicksData, allPlayers] = await Promise.all([
         fetchLeagueRosters(leagueId),
         fetchLeagueUsers(leagueId),
         fetchTradedPicks(leagueId).catch(() => []),
-        fetchAllPlayersFromDatabase().catch(() => ({} as Record<string, SleeperPlayer>)),
+        // fetchAllPlayers returns all ~3000+ NFL players merged with DB enrichment data,
+        // ensuring every player on a roster has their name, position, and team.
+        fetchAllPlayers().catch(() => fetchAllPlayersFromDatabase().catch(() => ({} as Record<string, SleeperPlayer>))),
       ]);
 
       setRosters(rostersData);
       setUsers(usersData);
       setTradedPicks(tradedPicksData);
-      if (Object.keys(dbPlayers).length > 0) {
-        setPlayers(dbPlayers);
+      if (Object.keys(allPlayers).length > 0) {
+        setPlayers(allPlayers);
       }
     } catch (error) {
       console.error('Failed to load league data:', error);
@@ -989,7 +991,8 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                                     >
                                       <div className="flex items-center gap-2 min-w-0">
                                         <PlayerAvatar
-                                          playerId={playerId}
+                                          playerId={player?.headshot_id || playerId}
+                                          espnId={player?.espn_id}
                                           playerName={displayName}
                                           team={team}
                                           position={position}
@@ -1149,7 +1152,8 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                                     >
                                       <div className="flex items-center gap-2 min-w-0">
                                         <PlayerAvatar
-                                          playerId={playerId}
+                                          playerId={player?.headshot_id || playerId}
+                                          espnId={player?.espn_id}
                                           playerName={displayName}
                                           team={team}
                                           position={position}

@@ -15,6 +15,7 @@ interface DraftPlayer {
   rank: number;
   tier: number;
   age?: number;
+  espn_id?: number;
 }
 
 interface DraftKitProps {
@@ -68,7 +69,8 @@ export default function DraftKit({ leagueId, userId }: DraftKitProps) {
           value: playerValuesMap.get(id) || 0,
           rank: index + 1,
           tier: Math.floor(index / 20) + 1,
-          age: player.age
+          age: player.age,
+          espn_id: player.espn_id,
         }));
 
       const ranked = playersWithValues
@@ -216,6 +218,7 @@ export default function DraftKit({ leagueId, userId }: DraftKitProps) {
                     <div className="flex items-center gap-3 flex-1">
                       <PlayerAvatar
                         playerId={player.player_id}
+                        espnId={player.espn_id}
                         playerName={player.full_name}
                         team={player.team}
                         position={player.position}

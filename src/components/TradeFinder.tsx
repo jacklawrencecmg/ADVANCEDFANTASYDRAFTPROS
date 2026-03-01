@@ -8,8 +8,8 @@ import { AchievementBadge } from './AchievementBadge';
 interface TradeProposal {
   target_team: string;
   roster_id: number;
-  give_players: Array<{ id: string; name: string; value: number; position: string }>;
-  receive_players: Array<{ id: string; name: string; value: number; position: string }>;
+  give_players: Array<{ id: string; name: string; value: number; position: string; espn_id?: number }>;
+  receive_players: Array<{ id: string; name: string; value: number; position: string; espn_id?: number }>;
   value_difference: number;
   fairness_score: number;
   reasoning: string;
@@ -164,7 +164,8 @@ export default function TradeFinder({ leagueId, rosterId }: TradeFinderProps) {
             id: pid,
             name: player.full_name,
             position: player.position,
-            value: playerValuesMap.get(pid) || 0
+            value: playerValuesMap.get(pid) || 0,
+            espn_id: player.espn_id,
           };
         })
         .filter((p): p is NonNullable<typeof p> => p !== null);
@@ -185,7 +186,8 @@ export default function TradeFinder({ leagueId, rosterId }: TradeFinderProps) {
               id: pid,
               name: player.full_name,
               position: player.position,
-              value: playerValuesMap.get(pid) || 0
+              value: playerValuesMap.get(pid) || 0,
+              espn_id: player.espn_id,
             };
           })
           .filter((p): p is NonNullable<typeof p> => p !== null);
@@ -389,6 +391,7 @@ export default function TradeFinder({ leagueId, rosterId }: TradeFinderProps) {
                       <div key={player.id} className="mb-3 flex items-center gap-3">
                         <PlayerAvatar
                           playerId={player.id}
+                          espnId={player.espn_id}
                           playerName={player.name}
                           team=""
                           position={player.position}
@@ -408,6 +411,7 @@ export default function TradeFinder({ leagueId, rosterId }: TradeFinderProps) {
                       <div key={player.id} className="mb-3 flex items-center gap-3">
                         <PlayerAvatar
                           playerId={player.id}
+                          espnId={player.espn_id}
                           playerName={player.name}
                           team=""
                           position={player.position}

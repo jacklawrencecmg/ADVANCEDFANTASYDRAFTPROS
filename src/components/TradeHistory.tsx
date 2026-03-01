@@ -225,6 +225,7 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                             {item.type === 'player' ? (
                               <PlayerAvatar
                                 playerId={item.id}
+                                espnId={players[item.id]?.espn_id}
                                 playerName={item.name}
                                 team=""
                                 position={item.position || ''}
@@ -288,6 +289,7 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                         >
                           <PlayerAvatar
                             playerId={playerId}
+                            espnId={players[playerId]?.espn_id}
                             playerName={getPlayerName(playerId)}
                             team={players[playerId]?.team || ''}
                             position={players[playerId]?.position || ''}
@@ -303,6 +305,7 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                           >
                             <PlayerAvatar
                               playerId={playerId}
+                              espnId={players[playerId]?.espn_id}
                               playerName={getPlayerName(playerId)}
                               team={players[playerId]?.team || ''}
                               position={players[playerId]?.position || ''}
@@ -332,6 +335,7 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                         >
                           <PlayerAvatar
                             playerId={playerId}
+                            espnId={players[playerId]?.espn_id}
                             playerName={getPlayerName(playerId)}
                             team={players[playerId]?.team || ''}
                             position={players[playerId]?.position || ''}
@@ -347,6 +351,7 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                           >
                             <PlayerAvatar
                               playerId={playerId}
+                              espnId={players[playerId]?.espn_id}
                               playerName={getPlayerName(playerId)}
                               team={players[playerId]?.team || ''}
                               position={players[playerId]?.position || ''}
