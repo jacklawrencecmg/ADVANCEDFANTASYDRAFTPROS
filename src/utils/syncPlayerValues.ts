@@ -341,14 +341,6 @@ export async function syncPlayerValuesToDatabase(isSuperflex: boolean = false): 
         throw error;
       }
 
-      const topPlayers = playerValues
-        .sort((a, b) => b.adjusted_value - a.adjusted_value)
-        .slice(0, 10)
-        .map(p => `${p.player_name} (${p.position}): ${p.adjusted_value}`);
-
-      console.log(`Successfully synced ${playerValues.length} player values to database`);
-      console.log('Top 10 player values:', topPlayers);
-
       return playerValues.length;
     }
 

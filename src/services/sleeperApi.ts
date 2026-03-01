@@ -893,7 +893,8 @@ export async function analyzeTrade(
   }
 
   const difference = Math.abs(teamAValue - teamBValue);
-  const percentDiff = (difference / Math.max(teamAValue, teamBValue)) * 100;
+  const maxValue = Math.max(teamAValue, teamBValue);
+  const percentDiff = maxValue > 0 ? (difference / maxValue) * 100 : 0;
 
   let winner: 'A' | 'B' | 'Fair';
   let fairness: string;
