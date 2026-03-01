@@ -49,7 +49,7 @@ export function TeamStrengthsModal({ isOpen, onClose, teamName, strengths }: Tea
         <div className="p-6">
           <div className="flex flex-col lg:flex-row gap-8 items-center mb-8">
             <div className="flex-shrink-0">
-              <RadarChart data={radarData} size={350} color="#00d4ff" />
+              <RadarChart data={radarData} size={350} color="#7c3aed" />
             </div>
 
             <div className="flex-1 w-full space-y-3">

@@ -8,7 +8,7 @@ interface RadarChartProps {
   color?: string;
 }
 
-export function RadarChart({ data, size = 300, color = '#00d4ff' }: RadarChartProps) {
+export function RadarChart({ data, size = 300, color = '#7c3aed' }: RadarChartProps) {
   const center = size / 2;
   const radius = (size / 2) - 40;
   const angleStep = (2 * Math.PI) / data.length;
