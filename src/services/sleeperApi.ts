@@ -611,7 +611,12 @@ export function getPlayerValue(
   const finalSettings = { ...defaultSettings, ...settings };
 
   const normalizedName = (player.full_name || '').toLowerCase().trim().replace(/[^a-z0-9 ]/g, '');
-  const dbValue = dbPlayerValues.get(player.player_id) || dbPlayerValuesByName.get(normalizedName);
+  // Verify ID-based lookup actually belongs to this player — DB may use KTC IDs
+  // which can collide with Sleeper IDs for different players.
+  const dbValueById = dbPlayerValues.get(player.player_id);
+  const idMatchesName = dbValueById &&
+    dbValueById.player_name?.toLowerCase().trim().replace(/[^a-z0-9 ]/g, '') === normalizedName;
+  const dbValue = (idMatchesName ? dbValueById : undefined) || dbPlayerValuesByName.get(normalizedName);
   if (dbValue) {
     const rawFdpValue = typeof dbValue.fdp_value === 'string' ? parseFloat(dbValue.fdp_value) : (dbValue.fdp_value ?? 0);
     let value: number = rawFdpValue;
