@@ -572,12 +572,12 @@ interface SubNavProps {
 
 function SubNav({ activeTab, setActiveTab, items }: SubNavProps) {
   return (
-    <div className="flex gap-1.5 flex-wrap">
+    <div className="flex gap-1.5 overflow-x-auto pb-0.5 scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
       {items.map(({ tab, label, icon: Icon }) => (
         <button
           key={tab}
           onClick={() => setActiveTab(tab)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex-shrink-0 whitespace-nowrap ${
             activeTab === tab
               ? 'bg-gradient-to-r from-fdp-accent-1 to-fdp-accent-2 text-fdp-bg-0 shadow'
               : 'bg-fdp-surface-1 border border-fdp-border-1 text-fdp-text-2 hover:border-fdp-accent-1 hover:text-fdp-text-1'

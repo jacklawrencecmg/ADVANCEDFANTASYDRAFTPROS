@@ -674,8 +674,7 @@ export function getPlayerValue(
   if (player.position === 'QB') {
     const playerNameLower = (player.full_name || '').toLowerCase();
     const isKnownBackup = KNOWN_BACKUP_QBS.some(name => playerNameLower.includes(name));
-    const hasNoTeam = !player.team || player.team === 'FA';
-    if (isKnownBackup || hasNoTeam) {
+    if (isKnownBackup) {
       return 50;
     }
   }

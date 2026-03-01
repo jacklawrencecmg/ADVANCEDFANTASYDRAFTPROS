@@ -266,7 +266,7 @@ export function LandingPage() {
       <div className="relative z-10">
 
         {/* ─── Hero ─── */}
-        <section className="max-w-5xl mx-auto px-4 pt-20 pb-14 text-center">
+        <section className="max-w-5xl mx-auto px-4 pt-12 sm:pt-20 pb-14 text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-fdp-accent-1/10 border border-fdp-accent-1/30 rounded-full px-4 py-1.5 mb-8 animate-fade-up">
             <Zap className="w-3.5 h-3.5 text-fdp-accent-1" />

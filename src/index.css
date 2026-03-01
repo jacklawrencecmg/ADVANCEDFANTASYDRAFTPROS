@@ -97,16 +97,17 @@
     @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
   }
 
-  /* Shimmer loading effect */
-  .shimmer {
+  /* Shimmer / skeleton loading effect */
+  .shimmer,
+  .skeleton {
     background: linear-gradient(
       90deg,
       #13131f 0%,
-      #1a1a2e 40%,
+      #222238 40%,
       #13131f 80%
     );
     background-size: 800px 100%;
-    animation: shimmer 2s linear infinite;
+    animation: shimmer 1.8s linear infinite;
   }
 
   /* Divider line */
@@ -196,6 +197,11 @@
 
 /* ─── Utility overrides ─── */
 @layer utilities {
+  /* Hide scrollbar while keeping scroll functionality */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Glassmorphism */
   .glass {
     backdrop-filter: blur(16px);
