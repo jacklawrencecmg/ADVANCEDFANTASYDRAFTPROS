@@ -2,6 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Users, TrendingUp, ArrowLeft, Loader, AlertCircle, Award, Target, Plus, Check, ArrowRight } from 'lucide-react';
 import { ListSkeleton } from './LoadingSkeleton';
 import { PlayerAvatar } from './PlayerAvatar';
+import { supabase } from '../lib/supabase';
+import { fetchAllPlayers } from '../services/sleeperApi';
+
+const SLEEPER_BASE_URL = 'https://api.sleeper.app/v1';
+
+function normalizeName(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+}
 
 interface Player {
   player_id: string;
@@ -73,27 +81,72 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack, onBuildT
     setError(null);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      // Fetch Sleeper league data and all player info in parallel
+      const [rostersRes, usersRes, allSleeperPlayers, dbResult] = await Promise.all([
+        fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`),
+        fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/users`),
+        fetchAllPlayers(),
+        supabase
+          .from('latest_player_values')
+          .select('player_name, position, team, adjusted_value')
+          .eq('format', 'dynasty')
+          .in('position', ['QB', 'RB', 'WR', 'TE', 'LB', 'DL', 'DB'])
+          .limit(1500),
+      ]);
 
-      const rostersRes = await fetch(
-        `${supabaseUrl}/functions/v1/league-rosters?league_id=${leagueId}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-        }
-      );
-
-      const rostersData = await rostersRes.json();
-
-      if (rostersData.ok) {
-        const sortedRosters = rostersData.rosters.sort((a: Roster, b: Roster) =>
-          b.total_value - a.total_value
-        );
-        setRosters(sortedRosters);
-      } else {
-        setError(rostersData.error || 'Failed to load rosters');
+      if (!rostersRes.ok || !usersRes.ok) {
+        throw new Error('Failed to fetch league data from Sleeper');
       }
+
+      const [rosters, users] = await Promise.all([rostersRes.json(), usersRes.json()]);
+
+      // Build normalized name → DB value map
+      const nameToDbPlayer = new Map<string, any>();
+      for (const p of dbResult.data || []) {
+        if (p.player_name) nameToDbPlayer.set(normalizeName(p.player_name), p);
+      }
+
+      const userMap = new Map(users.map((u: any) => [u.user_id, u]));
+
+      const enrichedRosters: Roster[] = rosters.map((roster: any) => {
+        const owner = userMap.get(roster.owner_id);
+        const players: Player[] = (roster.players || []).map((playerId: string) => {
+          const sp = allSleeperPlayers[playerId];
+          const liveTeam = sp?.team || null;
+          const fullName = sp
+            ? (sp.full_name || `${sp.first_name || ''} ${sp.last_name || ''}`.trim())
+            : '';
+          const dbPlayer = fullName ? nameToDbPlayer.get(normalizeName(fullName)) : undefined;
+
+          return {
+            player_id: playerId,
+            name: dbPlayer?.player_name || fullName || playerId,
+            position: dbPlayer?.position || sp?.position || 'N/A',
+            team: liveTeam ?? dbPlayer?.team ?? null,
+            fdp_value: dbPlayer?.adjusted_value || 0,
+            is_starter: (roster.starters || []).includes(playerId),
+            headshot_url: `https://sleepercdn.com/content/nfl/players/thumb/${playerId}.jpg`,
+          };
+        });
+
+        const totalValue = players.reduce((sum, p) => sum + p.fdp_value, 0);
+
+        return {
+          roster_id: roster.roster_id,
+          team_name: `Team ${roster.roster_id}`,
+          owner_name: owner?.metadata?.team_name || owner?.display_name || owner?.username || 'Unknown',
+          owner_id: roster.owner_id,
+          players,
+          total_value: Math.round(totalValue),
+          record: {
+            wins: roster.settings?.wins || 0,
+            losses: roster.settings?.losses || 0,
+            ties: roster.settings?.ties || 0,
+          },
+        };
+      });
+
+      setRosters(enrichedRosters.sort((a, b) => b.total_value - a.total_value));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load league data');
     } finally {
