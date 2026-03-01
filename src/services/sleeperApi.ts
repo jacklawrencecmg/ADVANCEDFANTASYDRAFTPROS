@@ -790,7 +790,10 @@ export async function analyzeTrade(
   teamAGetsFAAB: number = 0,
   leagueSettings?: Partial<LeagueSettings>,
   leagueFormat: 'dynasty' | 'redraft' = 'dynasty',
-  scoringFormat: 'ppr' | 'half-ppr' | 'standard' = 'ppr'
+  scoringFormat: 'ppr' | 'half-ppr' | 'standard' = 'ppr',
+  // Optional: component's players state, used as name-based fallback when an ID
+  // doesn't resolve directly (e.g. stale DB player_id that predates a Sleeper ID update).
+  playerHints?: Record<string, { full_name: string; position?: string; team?: string | null }>
 ): Promise<TradeAnalysis> {
   let settings: LeagueSettings | Partial<LeagueSettings>;
 
@@ -817,17 +820,56 @@ export async function analyzeTrade(
 
   const players = await fetchAllPlayers();
 
+  // Build a name → [sleeperPlayerId, playerData] map for fallback resolution.
+  // This handles cases where the passed-in IDs are stale DB IDs that don't match
+  // the Sleeper ID namespace (the canonical key for the `players` dict).
+  const playersByName = new Map<string, { id: string; data: SleeperPlayer }>();
+  for (const [id, p] of Object.entries(players)) {
+    const name = (p.full_name || `${(p as any).first_name || ''} ${(p as any).last_name || ''}`.trim()).toLowerCase().trim();
+    if (name) playersByName.set(name, { id, data: p });
+  }
+
+  // Resolves a player by ID with a name-based fallback. Returns { id, player } where
+  // `id` is always the canonical Sleeper ID used as the key in `players`.
+  function resolvePlayer(inputId: string): { id: string; player: SleeperPlayer } | null {
+    const direct = players[inputId];
+    if (direct) {
+      // Sanity check: verify the found player's name matches the hint name (if available).
+      // If it doesn't match, the DB ID has collided with a different Sleeper player's ID.
+      const hint = playerHints?.[inputId];
+      if (hint?.full_name) {
+        const directName = (direct.full_name || '').toLowerCase().trim();
+        const hintName = hint.full_name.toLowerCase().trim();
+        if (directName !== hintName) {
+          // ID collision — ignore this match and fall through to name-based lookup.
+          const byName = playersByName.get(hintName);
+          if (byName) return { id: byName.id, player: byName.data };
+          return null;
+        }
+      }
+      return { id: inputId, player: direct };
+    }
+    // No direct match — try name-based lookup via the hint.
+    const hint = playerHints?.[inputId];
+    if (hint?.full_name) {
+      const byName = playersByName.get(hint.full_name.toLowerCase().trim());
+      if (byName) return { id: byName.id, player: byName.data };
+    }
+    return null;
+  }
+
   const teamAItems: TradeItem[] = [];
   let teamAValue = 0;
 
   for (const playerId of teamAGives) {
-    const player = players[playerId];
-    if (player) {
+    const resolved = resolvePlayer(playerId);
+    if (resolved) {
+      const { id: resolvedId, player } = resolved;
       const value = getPlayerValue(player, settings);
       teamAValue += value;
       teamAItems.push({
         type: 'player',
-        id: playerId,
+        id: resolvedId,
         name: player.full_name,
         position: player.position,
         team: player.team ?? undefined,
@@ -866,13 +908,14 @@ export async function analyzeTrade(
   let teamBValue = 0;
 
   for (const playerId of teamAGets) {
-    const player = players[playerId];
-    if (player) {
+    const resolved = resolvePlayer(playerId);
+    if (resolved) {
+      const { id: resolvedId, player } = resolved;
       const value = getPlayerValue(player, settings);
       teamBValue += value;
       teamBItems.push({
         type: 'player',
-        id: playerId,
+        id: resolvedId,
         name: player.full_name,
         position: player.position,
         team: player.team ?? undefined,

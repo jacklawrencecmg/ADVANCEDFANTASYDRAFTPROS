@@ -45,9 +45,10 @@ interface TradeAnalyzerProps {
   onTradeSaved?: () => void;
   isGuest?: boolean;
   onSignUp?: () => void;
+  onLimitReached?: () => void;
 }
 
-export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false, onSignUp }: TradeAnalyzerProps) {
+export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false, onSignUp, onLimitReached }: TradeAnalyzerProps) {
   const { user } = useAuth();
   const { showToast } = useToast();
   const { isPro } = useSubscription();
@@ -110,6 +111,38 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
     warmEspnIdCache(); // background fetch so ESPN IDs are available for headshots
   }, []);
 
+  // Prefill "giving" side from Sleeper roster sessionStorage handoff.
+  useEffect(() => {
+    const raw = sessionStorage.getItem('fdp_trade_prefill');
+    if (!raw) return;
+    sessionStorage.removeItem('fdp_trade_prefill');
+    try {
+      const data = JSON.parse(raw) as {
+        players: Array<{ player_id: string; name: string; position: string; team: string | null }>;
+      };
+      if (!data.players?.length) return;
+      const newPlayers: Record<string, SleeperPlayer> = {};
+      const ids: string[] = [];
+      data.players.forEach(p => {
+        newPlayers[p.player_id] = {
+          player_id: p.player_id,
+          full_name: p.name,
+          first_name: p.name.split(' ')[0] || '',
+          last_name: p.name.split(' ').slice(1).join(' ') || '',
+          position: p.position,
+          team: p.team,
+          status: 'Active',
+          injury_status: null,
+        };
+        ids.push(p.player_id);
+      });
+      setPlayers(prev => ({ ...prev, ...newPlayers }));
+      setTeamAGives(ids);
+    } catch (e) {
+      console.error('Failed to parse trade prefill:', e);
+    }
+  }, []);
+
   // Preload player values for live display while building a trade.
   // Mirrors the same adjustments getPlayerValue() applies so badges match trade results.
   useEffect(() => {
@@ -152,10 +185,13 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
       const data = await response.json();
 
       const results: SleeperPlayer[] = (data.results || []).map((p: any) => {
-        // Resolve the correct Sleeper player ID by name in case DB has wrong player_id mappings
-        const resolvedSleeperHeadshotId = getSleeperIdByName(p.name) || p.id;
+        // Always use the authoritative Sleeper player ID resolved by name.
+        // The DB player_id field can contain wrong/stale IDs that point to entirely
+        // different players in the Sleeper ID namespace, causing name swaps in analysis.
+        const sleeperIdByName = getSleeperIdByName(p.name);
+        const resolvedId = sleeperIdByName || p.id;
         return {
-          player_id: p.id,
+          player_id: resolvedId,       // canonical Sleeper ID — matches fetchAllPlayers() keys
           full_name: p.name,
           first_name: (p.name || '').split(' ')[0] || '',
           last_name: (p.name || '').split(' ').slice(1).join(' ') || '',
@@ -164,8 +200,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
           age: 0,
           injury_status: null,
           status: 'Active',
-          espn_id: getEspnIdFromCache(resolvedSleeperHeadshotId),
-          headshot_id: resolvedSleeperHeadshotId !== p.id ? resolvedSleeperHeadshotId : undefined,
+          espn_id: getEspnIdFromCache(resolvedId),
         };
       });
 
@@ -513,6 +548,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
       if (!canUse) {
         showToast('Daily trade calculation limit reached. Upgrade to Pro for unlimited access!', 'error');
         setShowUpgradeModal(true);
+        onLimitReached?.();
         return;
       }
     }
@@ -529,7 +565,8 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
         teamAGetsFAAB,
         !leagueId ? leagueSettings : undefined,
         leagueFormat,
-        scoringFormat === 'half' ? 'half-ppr' : scoringFormat
+        scoringFormat === 'half' ? 'half-ppr' : scoringFormat,
+        players  // name-based fallback for stale/mismatched DB player IDs
       );
       setAnalysis(result);
 

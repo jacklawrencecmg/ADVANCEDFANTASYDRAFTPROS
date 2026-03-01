@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Users, TrendingUp, ArrowLeft, Loader, AlertCircle, Award, Target } from 'lucide-react';
+import { Trophy, Users, TrendingUp, ArrowLeft, Loader, AlertCircle, Award, Target, Plus, Check, ArrowRight } from 'lucide-react';
 import { ListSkeleton } from './LoadingSkeleton';
 import { PlayerAvatar } from './PlayerAvatar';
 
@@ -52,14 +52,17 @@ interface LeagueDashboardProps {
   leagueId: string;
   leagueName: string;
   onBack: () => void;
+  onBuildTrade?: () => void;
 }
 
-export default function LeagueDashboard({ leagueId, leagueName, onBack }: LeagueDashboardProps) {
+export default function LeagueDashboard({ leagueId, leagueName, onBack, onBuildTrade }: LeagueDashboardProps) {
   const [tab, setTab] = useState<'rankings' | 'rosters' | 'suggestions'>('rankings');
   const [rosters, setRosters] = useState<Roster[]>([]);
   const [suggestions, setSuggestions] = useState<TradeSuggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([]);
+  const [selectedPlayerMap, setSelectedPlayerMap] = useState<Record<string, Player>>({});
 
   useEffect(() => {
     loadLeagueData();
@@ -97,6 +100,31 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
       setLoading(false);
     }
   };
+
+  function togglePlayerSelection(player: Player) {
+    if (selectedPlayerIds.includes(player.player_id)) {
+      setSelectedPlayerIds(prev => prev.filter(id => id !== player.player_id));
+      setSelectedPlayerMap(prev => {
+        const next = { ...prev };
+        delete next[player.player_id];
+        return next;
+      });
+    } else {
+      setSelectedPlayerIds(prev => [...prev, player.player_id]);
+      setSelectedPlayerMap(prev => ({ ...prev, [player.player_id]: player }));
+    }
+  }
+
+  function handleBuildTrade() {
+    const prefillData = {
+      players: selectedPlayerIds.map(id => {
+        const p = selectedPlayerMap[id];
+        return { player_id: p.player_id, name: p.name, position: p.position, team: p.team };
+      }),
+    };
+    sessionStorage.setItem('fdp_trade_prefill', JSON.stringify(prefillData));
+    onBuildTrade?.();
+  }
 
   const loadSuggestions = async () => {
     if (suggestions.length > 0) return;
@@ -274,6 +302,28 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
 
           {tab === 'rosters' && (
             <div className="space-y-6">
+              {selectedPlayerIds.length > 0 && (
+                <div className="sticky top-0 z-10 bg-fdp-surface-1 border border-fdp-accent-1 rounded-lg p-3 flex items-center justify-between">
+                  <span className="text-sm font-medium text-fdp-text-1">
+                    {selectedPlayerIds.length} player{selectedPlayerIds.length > 1 ? 's' : ''} selected
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => { setSelectedPlayerIds([]); setSelectedPlayerMap({}); }}
+                      className="text-xs text-fdp-text-3 hover:text-fdp-text-1 transition-colors"
+                    >
+                      Clear
+                    </button>
+                    <button
+                      onClick={handleBuildTrade}
+                      className="flex items-center gap-1.5 bg-gradient-to-r from-fdp-accent-1 to-fdp-accent-2 text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+                    >
+                      Build Trade
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
               {rosters.map((roster, index) => (
                 <div key={roster.roster_id} className="border border-fdp-border-1 rounded-lg overflow-hidden">
                   <div className="bg-fdp-surface-1 px-4 py-3 flex items-center justify-between">
@@ -290,33 +340,53 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
                       {roster.players
                         .sort((a, b) => b.fdp_value - a.fdp_value)
                         .slice(0, 12)
-                        .map((player) => (
-                          <div
-                            key={player.player_id}
-                            className="flex items-center justify-between p-2 bg-fdp-surface-1 border border-fdp-border-1 rounded"
-                          >
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <PlayerAvatar
-                                playerId={player.player_id}
-                                playerName={player.name}
-                                team={player.team || undefined}
-                                position={player.position}
-                                size="sm"
-                                showTeamLogo={false}
-                                headshotUrl={player.headshot_url}
-                              />
-                              <div className="flex items-center gap-1.5 min-w-0">
-                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${getPositionColor(player.position)}`}>
-                                  {player.position}
+                        .map((player) => {
+                          const isSelected = selectedPlayerIds.includes(player.player_id);
+                          return (
+                            <div
+                              key={player.player_id}
+                              className={`flex items-center justify-between p-2 border rounded transition-colors ${
+                                isSelected
+                                  ? 'bg-fdp-accent-1/10 border-fdp-accent-1'
+                                  : 'bg-fdp-surface-1 border-fdp-border-1'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <PlayerAvatar
+                                  playerId={player.player_id}
+                                  playerName={player.name}
+                                  team={player.team || undefined}
+                                  position={player.position}
+                                  size="sm"
+                                  showTeamLogo={false}
+                                  headshotUrl={player.headshot_url}
+                                />
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${getPositionColor(player.position)}`}>
+                                    {player.position}
+                                  </span>
+                                  <span className="text-sm text-fdp-text-1 truncate">{player.name}</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 ml-2 flex-shrink-0">
+                                <span className="text-sm font-medium text-fdp-text-1">
+                                  {player.fdp_value > 0 ? player.fdp_value.toLocaleString() : '—'}
                                 </span>
-                                <span className="text-sm text-fdp-text-1 truncate">{player.name}</span>
+                                <button
+                                  onClick={() => togglePlayerSelection(player)}
+                                  title={isSelected ? 'Remove from trade' : 'Add to trade'}
+                                  className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${
+                                    isSelected
+                                      ? 'bg-fdp-accent-1 text-white'
+                                      : 'border border-fdp-border-1 text-fdp-text-3 hover:border-fdp-accent-1 hover:text-fdp-accent-1'
+                                  }`}
+                                >
+                                  {isSelected ? <Check className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+                                </button>
                               </div>
                             </div>
-                            <span className="text-sm font-medium text-fdp-text-1 ml-2">
-                              {player.fdp_value > 0 ? player.fdp_value.toLocaleString() : '—'}
-                            </span>
-                          </div>
-                        ))}
+                          );
+                        })}
                     </div>
                     {roster.players.length > 12 && (
                       <p className="text-sm text-fdp-text-2 mt-3 text-center">

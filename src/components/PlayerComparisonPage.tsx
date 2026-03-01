@@ -5,6 +5,8 @@ import { supabase } from '../lib/supabase';
 import { generateComparisonMetaTags, parsePlayerSlug, generatePlayerSlug } from '../lib/seo/meta';
 import { getFDPValue } from '../lib/fdp/getFDPValue';
 import { ListSkeleton } from './LoadingSkeleton';
+import { useAuth } from '../hooks/useAuth';
+import { SoftGateModal } from './SoftGateModal';
 
 interface PlayerData {
   player_id: string;
@@ -18,12 +20,28 @@ interface PlayerData {
   tier?: string;
 }
 
+function getSimilar(anchor: PlayerData, excludeId: string, all: any[]): any[] {
+  return all
+    .filter(p =>
+      p.position === anchor.position &&
+      p.player_id !== anchor.player_id &&
+      p.player_id !== excludeId
+    )
+    .sort((a, b) =>
+      Math.abs(getFDPValue(a) - anchor.fdp_value) - Math.abs(getFDPValue(b) - anchor.fdp_value)
+    )
+    .slice(0, 4);
+}
+
 export function PlayerComparisonPage() {
   const { slug } = useParams<{ slug: string }>();
+  const { user } = useAuth();
   const [player1, setPlayer1] = useState<PlayerData | null>(null);
   const [player2, setPlayer2] = useState<PlayerData | null>(null);
+  const [allPlayers, setAllPlayers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showSoftGate, setShowSoftGate] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -41,6 +59,36 @@ export function PlayerComparisonPage() {
     loadPlayers(player1Slug, player2Slug);
   }, [slug]);
 
+  // JSON-LD structured data
+  useEffect(() => {
+    if (!player1 || !player2) return;
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      'name': `${player1.full_name} vs ${player2.full_name} Dynasty Comparison`,
+      'itemListElement': [
+        {
+          '@type': 'ListItem',
+          'position': 1,
+          'name': player1.full_name,
+          'description': `Dynasty Value: ${player1.fdp_value}`,
+        },
+        {
+          '@type': 'ListItem',
+          'position': 2,
+          'name': player2.full_name,
+          'description': `Dynasty Value: ${player2.fdp_value}`,
+        },
+      ],
+    });
+    document.head.appendChild(script);
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, [player1, player2]);
+
   async function loadPlayers(slug1: string, slug2: string) {
     try {
       setLoading(true);
@@ -49,15 +97,17 @@ export function PlayerComparisonPage() {
       const name1 = parsePlayerSlug(slug1);
       const name2 = parsePlayerSlug(slug2);
 
-      const { data: allPlayers, error: playersError } = await supabase
+      const { data: players, error: playersError } = await supabase
         .rpc('get_latest_player_values', {});
 
       if (playersError) throw playersError;
 
-      const p1 = allPlayers.find((p: any) =>
+      setAllPlayers(players || []);
+
+      const p1 = players.find((p: any) =>
         p.full_name.toLowerCase().includes(name1.toLowerCase())
       );
-      const p2 = allPlayers.find((p: any) =>
+      const p2 = players.find((p: any) =>
         p.full_name.toLowerCase().includes(name2.toLowerCase())
       );
 
@@ -124,6 +174,10 @@ export function PlayerComparisonPage() {
 
   const valueDiff = player1.fdp_value - player2.fdp_value;
   const winner = valueDiff > 0 ? player1 : player2;
+  const maxVal = Math.max(player1.fdp_value, player2.fdp_value);
+
+  const similar1 = allPlayers.length > 0 ? getSimilar(player1, player2.player_id, allPlayers) : [];
+  const similar2 = allPlayers.length > 0 ? getSimilar(player2, player1.player_id, allPlayers) : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-fdp-bg-1 to-fdp-bg-0 p-4 md:p-8">
@@ -146,6 +200,7 @@ export function PlayerComparisonPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Player 1 Card */}
           <div className="bg-fdp-surface-1 rounded-xl p-6 border-2 border-fdp-border-1 hover:border-fdp-accent-1 transition-all">
             <div className="flex items-center justify-between mb-4">
               <Link
@@ -177,6 +232,12 @@ export function PlayerComparisonPage() {
                   <span className="text-fdp-text-3">Dynasty Value</span>
                   <span className="text-3xl font-bold text-fdp-accent-1">{player1.fdp_value}</span>
                 </div>
+                <div className="w-full bg-fdp-surface-2 rounded-full h-1.5 mt-2 mb-3">
+                  <div
+                    className="bg-fdp-accent-1 h-1.5 rounded-full transition-all"
+                    style={{ width: maxVal > 0 ? `${(player1.fdp_value / maxVal) * 100}%` : '0%' }}
+                  />
+                </div>
                 <div className="flex justify-between items-center">
                   <span className="text-fdp-text-3">Dynasty Rank</span>
                   <span className="text-xl font-bold text-fdp-text-1">
@@ -187,6 +248,7 @@ export function PlayerComparisonPage() {
             </div>
           </div>
 
+          {/* Player 2 Card */}
           <div className="bg-fdp-surface-1 rounded-xl p-6 border-2 border-fdp-border-1 hover:border-fdp-accent-1 transition-all">
             <div className="flex items-center justify-between mb-4">
               <Link
@@ -217,6 +279,12 @@ export function PlayerComparisonPage() {
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-fdp-text-3">Dynasty Value</span>
                   <span className="text-3xl font-bold text-fdp-accent-1">{player2.fdp_value}</span>
+                </div>
+                <div className="w-full bg-fdp-surface-2 rounded-full h-1.5 mt-2 mb-3">
+                  <div
+                    className="bg-fdp-accent-1 h-1.5 rounded-full transition-all"
+                    style={{ width: maxVal > 0 ? `${(player2.fdp_value / maxVal) * 100}%` : '0%' }}
+                  />
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-fdp-text-3">Dynasty Rank</span>
@@ -277,33 +345,59 @@ export function PlayerComparisonPage() {
           </div>
         </div>
 
+        {/* Trade Recommendation — soft-gated for non-logged-in visitors */}
         <div className="bg-fdp-surface-1 rounded-xl p-6 md:p-8 border border-fdp-border-1 mb-6">
           <h2 className="text-2xl font-bold text-fdp-text-1 mb-4">Trade Recommendation</h2>
 
-          <div className="bg-fdp-surface-2 rounded-lg p-6 border border-fdp-border-1">
-            {Math.abs(valueDiff) < 200 ? (
-              <div>
-                <div className="text-lg font-semibold text-fdp-text-1 mb-2">
-                  Fair 1-for-1 Trade
+          <div className="relative">
+            {!user ? (
+              <>
+                <div className="blur-sm pointer-events-none select-none">
+                  <div className="bg-fdp-surface-2 rounded-lg p-6 border border-fdp-border-1">
+                    <div className="text-lg font-semibold text-fdp-text-1 mb-2">
+                      {Math.abs(valueDiff) < 200 ? 'Fair 1-for-1 Trade' : 'Additional Assets Required'}
+                    </div>
+                    <p className="text-fdp-text-2">
+                      Detailed trade recommendation analysis is available here.
+                    </p>
+                  </div>
                 </div>
-                <p className="text-fdp-text-2">
-                  These players have similar dynasty values (within 200 points), making them suitable for a straight 1-for-1 trade. Consider roster needs, positional scarcity, and team strategy when deciding which player fits your dynasty better.
-                </p>
-              </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <button
+                    onClick={() => setShowSoftGate(true)}
+                    className="inline-flex items-center gap-2 bg-gradient-to-r from-fdp-accent-1 to-fdp-accent-2 text-fdp-bg-0 font-semibold py-3 px-6 rounded-lg hover:shadow-lg transform hover:-translate-y-0.5 transition-all"
+                  >
+                    See Full Trade Analysis →
+                  </button>
+                </div>
+              </>
             ) : (
-              <div>
-                <div className="text-lg font-semibold text-fdp-text-1 mb-2">
-                  Additional Assets Required
-                </div>
-                <p className="text-fdp-text-2">
-                  To balance this trade, the team receiving {winner.full_name} should add approximately {Math.abs(valueDiff)} points of value through additional players or draft picks. Use our trade calculator to build a fair multi-asset deal.
-                </p>
+              <div className="bg-fdp-surface-2 rounded-lg p-6 border border-fdp-border-1">
+                {Math.abs(valueDiff) < 200 ? (
+                  <div>
+                    <div className="text-lg font-semibold text-fdp-text-1 mb-2">
+                      Fair 1-for-1 Trade
+                    </div>
+                    <p className="text-fdp-text-2">
+                      These players have similar dynasty values (within 200 points), making them suitable for a straight 1-for-1 trade. Consider roster needs, positional scarcity, and team strategy when deciding which player fits your dynasty better.
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <div className="text-lg font-semibold text-fdp-text-1 mb-2">
+                      Additional Assets Required
+                    </div>
+                    <p className="text-fdp-text-2">
+                      To balance this trade, the team receiving {winner.full_name} should add approximately {Math.abs(valueDiff)} points of value through additional players or draft picks. Use our trade calculator to build a fair multi-asset deal.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </div>
 
-        <div className="bg-fdp-surface-1 rounded-xl p-6 md:p-8 border border-fdp-border-1 text-center">
+        <div className="bg-fdp-surface-1 rounded-xl p-6 md:p-8 border border-fdp-border-1 text-center mb-6">
           <h2 className="text-xl font-bold text-fdp-text-1 mb-4">
             Evaluate This Trade
           </h2>
@@ -318,7 +412,61 @@ export function PlayerComparisonPage() {
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
+
+        {/* Similar Comparisons — internal links for SEO */}
+        {(similar1.length > 0 || similar2.length > 0) && (
+          <div className="bg-fdp-surface-1 rounded-xl p-6 md:p-8 border border-fdp-border-1">
+            <h2 className="text-xl font-bold text-fdp-text-1 mb-6 flex items-center gap-2">
+              <Users className="w-5 h-5" />
+              More Comparisons
+            </h2>
+
+            {similar1.length > 0 && (
+              <div className="mb-5">
+                <p className="text-sm font-semibold text-fdp-text-3 mb-3">
+                  Compare {player1.full_name} vs:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {similar1.map((p: any) => (
+                    <Link
+                      key={p.player_id}
+                      to={`/compare/${generatePlayerSlug(player1.full_name)}-vs-${generatePlayerSlug(p.full_name)}-dynasty`}
+                      className="px-3 py-1.5 bg-fdp-surface-2 border border-fdp-border-1 rounded-full text-sm text-fdp-text-2 hover:border-fdp-accent-1 hover:text-fdp-accent-1 transition-all"
+                    >
+                      {p.full_name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {similar2.length > 0 && (
+              <div>
+                <p className="text-sm font-semibold text-fdp-text-3 mb-3">
+                  Compare {player2.full_name} vs:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {similar2.map((p: any) => (
+                    <Link
+                      key={p.player_id}
+                      to={`/compare/${generatePlayerSlug(player2.full_name)}-vs-${generatePlayerSlug(p.full_name)}-dynasty`}
+                      className="px-3 py-1.5 bg-fdp-surface-2 border border-fdp-border-1 rounded-full text-sm text-fdp-text-2 hover:border-fdp-accent-1 hover:text-fdp-accent-1 transition-all"
+                    >
+                      {p.full_name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
+
+      <SoftGateModal
+        isOpen={showSoftGate}
+        feature="comparison"
+        onClose={() => setShowSoftGate(false)}
+      />
     </div>
   );
 }

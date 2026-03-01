@@ -10,6 +10,7 @@ import { useToast } from './Toast';
 import TradeAnalyzer from './TradeAnalyzer'; // eager — hero component
 import AlertsDropdown from './AlertsDropdown';
 import UpgradeModal from './UpgradeModal';
+import { HighIntentUpgradeTrigger } from './HighIntentUpgradeTrigger';
 import SubscriptionBadge from './SubscriptionBadge';
 import UsageMeter from './UsageMeter';
 import Footer from './Footer';
@@ -106,6 +107,7 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
   const [selectedReportSlug, setSelectedReportSlug] = useState<string | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState<string | undefined>(undefined);
+  const [showHighIntentTrigger, setShowHighIntentTrigger] = useState(false);
   const [onboardingDismissed, setOnboardingDismissed] = useState(() =>
     localStorage.getItem('fdp_onboarding_dismissed') === '1'
   );
@@ -448,7 +450,7 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                   ]}
                 />
                 <Suspense fallback={tabContentFallback}>
-                  {activeTab === 'trade' && <TradeAnalyzer leagueId={currentLeague?.league_id} onTradeSaved={() => setActiveTab('history')} />}
+                  {activeTab === 'trade' && <TradeAnalyzer leagueId={currentLeague?.league_id} onTradeSaved={() => setActiveTab('history')} onLimitReached={() => setShowHighIntentTrigger(true)} />}
                   {activeTab === 'history' && <TradeHistory leagueId={currentLeague?.league_id ?? ''} />}
                   {activeTab === 'tradeFinder' && <TradeFinder leagueId={currentLeague?.league_id ?? ''} rosterId={currentRosterId} />}
                   {activeTab === 'counterOffer' && <CounterOfferGenerator />}
@@ -490,7 +492,7 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                   {activeTab === 'recap' && <WeeklyRecap leagueId={currentLeague?.league_id ?? ''} />}
                   {activeTab === 'chat' && <LeagueChat leagueId={currentLeague?.league_id || ''} userId={user?.id || ''} username={user?.email || 'User'} />}
                   {activeTab === 'notifications' && <NotificationsPanel userId={user?.id || ''} leagueId={currentLeague?.league_id ?? ''} />}
-                  {activeTab === 'sleeperAnalysis' && <SleeperLeagueAnalysis />}
+                  {activeTab === 'sleeperAnalysis' && <SleeperLeagueAnalysis onBuildTrade={() => switchPrimary('trade')} />}
                 </Suspense>
               </div>
             )}
@@ -613,6 +615,13 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
       {showAddLeague && <AddLeagueModal onClose={() => setShowAddLeague(false)} onAdd={handleAddLeague} />}
       {showManageLeagues && <LeagueManager leagues={leagues} onClose={() => setShowManageLeagues(false)} onUpdate={loadLeagues} />}
       {showUpgradeModal && <UpgradeModal onClose={() => setShowUpgradeModal(false)} feature={upgradeFeature} />}
+      {showHighIntentTrigger && !isPro && (
+        <HighIntentUpgradeTrigger
+          trigger="trade_limit_reached"
+          context={{ trades_today: 3 }}
+          onClose={() => setShowHighIntentTrigger(false)}
+        />
+      )}
     </div>
   );
 }

@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import SleeperImport from './SleeperImport';
 import LeagueDashboard from './LeagueDashboard';
 
-export default function SleeperLeagueAnalysis() {
+interface SleeperLeagueAnalysisProps {
+  onBuildTrade?: () => void;
+}
+
+export default function SleeperLeagueAnalysis({ onBuildTrade }: SleeperLeagueAnalysisProps) {
   const [selectedLeague, setSelectedLeague] = useState<{
     leagueId: string;
     leagueName: string;
@@ -22,6 +26,7 @@ export default function SleeperLeagueAnalysis() {
         leagueId={selectedLeague.leagueId}
         leagueName={selectedLeague.leagueName}
         onBack={handleBack}
+        onBuildTrade={onBuildTrade}
       />
     );
   }
