@@ -170,9 +170,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
 
       searchTimeoutRef.current = setTimeout(async () => {
         try {
-          console.log('Searching for:', value.trim());
           const results = await playerValuesApi.searchPlayers(value.trim(), searchMaxResults);
-          console.log('Search results:', results.length, 'players found');
 
           const uniqueResults = results.reduce((acc: PlayerValue[], current) => {
             const isDuplicate = acc.some(item => item.player_id === current.player_id);
@@ -182,15 +180,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
             return acc;
           }, []);
 
-          if (uniqueResults.length !== results.length) {
-            console.log(`Removed ${results.length - uniqueResults.length} duplicate players`);
-          }
-
           setSuggestions(uniqueResults);
-
-          if (uniqueResults.length === 0) {
-            console.log('No results found. Database may be empty.');
-          }
         } catch (error) {
           console.error('Error searching players:', error);
           showToast('Error searching players. Please try again.', 'error');

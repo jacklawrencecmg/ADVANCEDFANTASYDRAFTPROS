@@ -41,7 +41,6 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
     try {
       const count = await syncPlayerValuesToDatabase(false);
       setSyncSuccess(`Successfully synced ${count} FDP player values`);
-      console.log(`Synced ${count} player values from FDP`);
       await loadRankings();
       setTimeout(() => setSyncSuccess(null), 5000);
     } catch (err) {
@@ -55,7 +54,7 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
   if (loading && rankings.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-lg text-gray-400">Loading power rankings with FDP values...</div>
+        <div className="text-lg text-fdp-text-3">Loading power rankings...</div>
       </div>
     );
   }

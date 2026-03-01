@@ -96,8 +96,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 p_user_id: session.user.id
               });
             }
-          } catch (error) {
-            console.error('Error ensuring subscription:', error);
+          } catch {
+            // Silently ignore — subscription will be created on next sign-in
           }
         })();
       }
@@ -121,21 +121,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string) => {
     try {
-      console.log('Attempting signup for:', email);
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
       });
 
       if (error) {
-        console.error('Signup error:', error);
         return { error: error.message };
       }
 
-      console.log('Signup successful:', data);
       return {};
     } catch (error) {
-      console.error('Unexpected signup error:', error);
       return {
         error: error instanceof Error
           ? error.message
@@ -146,14 +142,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      console.log('Signing out...');
-
-      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Sign out error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       // Clear local state immediately
       setUser(null);
@@ -163,14 +153,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('fdp-auth-token');
       sessionStorage.clear();
 
-      console.log('Sign out successful, redirecting...');
-
       // Small delay to ensure state updates, then redirect
       setTimeout(() => {
         window.location.href = '/';
       }, 100);
-    } catch (error) {
-      console.error('Error during sign out:', error);
+    } catch {
       // Force clear auth data and redirect anyway
       setUser(null);
       setSession(null);

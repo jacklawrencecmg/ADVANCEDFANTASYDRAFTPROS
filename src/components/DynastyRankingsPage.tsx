@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { TrendingUp, Calendar, Search, AlertCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, Calendar, Search, AlertCircle } from 'lucide-react';
 import { Link } from '../lib/seo/router';
 import { supabase } from '../lib/supabase';
 import { generateRankingsMetaTags, generatePlayerSlug } from '../lib/seo/meta';
@@ -236,7 +236,7 @@ export function DynastyRankingsPage() {
                           {player.value_change_7d > 0 ? (
                             <TrendingUp className="w-4 h-4" />
                           ) : (
-                            <TrendingUp className="w-4 h-4 rotate-180" />
+                            <TrendingDown className="w-4 h-4" />
                           )}
                         </span>
                       ) : (

@@ -155,8 +155,8 @@ export default function Top1000Rankings() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <RefreshCw className="w-12 h-12 animate-spin text-[#00d4ff] mx-auto mb-4" />
-          <p className="text-gray-400">Loading Top 1000 rankings...</p>
+          <RefreshCw className="w-12 h-12 animate-spin text-fdp-accent-1 mx-auto mb-4" />
+          <p className="text-fdp-text-3">Loading Top 1000 rankings...</p>
         </div>
       </div>
     );
@@ -202,14 +202,14 @@ export default function Top1000Rankings() {
         <div className="flex gap-2">
           <button
             onClick={loadTop1000}
-            className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-fdp-surface-2 hover:bg-fdp-border-1 text-fdp-text-2 rounded-lg transition-colors flex items-center gap-2"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
           <button
             onClick={exportToCSV}
-            className="px-4 py-2 bg-[#00d4ff] hover:bg-[#00b8e6] text-gray-900 rounded-lg transition-colors flex items-center gap-2 font-medium"
+            className="px-4 py-2 bg-fdp-accent-1 hover:bg-fdp-accent-2 text-fdp-bg-0 rounded-lg transition-colors flex items-center gap-2 font-medium"
           >
             <Download className="w-4 h-4" />
             Export CSV
@@ -218,13 +218,13 @@ export default function Top1000Rankings() {
       </div>
 
       {/* View Tabs */}
-      <div className="flex gap-2 border-b border-gray-700">
+      <div className="flex gap-2 border-b border-fdp-border-1">
         <button
           onClick={() => setViewMode('all')}
           className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 ${
             viewMode === 'all'
-              ? 'text-[#00d4ff] border-[#00d4ff]'
-              : 'text-gray-400 border-transparent hover:text-gray-300'
+              ? 'text-fdp-accent-1 border-fdp-accent-1'
+              : 'text-fdp-text-3 border-transparent hover:text-fdp-text-2'
           }`}
         >
           <TrendingUp className="w-5 h-5" />
@@ -234,8 +234,8 @@ export default function Top1000Rankings() {
           onClick={() => setViewMode('offense')}
           className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 ${
             viewMode === 'offense'
-              ? 'text-[#00d4ff] border-[#00d4ff]'
-              : 'text-gray-400 border-transparent hover:text-gray-300'
+              ? 'text-fdp-accent-1 border-fdp-accent-1'
+              : 'text-fdp-text-3 border-transparent hover:text-fdp-text-2'
           }`}
         >
           <Users className="w-5 h-5" />
@@ -245,8 +245,8 @@ export default function Top1000Rankings() {
           onClick={() => setViewMode('idp')}
           className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 ${
             viewMode === 'idp'
-              ? 'text-[#00d4ff] border-[#00d4ff]'
-              : 'text-gray-400 border-transparent hover:text-gray-300'
+              ? 'text-fdp-accent-1 border-fdp-accent-1'
+              : 'text-fdp-text-3 border-transparent hover:text-fdp-text-2'
           }`}
         >
           <Shield className="w-5 h-5" />
@@ -255,7 +255,7 @@ export default function Top1000Rankings() {
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-gray-900 rounded-lg border border-gray-700 p-4">
+      <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1 p-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div className="relative">
@@ -265,7 +265,7 @@ export default function Top1000Rankings() {
               placeholder="Search players..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#00d4ff]"
+              className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-fdp-text-1 placeholder-fdp-text-3 focus:outline-none focus:border-fdp-accent-1"
             />
           </div>
 
@@ -273,7 +273,7 @@ export default function Top1000Rankings() {
           <select
             value={positionFilter}
             onChange={(e) => setPositionFilter(e.target.value)}
-            className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-[#00d4ff]"
+            className="px-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-fdp-text-1 focus:outline-none focus:border-fdp-accent-1"
           >
             <option value="">All Positions</option>
             {positions.map(pos => (
@@ -285,7 +285,7 @@ export default function Top1000Rankings() {
           <select
             value={teamFilter}
             onChange={(e) => setTeamFilter(e.target.value)}
-            className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-[#00d4ff]"
+            className="px-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-fdp-text-1 focus:outline-none focus:border-fdp-accent-1"
           >
             <option value="">All Teams</option>
             {teams.map(team => (
@@ -297,7 +297,7 @@ export default function Top1000Rankings() {
           <select
             value={valueMode}
             onChange={(e) => setValueMode(e.target.value as ValueMode)}
-            className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-[#00d4ff]"
+            className="px-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-fdp-text-1 focus:outline-none focus:border-fdp-accent-1"
           >
             <option value="both">Both Values</option>
             <option value="dynasty">Dynasty Only</option>
@@ -317,7 +317,7 @@ export default function Top1000Rankings() {
                 setPositionFilter('');
                 setTeamFilter('');
               }}
-              className="ml-auto text-sm text-[#00d4ff] hover:text-[#00b8e6]"
+              className="ml-auto text-sm text-fdp-accent-1 hover:text-fdp-accent-2"
             >
               Clear Filters
             </button>
@@ -326,45 +326,45 @@ export default function Top1000Rankings() {
       </div>
 
       {/* Rankings Table */}
-      <div className="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden">
+      <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-800 border-b border-gray-700">
+            <thead className="bg-fdp-surface-2 border-b border-fdp-border-1">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">
                   Rank
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">
                   Player
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">
                   Pos
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">
                   Team
                 </th>
                 {(valueMode === 'both' || valueMode === 'dynasty') && (
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">
                     Dynasty
                   </th>
                 )}
                 {(valueMode === 'both' || valueMode === 'redraft') && (
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">
                     Redraft
                   </th>
                 )}
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">
                   Overall
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">
                   Age
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-fdp-border-1">
               {filteredPlayers.map((player) => (
-                <tr key={player.player_id} className="hover:bg-gray-800/50 transition-colors">
-                  <td className="px-4 py-3 text-sm font-semibold text-gray-300">
+                <tr key={player.player_id} className="hover:bg-fdp-surface-2/50 transition-colors">
+                  <td className="px-4 py-3 text-sm font-semibold text-fdp-text-2">
                     #{player.rank}
                   </td>
                   <td className="px-4 py-3">
@@ -379,7 +379,7 @@ export default function Top1000Rankings() {
                       />
                       <div>
                         <div className="text-sm font-medium text-white">{player.full_name}</div>
-                        <div className="text-xs text-gray-500">{player.status}</div>
+                        <div className="text-xs text-fdp-text-3">{player.status}</div>
                       </div>
                     </div>
                   </td>
@@ -394,11 +394,11 @@ export default function Top1000Rankings() {
                       {player.position}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-300">
+                  <td className="px-4 py-3 text-sm text-fdp-text-2">
                     {player.team || '-'}
                   </td>
                   {(valueMode === 'both' || valueMode === 'dynasty') && (
-                    <td className="px-4 py-3 text-sm text-right font-medium text-[#00d4ff]">
+                    <td className="px-4 py-3 text-sm text-right font-medium text-fdp-accent-1">
                       {player.dynasty_value.toLocaleString()}
                     </td>
                   )}
@@ -407,10 +407,10 @@ export default function Top1000Rankings() {
                       {player.redraft_value.toLocaleString()}
                     </td>
                   )}
-                  <td className="px-4 py-3 text-sm text-right font-bold text-white">
+                  <td className="px-4 py-3 text-sm text-right font-bold text-fdp-text-1">
                     {player.overall_value.toLocaleString()}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-400">
+                  <td className="px-4 py-3 text-sm text-fdp-text-3">
                     {player.age || '-'}
                   </td>
                 </tr>
@@ -420,7 +420,7 @@ export default function Top1000Rankings() {
         </div>
 
         {filteredPlayers.length === 0 && (
-          <div className="text-center py-12 text-gray-400">
+          <div className="text-center py-12 text-fdp-text-3">
             No players match the current filters
           </div>
         )}

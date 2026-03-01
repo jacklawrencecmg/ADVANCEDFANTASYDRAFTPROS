@@ -219,7 +219,7 @@ export default function TradeFairnessWarning({
                   ? 'bg-red-600 hover:bg-red-500 text-white'
                   : recommendation === 'risky'
                   ? 'bg-orange-600 hover:bg-orange-500 text-white'
-                  : 'bg-[#00d4ff] hover:bg-[#00b8e6] text-gray-900'
+                  : 'bg-fdp-accent-1 hover:bg-fdp-accent-2 text-fdp-bg-0'
               }`}
             >
               {recommendation === 'unfair' ? 'Proceed Anyway' : 'Accept Trade'}

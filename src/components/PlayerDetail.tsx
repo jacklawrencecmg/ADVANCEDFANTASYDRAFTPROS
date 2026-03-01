@@ -53,8 +53,6 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
 
     try {
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      console.log('Loading player data for:', playerId, 'format:', format);
-      console.log('Supabase URL:', supabaseUrl);
 
       const response = await fetch(
         `${supabaseUrl}/functions/v1/player-detail?id=${playerId}&format=${format}`,
@@ -65,9 +63,7 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
         }
       );
 
-      console.log('Response status:', response.status);
       const result = await response.json();
-      console.log('Response data:', result);
 
       if (result.ok) {
         setData(result);

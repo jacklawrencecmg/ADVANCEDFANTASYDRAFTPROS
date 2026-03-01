@@ -37,20 +37,15 @@ export function AuthForm() {
 
     try {
       if (mode === 'signup') {
-        console.log('Starting signup process...');
         const result = await signUp(email, password);
-        console.log('Signup result:', result);
 
         if (result.error) {
-          console.error('Signup error:', result.error);
           setError(`Signup failed: ${result.error}`);
         } else {
-          console.log('Signup successful!');
           setSuccess('Account created successfully! You now have a 7-day Pro trial. Welcome!');
           setEmail('');
           setPassword('');
           setConfirmPassword('');
-          // Don't auto-switch to login since user is now logged in
         }
       } else {
         const result = await signIn(email, password);
@@ -58,8 +53,7 @@ export function AuthForm() {
           setError(result.error);
         }
       }
-    } catch (err) {
-      console.error('Form submission error:', err);
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -76,7 +70,6 @@ export function AuthForm() {
               alt="Fantasy Draft Pros Logo"
               className="h-32 w-auto object-contain drop-shadow-lg"
               onError={(e) => {
-                console.error('Logo failed to load');
                 e.currentTarget.style.display = 'none';
               }}
             />

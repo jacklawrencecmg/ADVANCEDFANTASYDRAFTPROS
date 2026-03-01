@@ -115,13 +115,13 @@ function AppContent() {
       return;
     }
 
-    const tradeMatch = path.match(/^\/trade\/([a-z0-9]+)$/);
+    const tradeMatch = path.match(/^\/trade\/([a-z0-9-]+)$/i);
     if (tradeMatch) {
       setTradeSlug(tradeMatch[1]);
       return;
     }
 
-    const leagueMatch = path.match(/^\/league\/public\/([a-z0-9-]+)$/);
+    const leagueMatch = path.match(/^\/league\/public\/([a-z0-9-]+)$/i);
     if (leagueMatch) {
       setLeagueSlug(leagueMatch[1]);
       return;
@@ -134,7 +134,7 @@ function AppContent() {
 
   if (showDoctorAdmin) {
     if (!isAdmin) {
-      return <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-400">Access denied.</div>;
+      return <div className="min-h-screen flex items-center justify-center bg-fdp-bg-0 text-fdp-text-3">Access denied.</div>;
     }
     return (
       <Suspense fallback={<PageLoader />}>
@@ -146,7 +146,7 @@ function AppContent() {
 
   if (showSEOAdmin) {
     if (!isAdmin) {
-      return <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-400">Access denied.</div>;
+      return <div className="min-h-screen flex items-center justify-center bg-fdp-bg-0 text-fdp-text-3">Access denied.</div>;
     }
     return (
       <Suspense fallback={<PageLoader />}>

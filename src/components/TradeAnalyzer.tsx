@@ -205,7 +205,6 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
       if (error) throw error;
 
       if (!count || count === 0) {
-        console.log('No player values found in database, syncing from FDP API...');
         setSyncingValues(true);
         showToast('Initializing player values...', 'info');
 
