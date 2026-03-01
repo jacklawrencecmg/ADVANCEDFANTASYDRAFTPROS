@@ -66,7 +66,7 @@ export function MarketVsModelCard({
   if (compact) {
     return (
       <div className={`inline-flex items-center gap-2 ${className}`}>
-        <span className="text-sm text-gray-600">
+        <span className="text-sm text-fdp-text-2">
           Confidence: <span className={`font-semibold ${confidenceColor}`}>{confidenceLabel}</span>
         </span>
         {isOutlier && (
@@ -80,15 +80,15 @@ export function MarketVsModelCard({
   }
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 p-4 ${className}`}>
+    <div className={`bg-fdp-surface-1 rounded-lg border border-fdp-border-1 p-4 ${className}`}>
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900">
+          <h3 className="text-sm font-semibold text-fdp-text-1">
             Value Breakdown
           </h3>
           {playerName && (
-            <p className="text-xs text-gray-500 mt-0.5">{playerName}</p>
+            <p className="text-xs text-fdp-text-3 mt-0.5">{playerName}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -114,34 +114,34 @@ export function MarketVsModelCard({
       <div className="space-y-3">
         {/* Model Value */}
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-fdp-text-2">
             Model Value
             {modelRank && <span className="text-xs ml-1">(#{modelRank})</span>}
           </span>
-          <span className="font-semibold text-gray-900">
+          <span className="font-semibold text-fdp-text-1">
             {modelValue.toLocaleString()}
           </span>
         </div>
 
         {/* Market Value */}
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-fdp-text-2">
             Market Value
             {marketRank && <span className="text-xs ml-1">(#{marketRank})</span>}
           </span>
-          <span className="font-semibold text-gray-900">
+          <span className="font-semibold text-fdp-text-1">
             {marketValue.toLocaleString()}
           </span>
         </div>
 
         {/* Difference Indicator */}
-        <div className="flex justify-between items-center py-2 border-t border-gray-100">
-          <span className="text-xs text-gray-500">Difference</span>
+        <div className="flex justify-between items-center py-2 border-t border-fdp-border-1">
+          <span className="text-xs text-fdp-text-3">Difference</span>
           <div className="flex items-center gap-2">
             {modelHigher ? (
               <TrendingUp className="w-4 h-4 text-blue-600" />
             ) : modelValue === marketValue ? (
-              <Minus className="w-4 h-4 text-gray-400" />
+              <Minus className="w-4 h-4 text-fdp-text-3" />
             ) : (
               <TrendingDown className="w-4 h-4 text-orange-600" />
             )}
@@ -154,7 +154,7 @@ export function MarketVsModelCard({
         {/* Anchor Adjustment */}
         {anchorAdjustment !== 0 && (
           <div className="flex justify-between items-center text-sm">
-            <span className="text-gray-600">Anchor Adjustment</span>
+            <span className="text-fdp-text-2">Anchor Adjustment</span>
             <span className={`font-medium ${anchorAdjustment > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {anchorAdjustment > 0 ? '+' : ''}{anchorAdjustment.toLocaleString()}
             </span>
@@ -162,9 +162,9 @@ export function MarketVsModelCard({
         )}
 
         {/* Final Value */}
-        <div className="flex justify-between items-center pt-3 border-t border-gray-200">
-          <span className="text-sm font-semibold text-gray-900">Final Value</span>
-          <span className="text-lg font-bold text-gray-900">
+        <div className="flex justify-between items-center pt-3 border-t border-fdp-border-1">
+          <span className="text-sm font-semibold text-fdp-text-1">Final Value</span>
+          <span className="text-lg font-bold text-fdp-text-1">
             {finalValue.toLocaleString()}
           </span>
         </div>
@@ -172,8 +172,8 @@ export function MarketVsModelCard({
 
       {/* Explanation */}
       {showDetails && explanation && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="flex items-start gap-2 text-sm text-gray-700">
+        <div className="mt-4 pt-4 border-t border-fdp-border-1">
+          <div className="flex items-start gap-2 text-sm text-fdp-text-1">
             <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <p>{explanation}</p>
           </div>
@@ -183,12 +183,12 @@ export function MarketVsModelCard({
       {/* Confidence Bar */}
       <div className="mt-4">
         <div className="flex justify-between items-center mb-1">
-          <span className="text-xs text-gray-500">Agreement</span>
-          <span className="text-xs font-medium text-gray-700">
+          <span className="text-xs text-fdp-text-3">Agreement</span>
+          <span className="text-xs font-medium text-fdp-text-1">
             {Math.round(confidenceScore * 100)}%
           </span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-fdp-border-1 rounded-full h-2">
           <div
             className={`h-2 rounded-full transition-all ${getConfidenceBarColor(confidenceScore)}`}
             style={{ width: `${confidenceScore * 100}%` }}
@@ -245,7 +245,7 @@ export function ModelVsMarketIndicator({
 
   if (modelValue === marketValue) {
     return (
-      <div className={`inline-flex items-center gap-1 ${textSize} text-gray-600 ${className}`}>
+      <div className={`inline-flex items-center gap-1 ${textSize} text-fdp-text-2 ${className}`}>
         <Minus className={iconSize} />
         <span>Matches market</span>
       </div>

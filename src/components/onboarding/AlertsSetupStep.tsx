@@ -21,14 +21,14 @@ export function AlertsSetupStep({ onNext }: { onNext: (data?: Record<string, unk
         <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
           <Bell className="w-8 h-8" />
         </div>
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Stay Ahead of Opportunities</h1>
-        <p className="text-lg text-gray-600">
+        <h1 className="text-4xl font-bold text-fdp-text-1 mb-2">Stay Ahead of Opportunities</h1>
+        <p className="text-lg text-fdp-text-2">
           Get notified when your team can improve
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-lg p-8 mb-8">
+        <h2 className="text-xl font-bold text-fdp-text-1 mb-6">
           What you'll be notified about:
         </h2>
 
@@ -59,19 +59,19 @@ export function AlertsSetupStep({ onNext }: { onNext: (data?: Record<string, unk
         </div>
 
         {/* Toggle */}
-        <div className="bg-gray-50 rounded-lg p-6 mb-6">
+        <div className="bg-fdp-surface-1 rounded-lg p-6 mb-6">
           <label className="flex items-center gap-4 cursor-pointer">
             <input
               type="checkbox"
               checked={enableAlerts}
               onChange={(e) => setEnableAlerts(e.target.checked)}
-              className="w-6 h-6 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className="w-6 h-6 text-blue-600 border-fdp-border-1 rounded focus:ring-fdp-accent-1"
             />
             <div className="flex-1">
-              <div className="font-semibold text-gray-900">
+              <div className="font-semibold text-fdp-text-1">
                 Enable personalized alerts
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-fdp-text-2">
                 You can customize this later in settings
               </div>
             </div>
@@ -80,10 +80,10 @@ export function AlertsSetupStep({ onNext }: { onNext: (data?: Record<string, unk
 
         {/* Free vs Premium */}
         <div className="grid md:grid-cols-2 gap-4 mb-8">
-          <div className="border-2 border-gray-300 rounded-lg p-4">
-            <div className="text-sm font-semibold text-gray-600 mb-2">FREE</div>
-            <div className="text-2xl font-bold text-gray-900 mb-3">5 alerts/day</div>
-            <ul className="text-sm text-gray-600 space-y-1">
+          <div className="border-2 border-fdp-border-1 rounded-lg p-4">
+            <div className="text-sm font-semibold text-fdp-text-2 mb-2">FREE</div>
+            <div className="text-2xl font-bold text-fdp-text-1 mb-3">5 alerts/day</div>
+            <ul className="text-sm text-fdp-text-2 space-y-1">
               <li>• Critical/High priority only</li>
               <li>• Hourly batch delivery</li>
               <li>• Breakout alerts</li>
@@ -92,8 +92,8 @@ export function AlertsSetupStep({ onNext }: { onNext: (data?: Record<string, unk
 
           <div className="border-2 border-blue-600 rounded-lg p-4 bg-blue-50">
             <div className="text-sm font-semibold text-blue-600 mb-2">PREMIUM</div>
-            <div className="text-2xl font-bold text-gray-900 mb-3">50 alerts/day</div>
-            <ul className="text-sm text-gray-700 space-y-1">
+            <div className="text-2xl font-bold text-fdp-text-1 mb-3">50 alerts/day</div>
+            <ul className="text-sm text-fdp-text-1 space-y-1">
               <li>• All priority levels</li>
               <li>• Real-time delivery</li>
               <li>• Early access to buy lows</li>
@@ -123,11 +123,11 @@ function AlertType({
   description: string;
 }) {
   return (
-    <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-lg">
+    <div className="flex items-start gap-4 p-4 bg-fdp-surface-1 rounded-lg">
       <div className="flex-shrink-0">{icon}</div>
       <div>
-        <div className="font-semibold text-gray-900 mb-1">{title}</div>
-        <div className="text-sm text-gray-600">{description}</div>
+        <div className="font-semibold text-fdp-text-1 mb-1">{title}</div>
+        <div className="text-sm text-fdp-text-2">{description}</div>
       </div>
     </div>
   );

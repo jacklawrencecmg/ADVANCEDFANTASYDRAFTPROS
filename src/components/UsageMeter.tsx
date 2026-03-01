@@ -83,7 +83,7 @@ export default function UsageMeter({ feature, onUpgrade }: UsageMeterProps) {
         )}
       </div>
 
-      <div className="w-full bg-white rounded-full h-2 mb-3 overflow-hidden">
+      <div className="w-full bg-fdp-surface-1 rounded-full h-2 mb-3 overflow-hidden">
         <div
           className={`h-full transition-all ${
             isAtLimit ? 'bg-red-500' :
@@ -106,7 +106,7 @@ export default function UsageMeter({ feature, onUpgrade }: UsageMeterProps) {
       {isNearLimit && !isAtLimit && (
         <button
           onClick={onUpgrade}
-          className="w-full px-3 py-2 bg-white border border-orange-300 text-orange-700 rounded-lg text-sm font-semibold hover:bg-orange-50 transition-all"
+          className="w-full px-3 py-2 bg-fdp-surface-1 border border-orange-300 text-orange-700 rounded-lg text-sm font-semibold hover:bg-orange-50 transition-all"
         >
           Upgrade to Pro
         </button>

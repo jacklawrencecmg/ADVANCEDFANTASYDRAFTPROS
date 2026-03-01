@@ -96,18 +96,18 @@ export function FeedbackModal({ isOpen, onClose, context }: FeedbackModalProps) 
     { value: 'wrong_value', label: 'Wrong Value', icon: AlertCircle, color: 'text-orange-500' },
     { value: 'confusing', label: 'Confusing', icon: HelpCircle, color: 'text-yellow-500' },
     { value: 'feature', label: 'Feature Request', icon: Lightbulb, color: 'text-blue-500' },
-    { value: 'other', label: 'Other', icon: ThumbsDown, color: 'text-gray-500' },
+    { value: 'other', label: 'Other', icon: ThumbsDown, color: 'text-fdp-text-3' },
   ];
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-fdp-surface-1 rounded-xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Give Feedback</h2>
+            <h2 className="text-2xl font-bold text-fdp-text-1">Give Feedback</h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-fdp-text-3 hover:text-fdp-text-2 transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -120,13 +120,13 @@ export function FeedbackModal({ isOpen, onClose, context }: FeedbackModalProps) 
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <p className="text-lg font-semibold text-gray-900">Thank you!</p>
-              <p className="text-sm text-gray-600 mt-2">Your feedback helps us improve.</p>
+              <p className="text-lg font-semibold text-fdp-text-1">Thank you!</p>
+              <p className="text-sm text-fdp-text-2 mt-2">Your feedback helps us improve.</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">
+                <label className="block text-sm font-medium text-fdp-text-1 mb-3">
                   What type of feedback?
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -140,7 +140,7 @@ export function FeedbackModal({ isOpen, onClose, context }: FeedbackModalProps) 
                         className={`p-3 rounded-lg border-2 transition-all flex items-center gap-2 ${
                           type === t.value
                             ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
+                            : 'border-fdp-border-1 hover:border-fdp-border-2'
                         }`}
                       >
                         <Icon className={`w-5 h-5 ${type === t.value ? 'text-blue-600' : t.color}`} />
@@ -152,7 +152,7 @@ export function FeedbackModal({ isOpen, onClose, context }: FeedbackModalProps) 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-fdp-text-1 mb-2">
                   What were you trying to do?
                 </label>
                 <input
@@ -160,13 +160,13 @@ export function FeedbackModal({ isOpen, onClose, context }: FeedbackModalProps) 
                   value={goal}
                   onChange={(e) => setGoal(e.target.value)}
                   placeholder="e.g., Check Bijan Robinson's value"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-fdp-text-1 mb-2">
                   What went wrong or what would you like?
                 </label>
                 <textarea
@@ -174,7 +174,7 @@ export function FeedbackModal({ isOpen, onClose, context }: FeedbackModalProps) 
                   onChange={(e) => setIssue(e.target.value)}
                   placeholder="Describe the issue or your suggestion..."
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent resize-none"
                   required
                 />
               </div>
@@ -186,22 +186,22 @@ export function FeedbackModal({ isOpen, onClose, context }: FeedbackModalProps) 
                       type="checkbox"
                       checked={valueWrong}
                       onChange={(e) => setValueWrong(e.target.checked)}
-                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                      className="w-4 h-4 text-blue-600 border-fdp-border-1 rounded focus:ring-fdp-accent-1"
                     />
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-fdp-text-1">
                       This value looks wrong for {context.playerName}
                     </span>
                   </label>
                   {valueWrong && (
-                    <p className="text-xs text-gray-600 mt-2">
+                    <p className="text-xs text-fdp-text-2 mt-2">
                       We'll automatically attach the player and current value for investigation.
                     </p>
                   )}
                 </div>
               )}
 
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="text-xs text-gray-600">
+              <div className="bg-fdp-surface-1 rounded-lg p-3">
+                <p className="text-xs text-fdp-text-2">
                   <strong>Auto-attached:</strong> Page location, timestamp, league context
                   {context?.playerName && ', player details'}
                   {context?.tradeDetails && ', trade details'}
@@ -212,7 +212,7 @@ export function FeedbackModal({ isOpen, onClose, context }: FeedbackModalProps) 
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-4 py-2 border border-fdp-border-1 rounded-lg text-fdp-text-1 font-medium hover:bg-fdp-surface-1 transition-colors"
                 >
                   Cancel
                 </button>

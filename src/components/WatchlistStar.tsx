@@ -94,7 +94,7 @@ export function WatchlistStar({
       className={`inline-flex items-center gap-1.5 p-1.5 rounded transition-colors ${
         isWatched
           ? 'text-yellow-500 hover:text-yellow-600'
-          : 'text-gray-400 hover:text-gray-600'
+          : 'text-fdp-text-3 hover:text-fdp-text-2'
       } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
       title={isWatched ? 'Remove from watchlist' : 'Add to watchlist'}
     >

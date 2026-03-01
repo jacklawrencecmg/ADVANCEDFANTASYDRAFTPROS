@@ -190,7 +190,7 @@ export default function Top1000Rankings() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">Top 1000 Fantasy Players</h1>
-          <div className="flex items-center gap-4 text-sm text-gray-400">
+          <div className="flex items-center gap-4 text-sm text-fdp-text-3">
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4" />
               <span>As of {data.as_of_date}</span>
@@ -261,7 +261,7 @@ export default function Top1000Rankings() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fdp-text-3" />
             <input
               type="text"
               placeholder="Search players..."
@@ -309,8 +309,8 @@ export default function Top1000Rankings() {
 
         {(searchTerm || positionFilter || teamFilter) && (
           <div className="mt-3 flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-400">
+            <Filter className="w-4 h-4 text-fdp-text-3" />
+            <span className="text-sm text-fdp-text-3">
               Showing {filteredPlayers.length} of {data.players.length} players
             </span>
             <button

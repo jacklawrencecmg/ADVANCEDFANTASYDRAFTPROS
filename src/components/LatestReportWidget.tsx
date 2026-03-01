@@ -59,10 +59,10 @@ export default function LatestReportWidget({ onSelectReport }: LatestReportWidge
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse">
-        <div className="h-6 bg-gray-200 rounded w-48 mb-4"></div>
-        <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+      <div className="bg-fdp-surface-1 rounded-lg shadow-sm border border-fdp-border-1 p-6 animate-pulse">
+        <div className="h-6 bg-fdp-border-1 rounded w-48 mb-4"></div>
+        <div className="h-4 bg-fdp-border-1 rounded w-full mb-2"></div>
+        <div className="h-4 bg-fdp-border-1 rounded w-3/4"></div>
       </div>
     );
   }

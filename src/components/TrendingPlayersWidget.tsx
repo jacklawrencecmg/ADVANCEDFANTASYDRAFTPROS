@@ -56,10 +56,10 @@ export function TrendingPlayersWidget({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1 p-6">
         <div className="flex items-center gap-2 mb-4">
           <Activity className="w-5 h-5 text-blue-600 animate-spin" />
-          <h2 className="text-xl font-bold text-gray-900">Loading Trending Players...</h2>
+          <h2 className="text-xl font-bold text-fdp-text-1">Loading Trending Players...</h2>
         </div>
       </div>
     );
@@ -68,21 +68,21 @@ export function TrendingPlayersWidget({
   const displayPlayers = activeTab === 'risers' ? risers : fallers;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
+    <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Trending Players Today</h2>
-        <p className="text-sm text-gray-600">Biggest value movers with explanations</p>
+      <div className="p-6 border-b border-fdp-border-1">
+        <h2 className="text-xl font-bold text-fdp-text-1 mb-1">Trending Players Today</h2>
+        <p className="text-sm text-fdp-text-2">Biggest value movers with explanations</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-gray-200">
+      <div className="flex border-b border-fdp-border-1">
         <button
           onClick={() => setActiveTab('risers')}
           className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
             activeTab === 'risers'
               ? 'text-green-600 border-b-2 border-green-600'
-              : 'text-gray-600 hover:text-gray-900'
+              : 'text-fdp-text-2 hover:text-fdp-text-1'
           }`}
         >
           <div className="flex items-center justify-center gap-2">
@@ -96,7 +96,7 @@ export function TrendingPlayersWidget({
           className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
             activeTab === 'fallers'
               ? 'text-red-600 border-b-2 border-red-600'
-              : 'text-gray-600 hover:text-gray-900'
+              : 'text-fdp-text-2 hover:text-fdp-text-1'
           }`}
         >
           <div className="flex items-center justify-center gap-2">
@@ -107,10 +107,10 @@ export function TrendingPlayersWidget({
       </div>
 
       {/* Player List */}
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-fdp-border-1">
         {displayPlayers.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <Activity className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+          <div className="p-8 text-center text-fdp-text-3">
+            <Activity className="w-12 h-12 mx-auto mb-2 text-fdp-text-3" />
             <p>No trending players today</p>
             <p className="text-xs mt-1">Check back after the nightly update</p>
           </div>
@@ -140,7 +140,7 @@ function PlayerCard({
   const Arrow = isPositive ? TrendingUp : TrendingDown;
 
   return (
-    <div className="p-4 hover:bg-gray-50 transition-colors">
+    <div className="p-4 hover:bg-fdp-surface-2 transition-colors">
       <div className="flex items-start gap-3">
         {/* Icon */}
         <div className={`${bgColor} p-2 rounded-lg flex-shrink-0`}>
@@ -151,8 +151,8 @@ function PlayerCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
             <div>
-              <h3 className="font-semibold text-gray-900">{player.playerName}</h3>
-              <p className="text-sm text-gray-600">{player.position}</p>
+              <h3 className="font-semibold text-fdp-text-1">{player.playerName}</h3>
+              <p className="text-sm text-fdp-text-2">{player.position}</p>
             </div>
 
             <div className="text-right flex-shrink-0">
@@ -160,7 +160,7 @@ function PlayerCard({
                 {isPositive ? '+' : ''}
                 {player.delta}
               </div>
-              <div className="text-xs text-gray-600">
+              <div className="text-xs text-fdp-text-2">
                 {isPositive ? '+' : ''}
                 {player.percentChange.toFixed(1)}%
               </div>
@@ -168,11 +168,11 @@ function PlayerCard({
           </div>
 
           {/* Explanation */}
-          <p className="text-sm text-gray-700 leading-relaxed">{player.explanationText}</p>
+          <p className="text-sm text-fdp-text-1 leading-relaxed">{player.explanationText}</p>
 
           {/* Rank Change */}
           {player.rankChange !== 0 && (
-            <div className="mt-2 text-xs text-gray-600">
+            <div className="mt-2 text-xs text-fdp-text-2">
               Rank movement: {player.rankChange > 0 ? '↓' : '↑'}{' '}
               {Math.abs(player.rankChange)} spots
             </div>
@@ -180,7 +180,7 @@ function PlayerCard({
 
           {/* Reason Badge */}
           <div className="mt-2">
-            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700 rounded">
+            <span className="inline-block px-2 py-0.5 text-xs font-medium bg-fdp-surface-2 text-fdp-text-1 rounded">
               {player.primaryReason}
             </span>
           </div>

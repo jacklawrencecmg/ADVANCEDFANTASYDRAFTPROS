@@ -105,7 +105,7 @@ export function NotificationBell() {
       {/* Bell Icon */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+        className="relative p-2 text-fdp-text-2 hover:text-fdp-text-1 hover:bg-fdp-surface-2 rounded-lg transition-colors"
       >
         <Bell className="w-6 h-6" />
 
@@ -119,13 +119,13 @@ export function NotificationBell() {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-[80vh] overflow-hidden flex flex-col">
+        <div className="absolute right-0 mt-2 w-96 bg-fdp-surface-1 rounded-lg shadow-lg border border-fdp-border-1 z-50 max-h-[80vh] overflow-hidden flex flex-col">
           {/* Header */}
-          <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+          <div className="p-4 border-b border-fdp-border-1 flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-gray-900">Notifications</h3>
+              <h3 className="text-lg font-bold text-fdp-text-1">Notifications</h3>
               {unreadCount > 0 && (
-                <p className="text-xs text-gray-600">{unreadCount} unread</p>
+                <p className="text-xs text-fdp-text-2">{unreadCount} unread</p>
               )}
             </div>
 
@@ -143,7 +143,7 @@ export function NotificationBell() {
 
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-fdp-text-3 hover:text-fdp-text-2"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -153,18 +153,18 @@ export function NotificationBell() {
           {/* Notifications List */}
           <div className="overflow-y-auto flex-1">
             {loading ? (
-              <div className="p-8 text-center text-gray-500">
+              <div className="p-8 text-center text-fdp-text-3">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
                 <p className="mt-2 text-sm">Loading...</p>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
-                <Bell className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+              <div className="p-8 text-center text-fdp-text-3">
+                <Bell className="w-12 h-12 mx-auto mb-2 text-fdp-text-3" />
                 <p>No notifications yet</p>
                 <p className="text-xs mt-1">We'll notify you about opportunities</p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-200">
+              <div className="divide-y divide-fdp-border-1">
                 {notifications.map((notification) => (
                   <NotificationItem
                     key={notification.id}
@@ -178,7 +178,7 @@ export function NotificationBell() {
 
           {/* Footer */}
           {notifications.length > 0 && (
-            <div className="p-3 border-t border-gray-200 text-center">
+            <div className="p-3 border-t border-fdp-border-1 text-center">
               <button
                 onClick={() => {
                   setIsOpen(false);
@@ -210,7 +210,7 @@ function NotificationItem({
     critical: 'bg-red-50 border-l-4 border-red-500',
     high: 'bg-orange-50 border-l-4 border-orange-500',
     normal: 'bg-blue-50 border-l-4 border-blue-500',
-    low: 'bg-gray-50 border-l-4 border-gray-400',
+    low: 'bg-fdp-surface-1 border-l-4 border-fdp-border-1',
   };
 
   const priorityClass = priorityColors[notification.priority] || priorityColors.normal;
@@ -219,8 +219,8 @@ function NotificationItem({
 
   return (
     <div
-      className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-        notification.isUnread ? priorityClass : 'bg-white'
+      className={`p-4 hover:bg-fdp-surface-1 transition-colors cursor-pointer ${
+        notification.isUnread ? priorityClass : 'bg-fdp-surface-1'
       }`}
       onClick={() => {
         if (notification.isUnread) {
@@ -231,7 +231,7 @@ function NotificationItem({
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h4 className="text-sm font-semibold text-gray-900 truncate">
+            <h4 className="text-sm font-semibold text-fdp-text-1 truncate">
               {notification.title}
             </h4>
             {notification.isUnread && (
@@ -239,10 +239,10 @@ function NotificationItem({
             )}
           </div>
 
-          <p className="text-sm text-gray-700 mt-1 line-clamp-2">{notification.message}</p>
+          <p className="text-sm text-fdp-text-1 mt-1 line-clamp-2">{notification.message}</p>
 
           <div className="flex items-center gap-2 mt-2">
-            <span className="text-xs text-gray-500">{timeAgo}</span>
+            <span className="text-xs text-fdp-text-3">{timeAgo}</span>
             {notification.priority === 'critical' && (
               <span className="text-xs font-semibold text-red-600">URGENT</span>
             )}

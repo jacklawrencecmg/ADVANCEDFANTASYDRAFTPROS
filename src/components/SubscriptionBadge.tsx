@@ -11,7 +11,7 @@ export default function SubscriptionBadge({ onUpgrade }: SubscriptionBadgeProps)
 
   if (loading) {
     return (
-      <div className="animate-pulse bg-gray-200 h-10 rounded-lg w-32"></div>
+      <div className="animate-pulse bg-fdp-border-1 h-10 rounded-lg w-32"></div>
     );
   }
 
@@ -30,7 +30,7 @@ export default function SubscriptionBadge({ onUpgrade }: SubscriptionBadgeProps)
     return (
       <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-orange-100 border border-orange-300 rounded-lg">
         <ProBadge size="md" />
-        <span className="text-sm font-semibold text-gray-900">Pro Member</span>
+        <span className="text-sm font-semibold text-fdp-text-1">Pro Member</span>
       </div>
     );
   }
@@ -66,10 +66,10 @@ export default function SubscriptionBadge({ onUpgrade }: SubscriptionBadgeProps)
   return (
     <button
       onClick={onUpgrade}
-      className="flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors"
+      className="flex items-center gap-2 px-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg hover:bg-fdp-border-1 transition-colors"
     >
-      <Sparkles className="w-4 h-4 text-gray-600" />
-      <span className="text-sm font-semibold text-gray-900">Upgrade to Pro</span>
+      <Sparkles className="w-4 h-4 text-fdp-text-2" />
+      <span className="text-sm font-semibold text-fdp-text-1">Upgrade to Pro</span>
     </button>
   );
 }

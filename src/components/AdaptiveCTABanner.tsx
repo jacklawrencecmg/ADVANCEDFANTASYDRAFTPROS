@@ -132,7 +132,7 @@ export function AdaptiveCTABanner() {
         </button>
 
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center text-white flex-shrink-0">
+          <div className="w-12 h-12 bg-fdp-surface-1/20 rounded-lg flex items-center justify-center text-white flex-shrink-0">
             {message.icon}
           </div>
 
@@ -145,7 +145,7 @@ export function AdaptiveCTABanner() {
             </p>
 
             {isReturningVisitor && (
-              <div className="bg-white/10 rounded-lg px-3 py-2 mb-4">
+              <div className="bg-fdp-surface-1/10 rounded-lg px-3 py-2 mb-4">
                 <p className="text-white/90 text-xs font-semibold">
                   Welcome back! Values have changed since your last visit
                 </p>
@@ -154,7 +154,7 @@ export function AdaptiveCTABanner() {
 
             <button
               onClick={handleClick}
-              className="w-full bg-white text-fdp-accent-1 font-bold py-3 px-6 rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center gap-2 group"
+              className="w-full bg-fdp-surface-1 text-fdp-accent-1 font-bold py-3 px-6 rounded-lg hover:bg-fdp-surface-2 transition-all flex items-center justify-center gap-2 group"
             >
               {intent.level === 'high' ? 'Get Started Free' : 'Sign Up Free'}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -170,7 +170,7 @@ export function AdaptiveCTABanner() {
           <div className="mt-4 pt-4 border-t border-white/20">
             <div className="flex items-center justify-between text-white/80 text-xs">
               <span>Intent Score: {intent.score}/100</span>
-              <span className="px-2 py-1 bg-white/10 rounded-full capitalize">
+              <span className="px-2 py-1 bg-fdp-surface-1/10 rounded-full capitalize">
                 {intent.level} Intent
               </span>
             </div>

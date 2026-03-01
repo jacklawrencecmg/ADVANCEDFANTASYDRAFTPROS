@@ -129,7 +129,7 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-blue-900 to-fdp-bg-0 flex items-center justify-center">
         <div className="text-white text-xl">Loading trade...</div>
       </div>
     );
@@ -137,11 +137,11 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
 
   if (error || !trade) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md text-center">
+      <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-blue-900 to-fdp-bg-0 flex items-center justify-center">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-xl p-8 max-w-md text-center">
           <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Trade Not Found</h1>
-          <p className="text-gray-600 mb-6">{error || 'This trade link may be invalid or expired.'}</p>
+          <h1 className="text-2xl font-bold text-fdp-text-1 mb-2">Trade Not Found</h1>
+          <p className="text-fdp-text-2 mb-6">{error || 'This trade link may be invalid or expired.'}</p>
           <a
             href="/"
             className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
@@ -160,7 +160,7 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
   const isEven = winner === 'even';
 
   const getWinnerClass = (side: 'a' | 'b') => {
-    if (isEven) return 'border-gray-300';
+    if (isEven) return 'border-fdp-border-1';
     if ((side === 'a' && winner === 'side_a') || (side === 'b' && winner === 'side_b')) {
       return 'border-green-500 bg-green-50';
     }
@@ -176,10 +176,10 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-blue-900 to-fdp-bg-0 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-xl p-6 mb-6">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-xl p-6 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <img
               src="/FDP2.png"
@@ -192,8 +192,8 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
           </div>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Trade Analysis</h1>
-              <div className="flex items-center gap-4 text-sm text-gray-600">
+              <h1 className="text-3xl font-bold text-fdp-text-1 mb-2">Trade Analysis</h1>
+              <div className="flex items-center gap-4 text-sm text-fdp-text-2">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
                   {formatDate(created_at)}
@@ -222,9 +222,9 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
               <div className="text-sm text-blue-700 font-medium mb-1">Fairness</div>
               <div className="text-3xl font-bold text-blue-900">{fairness_percentage}%</div>
             </div>
-            <div className={`rounded-lg p-4 text-center ${isEven ? 'bg-gradient-to-br from-gray-50 to-gray-100' : 'bg-gradient-to-br from-green-50 to-green-100'}`}>
-              <div className={`text-sm font-medium mb-1 ${isEven ? 'text-gray-700' : 'text-green-700'}`}>Winner</div>
-              <div className={`text-3xl font-bold ${isEven ? 'text-gray-900' : 'text-green-900'}`}>{winnerSide}</div>
+            <div className={`rounded-lg p-4 text-center ${isEven ? 'bg-gradient-to-br from-fdp-surface-1 to-fdp-surface-2' : 'bg-gradient-to-br from-green-50 to-green-100'}`}>
+              <div className={`text-sm font-medium mb-1 ${isEven ? 'text-fdp-text-1' : 'text-green-700'}`}>Winner</div>
+              <div className={`text-3xl font-bold ${isEven ? 'text-fdp-text-1' : 'text-green-900'}`}>{winnerSide}</div>
             </div>
             <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-4 text-center">
               <div className="text-sm text-orange-700 font-medium mb-1">Format</div>
@@ -243,22 +243,22 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
         {/* Trade Sides */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           {/* Team A */}
-          <div className={`bg-white rounded-lg shadow-xl border-4 ${getWinnerClass('a')} p-6`}>
+          <div className={`bg-fdp-surface-1 rounded-lg shadow-xl border-4 ${getWinnerClass('a')} p-6`}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">Team A Gives</h2>
+              <h2 className="text-2xl font-bold text-fdp-text-1">Team A Gives</h2>
               {winner === 'side_a' && <TrendingUp className="w-6 h-6 text-green-600" />}
               {winner === 'side_b' && <TrendingDown className="w-6 h-6 text-red-600" />}
             </div>
 
             {side_a.players && side_a.players.length > 0 && (
               <div className="mb-4">
-                <h3 className="font-semibold text-gray-700 mb-2">Players</h3>
+                <h3 className="font-semibold text-fdp-text-1 mb-2">Players</h3>
                 <div className="space-y-2">
                   {side_a.players.map((player, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={idx} className="flex items-center justify-between p-3 bg-fdp-surface-1 rounded-lg">
                       <div>
-                        <div className="font-semibold text-gray-900">{player.name}</div>
-                        <div className="text-sm text-gray-600">{player.position}</div>
+                        <div className="font-semibold text-fdp-text-1">{player.name}</div>
+                        <div className="text-sm text-fdp-text-2">{player.position}</div>
                       </div>
                       {!hide_values && (
                         <div className="text-lg font-bold text-blue-600">{player.value.toLocaleString()}</div>
@@ -271,11 +271,11 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
 
             {side_a.picks && side_a.picks.length > 0 && (
               <div className="mb-4">
-                <h3 className="font-semibold text-gray-700 mb-2">Draft Picks</h3>
+                <h3 className="font-semibold text-fdp-text-1 mb-2">Draft Picks</h3>
                 <div className="space-y-2">
                   {side_a.picks.map((pick, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="font-semibold text-gray-900">
+                    <div key={idx} className="flex items-center justify-between p-3 bg-fdp-surface-1 rounded-lg">
+                      <div className="font-semibold text-fdp-text-1">
                         {pick.year} Round {pick.round}
                       </div>
                       {!hide_values && (
@@ -289,17 +289,17 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
 
             {side_a.faab && side_a.faab > 0 && (
               <div className="mb-4">
-                <h3 className="font-semibold text-gray-700 mb-2">FAAB</h3>
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <div className="font-semibold text-gray-900">${side_a.faab}</div>
+                <h3 className="font-semibold text-fdp-text-1 mb-2">FAAB</h3>
+                <div className="p-3 bg-fdp-surface-1 rounded-lg">
+                  <div className="font-semibold text-fdp-text-1">${side_a.faab}</div>
                 </div>
               </div>
             )}
 
             {!hide_values && (
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-4 border-t border-fdp-border-1">
                 <div className="flex items-center justify-between">
-                  <div className="font-bold text-gray-900">Total Value</div>
+                  <div className="font-bold text-fdp-text-1">Total Value</div>
                   <div className="text-2xl font-bold text-blue-600">{side_a_total.toLocaleString()}</div>
                 </div>
               </div>
@@ -307,22 +307,22 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
           </div>
 
           {/* Team B */}
-          <div className={`bg-white rounded-lg shadow-xl border-4 ${getWinnerClass('b')} p-6`}>
+          <div className={`bg-fdp-surface-1 rounded-lg shadow-xl border-4 ${getWinnerClass('b')} p-6`}>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-900">Team B Gives</h2>
+              <h2 className="text-2xl font-bold text-fdp-text-1">Team B Gives</h2>
               {winner === 'side_b' && <TrendingUp className="w-6 h-6 text-green-600" />}
               {winner === 'side_a' && <TrendingDown className="w-6 h-6 text-red-600" />}
             </div>
 
             {side_b.players && side_b.players.length > 0 && (
               <div className="mb-4">
-                <h3 className="font-semibold text-gray-700 mb-2">Players</h3>
+                <h3 className="font-semibold text-fdp-text-1 mb-2">Players</h3>
                 <div className="space-y-2">
                   {side_b.players.map((player, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div key={idx} className="flex items-center justify-between p-3 bg-fdp-surface-1 rounded-lg">
                       <div>
-                        <div className="font-semibold text-gray-900">{player.name}</div>
-                        <div className="text-sm text-gray-600">{player.position}</div>
+                        <div className="font-semibold text-fdp-text-1">{player.name}</div>
+                        <div className="text-sm text-fdp-text-2">{player.position}</div>
                       </div>
                       {!hide_values && (
                         <div className="text-lg font-bold text-blue-600">{player.value.toLocaleString()}</div>
@@ -335,11 +335,11 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
 
             {side_b.picks && side_b.picks.length > 0 && (
               <div className="mb-4">
-                <h3 className="font-semibold text-gray-700 mb-2">Draft Picks</h3>
+                <h3 className="font-semibold text-fdp-text-1 mb-2">Draft Picks</h3>
                 <div className="space-y-2">
                   {side_b.picks.map((pick, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="font-semibold text-gray-900">
+                    <div key={idx} className="flex items-center justify-between p-3 bg-fdp-surface-1 rounded-lg">
+                      <div className="font-semibold text-fdp-text-1">
                         {pick.year} Round {pick.round}
                       </div>
                       {!hide_values && (
@@ -353,17 +353,17 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
 
             {side_b.faab && side_b.faab > 0 && (
               <div className="mb-4">
-                <h3 className="font-semibold text-gray-700 mb-2">FAAB</h3>
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <div className="font-semibold text-gray-900">${side_b.faab}</div>
+                <h3 className="font-semibold text-fdp-text-1 mb-2">FAAB</h3>
+                <div className="p-3 bg-fdp-surface-1 rounded-lg">
+                  <div className="font-semibold text-fdp-text-1">${side_b.faab}</div>
                 </div>
               </div>
             )}
 
             {!hide_values && (
-              <div className="pt-4 border-t border-gray-200">
+              <div className="pt-4 border-t border-fdp-border-1">
                 <div className="flex items-center justify-between">
-                  <div className="font-bold text-gray-900">Total Value</div>
+                  <div className="font-bold text-fdp-text-1">Total Value</div>
                   <div className="text-2xl font-bold text-blue-600">{side_b_total.toLocaleString()}</div>
                 </div>
               </div>
@@ -373,8 +373,8 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
 
         {/* Breakdown */}
         {!hide_values && (
-          <div className="bg-white rounded-lg shadow-xl p-6 mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Trade Breakdown</h2>
+          <div className="bg-fdp-surface-1 rounded-lg shadow-xl p-6 mb-6">
+            <h2 className="text-2xl font-bold text-fdp-text-1 mb-4">Trade Breakdown</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 bg-blue-50 rounded-lg">
                 <div className="text-sm text-blue-700 font-medium mb-1">Value Difference</div>
@@ -391,8 +391,8 @@ export default function SharedTradePage({ slug }: SharedTradePageProps) {
         )}
 
         {/* Footer */}
-        <div className="bg-white rounded-lg shadow-xl p-6 text-center">
-          <div className="text-gray-600 mb-4">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-xl p-6 text-center">
+          <div className="text-fdp-text-2 mb-4">
             Powered by <span className="font-bold text-blue-600">FantasyDraftPros</span>
           </div>
           <a

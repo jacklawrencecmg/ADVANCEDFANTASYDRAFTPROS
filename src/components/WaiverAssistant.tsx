@@ -198,20 +198,20 @@ export default function WaiverAssistant({ leagueId, rosterId, userId }: WaiverAs
   }).sort((a, b) => sortBy === 'value' ? b.value - a.value : b.recommendation_score - a.recommendation_score);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <TrendingUp className="w-8 h-8 text-blue-400" />
           <h1 className="text-3xl font-bold">Waiver Wire Assistant</h1>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+        <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6">
           <div className="mb-4 flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-400 mb-2">
+              <p className="text-sm text-fdp-text-3 mb-2">
                 Showing available players from your league's waiver wire, sorted by dynasty value
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-fdp-text-3">
                 Values from Fantasy Draft Pros • Higher values indicate more valuable players
               </p>
             </div>
@@ -226,19 +226,19 @@ export default function WaiverAssistant({ leagueId, rosterId, userId }: WaiverAs
           </div>
           <div className="flex gap-4 flex-wrap">
             <div className="flex-1 min-w-[200px] relative">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-3 w-5 h-5 text-fdp-text-3" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search players..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
               />
             </div>
             <select
               value={positionFilter}
               onChange={(e) => setPositionFilter(e.target.value)}
-              className="px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+              className="px-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
             >
               <option value="ALL">All Positions</option>
               <option value="QB">QB</option>
@@ -249,7 +249,7 @@ export default function WaiverAssistant({ leagueId, rosterId, userId }: WaiverAs
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'value' | 'recommendation')}
-              className="px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+              className="px-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
             >
               <option value="value">Sort by Dynasty Value</option>
               <option value="recommendation">Sort by Team Fit</option>
@@ -267,13 +267,13 @@ export default function WaiverAssistant({ leagueId, rosterId, userId }: WaiverAs
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-400">Analyzing waiver wire...</p>
+            <p className="text-fdp-text-3">Analyzing waiver wire...</p>
           </div>
         ) : filteredRecommendations.length === 0 ? (
-          <div className="text-center py-12 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700">
-            <TrendingUp className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+          <div className="text-center py-12 bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2">
+            <TrendingUp className="w-16 h-16 text-fdp-text-2 mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-2">No Players Found</h3>
-            <p className="text-gray-400">
+            <p className="text-fdp-text-3">
               {searchTerm || positionFilter !== 'ALL'
                 ? 'Try adjusting your filters to see more recommendations'
                 : 'All valuable players appear to be rostered in your league'}
@@ -284,12 +284,12 @@ export default function WaiverAssistant({ leagueId, rosterId, userId }: WaiverAs
             {filteredRecommendations.map((player, index) => (
               <div
                 key={player.player_id}
-                className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 hover:border-blue-500 transition hover-lift card-enter"
+                className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 hover:border-blue-500 transition hover-lift card-enter"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="text-2xl font-bold text-gray-500">#{index + 1}</span>
+                      <span className="text-2xl font-bold text-fdp-text-3">#{index + 1}</span>
                       <PlayerAvatar
                         playerId={player.player_id}
                         espnId={player.espn_id}
@@ -309,16 +309,16 @@ export default function WaiverAssistant({ leagueId, rosterId, userId }: WaiverAs
                     </div>
                     <div className="flex gap-6 mt-4">
                       <div>
-                        <p className="text-sm text-gray-400">Dynasty Value</p>
+                        <p className="text-sm text-fdp-text-3">Dynasty Value</p>
                         <p className="text-2xl font-bold text-green-400">{player.value.toLocaleString()}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400">Recommendation Score</p>
+                        <p className="text-sm text-fdp-text-3">Recommendation Score</p>
                         <p className="text-2xl font-bold text-blue-400">{player.recommendation_score.toLocaleString()}</p>
                       </div>
                     </div>
-                    <div className="mt-4 p-4 bg-gray-700/30 rounded-lg">
-                      <p className="text-sm text-gray-300">{player.reasoning}</p>
+                    <div className="mt-4 p-4 bg-fdp-surface-2/30 rounded-lg">
+                      <p className="text-sm text-fdp-text-2">{player.reasoning}</p>
                     </div>
                   </div>
                   <button

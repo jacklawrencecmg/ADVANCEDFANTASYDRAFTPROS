@@ -135,7 +135,7 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
       case 'RB': return 'bg-green-100 text-green-800';
       case 'WR': return 'bg-blue-100 text-blue-800';
       case 'TE': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-fdp-surface-2 text-fdp-text-1';
     }
   };
 
@@ -150,7 +150,7 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
     return (
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <button onClick={onBack} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+          <button onClick={onBack} className="flex items-center gap-2 text-fdp-text-2 hover:text-fdp-text-1">
             <ArrowLeft className="w-5 h-5" />
             Back to Import
           </button>
@@ -164,7 +164,7 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
     return (
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
-          <button onClick={onBack} className="flex items-center gap-2 text-gray-600 hover:text-gray-900">
+          <button onClick={onBack} className="flex items-center gap-2 text-fdp-text-2 hover:text-fdp-text-1">
             <ArrowLeft className="w-5 h-5" />
             Back to Import
           </button>
@@ -180,28 +180,28 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
-        <button onClick={onBack} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4">
+        <button onClick={onBack} className="flex items-center gap-2 text-fdp-text-2 hover:text-fdp-text-1 mb-4">
           <ArrowLeft className="w-5 h-5" />
           Back to Import
         </button>
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{leagueName}</h1>
-            <p className="text-gray-600 mt-1">{rosters.length} teams analyzed with FDP values</p>
+            <h1 className="text-3xl font-bold text-fdp-text-1">{leagueName}</h1>
+            <p className="text-fdp-text-2 mt-1">{rosters.length} teams analyzed with FDP values</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md mb-6">
-        <div className="border-b border-gray-200">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-md mb-6">
+        <div className="border-b border-fdp-border-1">
           <div className="flex gap-4 px-6">
             <button
               onClick={() => setTab('rankings')}
               className={`py-4 px-2 border-b-2 font-medium transition-colors ${
                 tab === 'rankings'
                   ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-fdp-text-2 hover:text-fdp-text-1'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -214,7 +214,7 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
               className={`py-4 px-2 border-b-2 font-medium transition-colors ${
                 tab === 'rosters'
                   ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-fdp-text-2 hover:text-fdp-text-1'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -227,7 +227,7 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
               className={`py-4 px-2 border-b-2 font-medium transition-colors ${
                 tab === 'suggestions'
                   ? 'border-blue-600 text-blue-600'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                  : 'border-transparent text-fdp-text-2 hover:text-fdp-text-1'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -244,15 +244,15 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
               {rosters.map((roster, index) => (
                 <div
                   key={roster.roster_id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex items-center justify-between p-4 bg-fdp-surface-1 rounded-lg hover:bg-fdp-surface-2 transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <div className="text-2xl font-bold w-12 text-center">
                       {getRankBadge(index + 1)}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900">{roster.owner_name}</h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                      <h3 className="font-semibold text-fdp-text-1">{roster.owner_name}</h3>
+                      <div className="flex items-center gap-4 text-sm text-fdp-text-2 mt-1">
                         <span>{roster.players.length} players</span>
                         <span>
                           {roster.record.wins}-{roster.record.losses}
@@ -265,7 +265,7 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
                     <p className="text-2xl font-bold text-blue-600">
                       {roster.total_value.toLocaleString()}
                     </p>
-                    <p className="text-sm text-gray-600">Total Value</p>
+                    <p className="text-sm text-fdp-text-2">Total Value</p>
                   </div>
                 </div>
               ))}
@@ -275,11 +275,11 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
           {tab === 'rosters' && (
             <div className="space-y-6">
               {rosters.map((roster, index) => (
-                <div key={roster.roster_id} className="border border-gray-200 rounded-lg overflow-hidden">
-                  <div className="bg-gray-50 px-4 py-3 flex items-center justify-between">
+                <div key={roster.roster_id} className="border border-fdp-border-1 rounded-lg overflow-hidden">
+                  <div className="bg-fdp-surface-1 px-4 py-3 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="text-xl font-bold">{getRankBadge(index + 1)}</span>
-                      <h3 className="font-semibold text-gray-900">{roster.owner_name}</h3>
+                      <h3 className="font-semibold text-fdp-text-1">{roster.owner_name}</h3>
                     </div>
                     <p className="text-lg font-bold text-blue-600">
                       {roster.total_value.toLocaleString()}
@@ -293,7 +293,7 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
                         .map((player) => (
                           <div
                             key={player.player_id}
-                            className="flex items-center justify-between p-2 bg-white border border-gray-200 rounded"
+                            className="flex items-center justify-between p-2 bg-fdp-surface-1 border border-fdp-border-1 rounded"
                           >
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                               <PlayerAvatar
@@ -309,17 +309,17 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
                                 <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium flex-shrink-0 ${getPositionColor(player.position)}`}>
                                   {player.position}
                                 </span>
-                                <span className="text-sm text-gray-900 truncate">{player.name}</span>
+                                <span className="text-sm text-fdp-text-1 truncate">{player.name}</span>
                               </div>
                             </div>
-                            <span className="text-sm font-medium text-gray-900 ml-2">
+                            <span className="text-sm font-medium text-fdp-text-1 ml-2">
                               {player.fdp_value > 0 ? player.fdp_value.toLocaleString() : '—'}
                             </span>
                           </div>
                         ))}
                     </div>
                     {roster.players.length > 12 && (
-                      <p className="text-sm text-gray-600 mt-3 text-center">
+                      <p className="text-sm text-fdp-text-2 mt-3 text-center">
                         + {roster.players.length - 12} more players
                       </p>
                     )}
@@ -333,15 +333,15 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
             <div>
               {suggestions.length === 0 ? (
                 <div className="text-center py-12">
-                  <Loader className="w-12 h-12 text-gray-400 mx-auto mb-4 animate-spin" />
-                  <p className="text-gray-600">Analyzing rosters and generating trade suggestions...</p>
+                  <Loader className="w-12 h-12 text-fdp-text-3 mx-auto mb-4 animate-spin" />
+                  <p className="text-fdp-text-2">Analyzing rosters and generating trade suggestions...</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {suggestions.map((suggestion, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                    <div key={index} className="border border-fdp-border-1 rounded-lg p-6 bg-fdp-surface-1">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-semibold text-gray-900">
+                        <h3 className="font-semibold text-fdp-text-1">
                           {suggestion.team_a.owner_name} ⇄ {suggestion.team_b.owner_name}
                         </h3>
                         <div className="flex items-center gap-3">
@@ -366,8 +366,8 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
                       </div>
 
                       <div className="grid md:grid-cols-2 gap-4">
-                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                          <h4 className="font-medium text-gray-900 mb-3">
+                        <div className="bg-fdp-surface-1 rounded-lg p-4 border border-fdp-border-1">
+                          <h4 className="font-medium text-fdp-text-1 mb-3">
                             {suggestion.team_a.owner_name} Receives:
                           </h4>
                           {suggestion.team_a_receives.map((player) => (
@@ -376,19 +376,19 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
                                 <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getPositionColor(player.position)}`}>
                                   {player.position}
                                 </span>
-                                <span className="text-sm text-gray-900">{player.name}</span>
+                                <span className="text-sm text-fdp-text-1">{player.name}</span>
                               </div>
                               <span className="text-sm font-medium text-green-600">
                                 {player.fdp_value.toLocaleString()}
                               </span>
                             </div>
                           ))}
-                          <div className="mt-3 pt-3 border-t border-gray-200">
-                            <h4 className="font-medium text-gray-700 mb-2">Gives Up:</h4>
+                          <div className="mt-3 pt-3 border-t border-fdp-border-1">
+                            <h4 className="font-medium text-fdp-text-1 mb-2">Gives Up:</h4>
                             {suggestion.team_a_gives.map((player) => (
                               <div key={player.player_id} className="flex items-center justify-between py-1">
-                                <span className="text-sm text-gray-600">{player.name}</span>
-                                <span className="text-sm text-gray-600">
+                                <span className="text-sm text-fdp-text-2">{player.name}</span>
+                                <span className="text-sm text-fdp-text-2">
                                   {player.fdp_value.toLocaleString()}
                                 </span>
                               </div>
@@ -396,8 +396,8 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
                           </div>
                         </div>
 
-                        <div className="bg-white rounded-lg p-4 border border-gray-200">
-                          <h4 className="font-medium text-gray-900 mb-3">
+                        <div className="bg-fdp-surface-1 rounded-lg p-4 border border-fdp-border-1">
+                          <h4 className="font-medium text-fdp-text-1 mb-3">
                             {suggestion.team_b.owner_name} Receives:
                           </h4>
                           {suggestion.team_b_receives.map((player) => (
@@ -406,19 +406,19 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
                                 <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getPositionColor(player.position)}`}>
                                   {player.position}
                                 </span>
-                                <span className="text-sm text-gray-900">{player.name}</span>
+                                <span className="text-sm text-fdp-text-1">{player.name}</span>
                               </div>
                               <span className="text-sm font-medium text-green-600">
                                 {player.fdp_value.toLocaleString()}
                               </span>
                             </div>
                           ))}
-                          <div className="mt-3 pt-3 border-t border-gray-200">
-                            <h4 className="font-medium text-gray-700 mb-2">Gives Up:</h4>
+                          <div className="mt-3 pt-3 border-t border-fdp-border-1">
+                            <h4 className="font-medium text-fdp-text-1 mb-2">Gives Up:</h4>
                             {suggestion.team_b_gives.map((player) => (
                               <div key={player.player_id} className="flex items-center justify-between py-1">
-                                <span className="text-sm text-gray-600">{player.name}</span>
-                                <span className="text-sm text-gray-600">
+                                <span className="text-sm text-fdp-text-2">{player.name}</span>
+                                <span className="text-sm text-fdp-text-2">
                                   {player.fdp_value.toLocaleString()}
                                 </span>
                               </div>
@@ -428,7 +428,7 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack }: League
                       </div>
 
                       {suggestion.value_difference > 0 && (
-                        <div className="mt-4 text-sm text-gray-600 text-center">
+                        <div className="mt-4 text-sm text-fdp-text-2 text-center">
                           Value difference: {suggestion.value_difference.toLocaleString()}
                         </div>
                       )}

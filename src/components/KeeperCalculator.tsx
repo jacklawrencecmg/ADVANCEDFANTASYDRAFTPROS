@@ -154,24 +154,24 @@ export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculato
   const totalSurplus = totalKeeperValue - totalKeeperCost;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <Shield className="w-8 h-8 text-blue-400" />
           <h1 className="text-3xl font-bold">Keeper Value Calculator</h1>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+        <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6">
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
+              <label className="block text-sm font-medium text-fdp-text-3 mb-2">
                 Select Team
               </label>
               <div className="flex gap-4">
                 <select
                   value={selectedTeam}
                   onChange={(e) => setSelectedTeam(e.target.value)}
-                  className="flex-1 px-4 py-2 bg-gray-700/50 border border-gray-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-fdp-accent-1"
                 >
                   <option value="">Select a team...</option>
                   {teams.map(team => (
@@ -193,16 +193,16 @@ export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculato
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Keeper Limit</label>
+                <label className="block text-sm text-fdp-text-3 mb-2">Keeper Limit</label>
                 <input
                   type="number"
                   value={keeperLimit}
                   onChange={(e) => setKeeperLimit(parseInt(e.target.value) || 0)}
-                  className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-2">Default Keeper Cost</label>
+                <label className="block text-sm text-fdp-text-3 mb-2">Default Keeper Cost</label>
                 <input
                   type="number"
                   value={defaultCost}
@@ -216,7 +216,7 @@ export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculato
                       recommendation: (p.value - newCost) > 500 ? 'keep' : 'cut'
                     })));
                   }}
-                  className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full px-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
                 />
               </div>
             </div>
@@ -224,16 +224,16 @@ export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculato
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
-            <p className="text-gray-400 mb-2">Total Keeper Value</p>
+          <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6">
+            <p className="text-fdp-text-3 mb-2">Total Keeper Value</p>
             <p className="text-3xl font-bold text-green-400">{totalKeeperValue.toLocaleString()}</p>
           </div>
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
-            <p className="text-gray-400 mb-2">Total Cost</p>
+          <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6">
+            <p className="text-fdp-text-3 mb-2">Total Cost</p>
             <p className="text-3xl font-bold text-red-400">{totalKeeperCost.toLocaleString()}</p>
           </div>
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
-            <p className="text-gray-400 mb-2">Total Surplus Value</p>
+          <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6">
+            <p className="text-fdp-text-3 mb-2">Total Surplus Value</p>
             <p className="text-3xl font-bold text-blue-400">+{totalSurplus.toLocaleString()}</p>
           </div>
         </div>
@@ -241,17 +241,17 @@ export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculato
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-400">Calculating keeper values...</p>
+            <p className="text-fdp-text-3">Calculating keeper values...</p>
           </div>
         ) : !selectedTeam ? (
-          <div className="text-center py-12 bg-gray-800/50 rounded-lg border border-gray-700">
-            <Shield className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400 text-lg">Select a team to calculate keeper values</p>
+          <div className="text-center py-12 bg-fdp-surface-1/50 rounded-lg border border-fdp-border-2">
+            <Shield className="w-16 h-16 text-fdp-text-2 mx-auto mb-4" />
+            <p className="text-fdp-text-3 text-lg">Select a team to calculate keeper values</p>
           </div>
         ) : players.length === 0 ? (
-          <div className="text-center py-12 bg-gray-800/50 rounded-lg border border-gray-700">
-            <Shield className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400 text-lg">No players found for this team</p>
+          <div className="text-center py-12 bg-fdp-surface-1/50 rounded-lg border border-fdp-border-2">
+            <Shield className="w-16 h-16 text-fdp-text-2 mx-auto mb-4" />
+            <p className="text-fdp-text-3 text-lg">No players found for this team</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -262,7 +262,7 @@ export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculato
                 className={`backdrop-blur-sm rounded-lg border p-6 transition ${
                   index < keeperLimit
                     ? 'bg-green-500/10 border-green-500/30'
-                    : 'bg-gray-800/50 border-gray-700'
+                    : 'bg-fdp-surface-1/50 border-fdp-border-2'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -273,26 +273,26 @@ export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculato
                       )}
                       <div>
                         <h3 className="text-xl font-bold">{player.name}</h3>
-                        <p className="text-gray-400">{player.position}</p>
+                        <p className="text-fdp-text-3">{player.position}</p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-4 gap-6">
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">Current Value</p>
+                        <p className="text-sm text-fdp-text-3 mb-1">Current Value</p>
                         <p className="text-xl font-bold">{player.value.toLocaleString()}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">Keeper Cost</p>
+                        <p className="text-sm text-fdp-text-3 mb-1">Keeper Cost</p>
                         <input
                           type="number"
                           value={player.cost}
                           onChange={(e) => updatePlayerCost(player.player_id, parseInt(e.target.value) || 0)}
-                          className="w-24 px-2 py-1 bg-gray-700/50 border border-gray-600 rounded focus:outline-none focus:border-blue-500 text-lg font-bold"
+                          className="w-24 px-2 py-1 bg-fdp-surface-2/50 border border-fdp-border-1 rounded focus:outline-none focus:border-fdp-accent-1 text-lg font-bold"
                         />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">Surplus Value</p>
+                        <p className="text-sm text-fdp-text-3 mb-1">Surplus Value</p>
                         <p className={`text-xl font-bold ${
                           player.surplus > 1000 ? 'text-green-400' :
                           player.surplus > 0 ? 'text-blue-400' : 'text-red-400'
@@ -301,7 +301,7 @@ export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculato
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">Recommendation</p>
+                        <p className="text-sm text-fdp-text-3 mb-1">Recommendation</p>
                         <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
                           player.recommendation === 'keep'
                             ? 'bg-green-500/20 text-green-400'
@@ -318,12 +318,12 @@ export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculato
           </div>
         )}
 
-        <div className="mt-8 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
+        <div className="mt-8 bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-blue-400" />
             How Keeper Value is Calculated
           </h3>
-          <div className="space-y-2 text-sm text-gray-300">
+          <div className="space-y-2 text-sm text-fdp-text-2">
             <p>Keeper value is calculated as:</p>
             <ul className="list-disc list-inside space-y-1 ml-4">
               <li>Surplus Value = Current Player Value - Keeper Cost</li>

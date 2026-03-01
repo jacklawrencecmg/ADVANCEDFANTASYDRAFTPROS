@@ -70,8 +70,8 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
     } else if (rank === 2) {
       return (
         <div className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full">
-          <Trophy className="w-4 h-4 text-gray-700" />
-          <span className="text-gray-700 font-bold text-sm">2nd</span>
+          <Trophy className="w-4 h-4 text-fdp-text-1" />
+          <span className="text-fdp-text-1 font-bold text-sm">2nd</span>
         </div>
       );
     } else if (rank === 3) {

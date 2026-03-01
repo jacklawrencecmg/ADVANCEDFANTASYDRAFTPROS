@@ -31,7 +31,7 @@ export default function UpgradeModal({ onClose, feature }: UpgradeModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-fdp-surface-1 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-gradient-to-r from-orange-500 to-orange-600 p-6 text-white">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
@@ -40,7 +40,7 @@ export default function UpgradeModal({ onClose, feature }: UpgradeModalProps) {
             </div>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-white hover:bg-opacity-20 rounded-lg transition-colors"
+              className="p-2 hover:bg-fdp-surface-1 hover:bg-opacity-20 rounded-lg transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
@@ -55,10 +55,10 @@ export default function UpgradeModal({ onClose, feature }: UpgradeModalProps) {
         <div className="p-6">
           <div className="text-center mb-8">
             <div className="inline-flex items-baseline gap-2 mb-2">
-              <span className="text-5xl font-bold text-gray-900">$2.99</span>
-              <span className="text-xl text-gray-600">/month</span>
+              <span className="text-5xl font-bold text-fdp-text-1">$2.99</span>
+              <span className="text-xl text-fdp-text-2">/month</span>
             </div>
-            <p className="text-gray-600">Cancel anytime. No long-term commitment.</p>
+            <p className="text-fdp-text-2">Cancel anytime. No long-term commitment.</p>
             <div className="mt-4 inline-block px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
               7-Day Free Trial Included
             </div>
@@ -66,13 +66,13 @@ export default function UpgradeModal({ onClose, feature }: UpgradeModalProps) {
 
           <div className="space-y-3 mb-8">
             {proFeatures.map((feature, idx) => (
-              <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+              <div key={idx} className="flex items-start gap-3 p-3 bg-fdp-surface-1 rounded-lg">
                 <div className="flex-shrink-0 w-10 h-10 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center">
                   <feature.icon className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="font-semibold text-gray-900">{feature.name}</div>
-                  <div className="text-sm text-gray-600">{feature.description}</div>
+                  <div className="font-semibold text-fdp-text-1">{feature.name}</div>
+                  <div className="text-sm text-fdp-text-2">{feature.description}</div>
                 </div>
                 <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-1" />
               </div>
@@ -96,7 +96,7 @@ export default function UpgradeModal({ onClose, feature }: UpgradeModalProps) {
             Start 7-Day Free Trial
           </button>
 
-          <p className="text-center text-xs text-gray-500 mt-4">
+          <p className="text-center text-xs text-fdp-text-3 mt-4">
             You won't be charged until your trial ends. Cancel anytime.
           </p>
         </div>

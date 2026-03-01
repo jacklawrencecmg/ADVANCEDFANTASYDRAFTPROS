@@ -177,24 +177,24 @@ ${weeklyStats.biggest_blowout.winner} demolished ${weeklyStats.biggest_blowout.l
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <FileText className="w-8 h-8 text-blue-400" />
           <h1 className="text-3xl font-bold">Weekly Recap Generator</h1>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+        <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6">
           <div className="flex gap-4 items-end">
             <div className="flex-1">
-              <label className="block text-sm text-gray-400 mb-2">Week Number</label>
+              <label className="block text-sm text-fdp-text-3 mb-2">Week Number</label>
               <input
                 type="number"
                 min="1"
                 max="18"
                 value={week}
                 onChange={(e) => setWeek(parseInt(e.target.value) || 1)}
-                className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-blue-500"
               />
             </div>
             <button
@@ -214,32 +214,32 @@ ${weeklyStats.biggest_blowout.winner} demolished ${weeklyStats.biggest_blowout.l
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div className="bg-green-500/10 backdrop-blur-sm rounded-lg border border-green-500/30 p-6 hover-lift card-enter">
-                <p className="text-gray-400 mb-2">Highest Score</p>
+                <p className="text-fdp-text-3 mb-2">Highest Score</p>
                 <p className="text-2xl font-bold text-green-400">{stats.highest_score.team}</p>
                 <p className="text-xl">{stats.highest_score.score.toFixed(1)} pts</p>
               </div>
 
               <div className="bg-red-500/10 backdrop-blur-sm rounded-lg border border-red-500/30 p-6 hover-lift card-enter">
-                <p className="text-gray-400 mb-2">Lowest Score</p>
+                <p className="text-fdp-text-3 mb-2">Lowest Score</p>
                 <p className="text-2xl font-bold text-red-400">{stats.lowest_score.team}</p>
                 <p className="text-xl">{stats.lowest_score.score.toFixed(1)} pts</p>
               </div>
 
               <div className="bg-blue-500/10 backdrop-blur-sm rounded-lg border border-blue-500/30 p-6 hover-lift card-enter">
-                <p className="text-gray-400 mb-2">Closest Game</p>
+                <p className="text-fdp-text-3 mb-2">Closest Game</p>
                 <p className="text-lg font-bold">{stats.closest_game.team1} vs {stats.closest_game.team2}</p>
                 <p className="text-blue-400">Margin: {stats.closest_game.margin.toFixed(1)} pts</p>
               </div>
 
               <div className="bg-yellow-500/10 backdrop-blur-sm rounded-lg border border-yellow-500/30 p-6 hover-lift card-enter">
-                <p className="text-gray-400 mb-2">Biggest Blowout</p>
+                <p className="text-fdp-text-3 mb-2">Biggest Blowout</p>
                 <p className="text-lg font-bold">{stats.biggest_blowout.winner}</p>
                 <p className="text-yellow-400">Won by {stats.biggest_blowout.margin.toFixed(1)} pts</p>
               </div>
             </div>
 
             {stats.all_matchups.length > 0 && (
-              <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+              <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6">
                 <h3 className="text-lg font-semibold mb-4">All Matchups</h3>
                 <div className="space-y-2">
                   {stats.all_matchups.map((m, i) => {
@@ -248,10 +248,10 @@ ${weeklyStats.biggest_blowout.winner} demolished ${weeklyStats.biggest_blowout.l
                     const winScore = Math.max(m.score1, m.score2);
                     const loseScore = Math.min(m.score1, m.score2);
                     return (
-                      <div key={i} className="flex items-center justify-between py-2 border-b border-gray-700 last:border-0">
+                      <div key={i} className="flex items-center justify-between py-2 border-b border-fdp-border-2 last:border-0">
                         <span className="font-semibold text-green-400">{winner}</span>
-                        <span className="text-gray-300 text-sm">{winScore.toFixed(1)} - {loseScore.toFixed(1)}</span>
-                        <span className="text-gray-400">{loser}</span>
+                        <span className="text-fdp-text-2 text-sm">{winScore.toFixed(1)} - {loseScore.toFixed(1)}</span>
+                        <span className="text-fdp-text-3">{loser}</span>
                       </div>
                     );
                   })}
@@ -259,7 +259,7 @@ ${weeklyStats.biggest_blowout.winner} demolished ${weeklyStats.biggest_blowout.l
               </div>
             )}
 
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+            <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold">Generated Recap</h3>
                 <div className="flex gap-2">
@@ -279,7 +279,7 @@ ${weeklyStats.biggest_blowout.winner} demolished ${weeklyStats.biggest_blowout.l
                   </button>
                 </div>
               </div>
-              <pre className="bg-gray-900/50 p-4 rounded-lg overflow-x-auto text-sm whitespace-pre-wrap">
+              <pre className="bg-fdp-bg-0/50 p-4 rounded-lg overflow-x-auto text-sm whitespace-pre-wrap">
                 {recap}
               </pre>
             </div>

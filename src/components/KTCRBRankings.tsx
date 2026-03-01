@@ -41,7 +41,7 @@ export default function KTCRBRankings() {
       lead_committee: { color: 'bg-blue-100 text-blue-800 border-blue-300', label: 'Lead' },
       committee: { color: 'bg-yellow-100 text-yellow-800 border-yellow-300', label: 'Committee' },
       handcuff: { color: 'bg-orange-100 text-orange-800 border-orange-300', label: 'Handcuff' },
-      backup: { color: 'bg-gray-100 text-gray-600 border-gray-300', label: 'Backup' },
+      backup: { color: 'bg-fdp-surface-2 text-fdp-text-2 border-fdp-border-1', label: 'Backup' },
     };
     return badges[role] || null;
   };
@@ -129,10 +129,10 @@ export default function KTCRBRankings() {
 
   const getRankBadgeColor = (rank: number) => {
     if (rank === 1) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-    if (rank <= 3) return 'bg-gray-100 text-gray-700 border-gray-300';
+    if (rank <= 3) return 'bg-fdp-surface-2 text-fdp-text-1 border-fdp-border-1';
     if (rank <= 12) return 'bg-green-50 text-green-700 border-green-200';
     if (rank <= 24) return 'bg-blue-50 text-blue-700 border-blue-200';
-    return 'bg-gray-50 text-gray-600 border-gray-200';
+    return 'bg-fdp-surface-1 text-fdp-text-2 border-fdp-border-1';
   };
 
   if (loading) {
@@ -158,15 +158,15 @@ export default function KTCRBRankings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-fdp-text-1 flex items-center gap-2">
             <Award className="w-7 h-7 text-green-600" />
             Running Back Rankings
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-fdp-text-2 mt-1">
             Dynasty Superflex values powered by Fantasy Draft Pros
           </p>
           {lastUpdated && (
-            <p className="text-xs text-gray-500 mt-1">Last updated: {lastUpdated}</p>
+            <p className="text-xs text-fdp-text-3 mt-1">Last updated: {lastUpdated}</p>
           )}
         </div>
         <button
@@ -177,25 +177,25 @@ export default function KTCRBRankings() {
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-md p-4">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-md p-4">
         <div className="grid md:grid-cols-3 gap-4 mb-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fdp-text-3 w-5 h-5" />
             <input
               type="text"
               placeholder="Search running backs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              className="w-full pl-10 pr-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-fdp-accent-1 outline-none"
             />
           </div>
 
           <div className="relative">
-            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fdp-text-3 w-5 h-5" />
             <select
               value={teamFilter}
               onChange={(e) => setTeamFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none appearance-none bg-white"
+              className="w-full pl-10 pr-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-fdp-accent-1 outline-none appearance-none bg-fdp-surface-1"
             >
               <option value="">All Teams</option>
               {uniqueTeams.map((team) => (
@@ -211,33 +211,33 @@ export default function KTCRBRankings() {
           </div>
         </div>
 
-        <div className="text-sm text-gray-600 mb-4">
+        <div className="text-sm text-fdp-text-2 mb-4">
           Showing {filteredRbs.length} of {rbs.length} running backs
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-fdp-surface-1 border-b border-fdp-border-1">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-1 uppercase tracking-wider">
                   Rank
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-1 uppercase tracking-wider">
                   Player
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-1 uppercase tracking-wider">
                   Team
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-1 uppercase tracking-wider">
                   FDP Value
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-fdp-border-1">
               {paginatedRbs.map((rb, idx) => {
                 const displayRank = (currentPage - 1) * itemsPerPage + idx + 1;
                 return (
-                <tr key={`${rb.full_name}-${displayRank}`} className="hover:bg-gray-50 transition-colors">
+                <tr key={`${rb.full_name}-${displayRank}`} className="hover:bg-fdp-surface-1 transition-colors">
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-semibold border ${getRankBadgeColor(displayRank)}`}>
                       {displayRank === 1 && '#1'}
@@ -259,7 +259,7 @@ export default function KTCRBRankings() {
                       />
                       <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900">{rb.full_name}</span>
+                          <span className="font-medium text-fdp-text-1">{rb.full_name}</span>
                           {hasAgeCliffWarning(rb.metadata?.age) && (
                             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 border border-red-300">
                               <AlertTriangle className="w-3 h-3" />
@@ -283,10 +283,10 @@ export default function KTCRBRankings() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-gray-700 font-medium">{rb.team || 'FA'}</span>
+                    <span className="text-fdp-text-1 font-medium">{rb.team || 'FA'}</span>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className="font-bold text-gray-900">
+                    <span className="font-bold text-fdp-text-1">
                       {rb.fdp_value.toLocaleString()}
                     </span>
                   </td>
@@ -297,21 +297,21 @@ export default function KTCRBRankings() {
         </div>
 
         {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
+          <div className="mt-6 flex items-center justify-between border-t border-fdp-border-1 pt-4">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 border border-fdp-border-1 rounded-lg text-sm font-medium text-fdp-text-1 hover:bg-fdp-surface-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Previous
             </button>
-            <span className="text-sm text-gray-700">
+            <span className="text-sm text-fdp-text-1">
               Page {currentPage} of {totalPages}
             </span>
             <button
               onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-4 py-2 border border-fdp-border-1 rounded-lg text-sm font-medium text-fdp-text-1 hover:bg-fdp-surface-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Next
             </button>

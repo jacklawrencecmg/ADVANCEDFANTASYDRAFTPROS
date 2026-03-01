@@ -76,7 +76,7 @@ export default function TradeFairnessWarning({
   return (
     <div className={`rounded-lg border ${colorScheme.border} ${colorScheme.bg} overflow-hidden`}>
       {/* Header */}
-      <div className="p-4 border-b border-gray-700">
+      <div className="p-4 border-b border-fdp-border-2">
         <div className="flex items-start gap-3">
           <Icon className={`w-6 h-6 ${colorScheme.text} flex-shrink-0 mt-0.5`} />
           <div className="flex-1 min-w-0">
@@ -85,20 +85,20 @@ export default function TradeFairnessWarning({
                 {colorScheme.label}
               </h3>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-400">Fairness Score:</span>
+                <span className="text-sm text-fdp-text-3">Fairness Score:</span>
                 <span className={`text-xl font-bold ${colorScheme.text}`}>
                   {fairness_score.toFixed(0)}
                 </span>
-                <span className="text-gray-500">/100</span>
+                <span className="text-fdp-text-3">/100</span>
               </div>
             </div>
-            <p className="text-sm text-gray-300">{colorScheme.description}</p>
+            <p className="text-sm text-fdp-text-2">{colorScheme.description}</p>
           </div>
         </div>
 
         {/* Fairness Score Bar */}
         <div className="mt-3">
-          <div className="h-2 bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-2 bg-fdp-surface-1 rounded-full overflow-hidden">
             <div
               className={`h-full transition-all ${
                 fairness_score >= 90 ? 'bg-green-500' :
@@ -109,7 +109,7 @@ export default function TradeFairnessWarning({
               style={{ width: `${fairness_score}%` }}
             />
           </div>
-          <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <div className="flex justify-between text-xs text-fdp-text-3 mt-1">
             <span>Unfair</span>
             <span>60</span>
             <span>75</span>
@@ -121,14 +121,14 @@ export default function TradeFairnessWarning({
 
       {/* Warnings */}
       {warnings.length > 0 && (
-        <div className="p-4 border-b border-gray-700 bg-gray-800/50">
+        <div className="p-4 border-b border-fdp-border-2 bg-fdp-surface-1/50">
           <h4 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-yellow-400" />
             Key Concerns
           </h4>
           <ul className="space-y-1">
             {warnings.map((warning, idx) => (
-              <li key={idx} className="text-sm text-gray-300 flex items-start gap-2">
+              <li key={idx} className="text-sm text-fdp-text-2 flex items-start gap-2">
                 <span className="text-yellow-400 mt-1">•</span>
                 <span>{warning}</span>
               </li>
@@ -139,7 +139,7 @@ export default function TradeFairnessWarning({
 
       {/* Flags */}
       {sortedFlags.length > 0 && (
-        <div className="p-4 border-b border-gray-700">
+        <div className="p-4 border-b border-fdp-border-2">
           <h4 className="text-sm font-semibold text-white mb-3">Structural Issues</h4>
           <div className="space-y-2">
             {sortedFlags.map((flag, idx) => (
@@ -151,23 +151,23 @@ export default function TradeFairnessWarning({
 
       {/* Tier Analysis */}
       {tier_analysis.elite_split && (
-        <div className="p-4 border-b border-gray-700 bg-red-900/10">
+        <div className="p-4 border-b border-fdp-border-2 bg-red-900/10">
           <h4 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-red-400" />
             Elite Player Alert
           </h4>
-          <p className="text-sm text-gray-300 mb-2">
+          <p className="text-sm text-fdp-text-2 mb-2">
             One side is giving up an elite player (Tier 1) without receiving an elite player in return.
           </p>
           <div className="grid grid-cols-2 gap-4 text-xs">
             <div>
-              <span className="text-gray-400">Team A Tier 1:</span>
+              <span className="text-fdp-text-3">Team A Tier 1:</span>
               <span className="ml-2 text-white font-medium">
                 {tier_analysis.teamA_tiers[1] || 0}
               </span>
             </div>
             <div>
-              <span className="text-gray-400">Team B Tier 1:</span>
+              <span className="text-fdp-text-3">Team B Tier 1:</span>
               <span className="ml-2 text-white font-medium">
                 {tier_analysis.teamB_tiers[1] || 0}
               </span>
@@ -178,12 +178,12 @@ export default function TradeFairnessWarning({
 
       {/* Positional Analysis */}
       {positional_analysis.scarcity_violation && (
-        <div className="p-4 border-b border-gray-700 bg-orange-900/10">
+        <div className="p-4 border-b border-fdp-border-2 bg-orange-900/10">
           <h4 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
             <Info className="w-4 h-4 text-orange-400" />
             Positional Scarcity Warning
           </h4>
-          <p className="text-sm text-gray-300">
+          <p className="text-sm text-fdp-text-2">
             Scarce positions (QB/RB/TE) are being traded without positional return, which may create roster imbalance.
           </p>
         </div>
@@ -206,7 +206,7 @@ export default function TradeFairnessWarning({
           {onReject && (
             <button
               onClick={onReject}
-              className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded transition-colors"
+              className="px-4 py-2 bg-fdp-surface-1 hover:bg-fdp-bg-1 text-white rounded transition-colors"
             >
               Review Trade
             </button>
@@ -241,7 +241,7 @@ function FlagItem({ flag }: { flag: FairnessFlag }) {
       case 'high': return 'text-orange-400';
       case 'medium': return 'text-yellow-400';
       case 'low': return 'text-blue-400';
-      default: return 'text-gray-400';
+      default: return 'text-fdp-text-3';
     }
   };
 
@@ -251,23 +251,23 @@ function FlagItem({ flag }: { flag: FairnessFlag }) {
       case 'high': return 'bg-orange-900/30';
       case 'medium': return 'bg-yellow-900/30';
       case 'low': return 'bg-blue-900/30';
-      default: return 'bg-gray-900/30';
+      default: return 'bg-fdp-bg-0/30';
     }
   };
 
   return (
-    <div className={`p-3 rounded ${getSeverityBg(flag.severity)} border border-gray-700`}>
+    <div className={`p-3 rounded ${getSeverityBg(flag.severity)} border border-fdp-border-2`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
             <span className={`text-xs font-semibold uppercase ${getSeverityColor(flag.severity)}`}>
               {flag.severity}
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-fdp-text-3">
               -{flag.penalty} pts
             </span>
           </div>
-          <p className="text-sm text-gray-300">{flag.message}</p>
+          <p className="text-sm text-fdp-text-2">{flag.message}</p>
         </div>
       </div>
     </div>

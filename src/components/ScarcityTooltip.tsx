@@ -43,7 +43,7 @@ export function ScarcityTooltip({
     elite: 'text-green-600',
     starter: 'text-blue-600',
     borderline: 'text-yellow-600',
-    bench: 'text-gray-600',
+    bench: 'text-fdp-text-2',
   };
 
   const tierLabels = {
@@ -57,7 +57,7 @@ export function ScarcityTooltip({
     <div className={`relative inline-block ${className}`}>
       <button
         type="button"
-        className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900"
+        className="inline-flex items-center gap-1 text-sm text-fdp-text-2 hover:text-fdp-text-1"
         onMouseEnter={() => setIsVisible(true)}
         onMouseLeave={() => setIsVisible(false)}
         onFocus={() => setIsVisible(true)}
@@ -68,16 +68,16 @@ export function ScarcityTooltip({
       </button>
 
       {isVisible && (
-        <div className="absolute z-50 w-80 p-4 mt-2 bg-white rounded-lg shadow-xl border border-gray-200 left-0">
+        <div className="absolute z-50 w-80 p-4 mt-2 bg-fdp-surface-1 rounded-lg shadow-xl border border-fdp-border-1 left-0">
           <div className="space-y-3">
             {/* Header */}
             <div className="flex items-start justify-between">
               <div>
-                <h4 className="font-semibold text-gray-900">
+                <h4 className="font-semibold text-fdp-text-1">
                   Scarcity Adjustment
                 </h4>
                 {profileName && (
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-fdp-text-3 mt-0.5">
                     {profileName}
                   </p>
                 )}
@@ -88,7 +88,7 @@ export function ScarcityTooltip({
             </div>
 
             {/* Explanation */}
-            <div className="text-sm text-gray-700">
+            <div className="text-sm text-fdp-text-1">
               <p>
                 Value adjusted for positional scarcity in this league format.
                 Replacement level: <strong>{position}{replacementRank}</strong>
@@ -96,17 +96,17 @@ export function ScarcityTooltip({
             </div>
 
             {/* Distance from replacement */}
-            <div className="pt-3 border-t border-gray-200">
+            <div className="pt-3 border-t border-fdp-border-1">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Position Rank:</span>
+                <span className="text-fdp-text-2">Position Rank:</span>
                 <span className="font-medium">{position}{positionRank}</span>
               </div>
               <div className="flex items-center justify-between text-sm mt-1">
-                <span className="text-gray-600">Replacement:</span>
+                <span className="text-fdp-text-2">Replacement:</span>
                 <span className="font-medium">{position}{replacementRank}</span>
               </div>
-              <div className="flex items-center justify-between text-sm mt-2 pt-2 border-t border-gray-100">
-                <span className="text-gray-600">Distance:</span>
+              <div className="flex items-center justify-between text-sm mt-2 pt-2 border-t border-fdp-border-1">
+                <span className="text-fdp-text-2">Distance:</span>
                 <span className={`font-semibold ${distance > 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {distance > 0 ? '+' : ''}{distance} spots
                 </span>
@@ -115,10 +115,10 @@ export function ScarcityTooltip({
 
             {/* VOR if available */}
             {vor !== undefined && (
-              <div className="pt-3 border-t border-gray-200">
+              <div className="pt-3 border-t border-fdp-border-1">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Value Over Replacement:</span>
-                  <span className={`font-semibold ${vor > 0 ? 'text-green-600' : vor < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                  <span className="text-fdp-text-2">Value Over Replacement:</span>
+                  <span className={`font-semibold ${vor > 0 ? 'text-green-600' : vor < 0 ? 'text-red-600' : 'text-fdp-text-2'}`}>
                     {vor > 0 ? '+' : ''}{vor}
                   </span>
                 </div>
@@ -126,7 +126,7 @@ export function ScarcityTooltip({
             )}
 
             {/* Explanation text */}
-            <div className="pt-3 border-t border-gray-200 text-xs text-gray-600">
+            <div className="pt-3 border-t border-fdp-border-1 text-xs text-fdp-text-2">
               {distance > 0 ? (
                 <p>
                   This player is <strong>{distance}</strong> spots above the typical
@@ -223,35 +223,35 @@ export function ScarcityPanel({
   const hasDetailedData = rawValue !== undefined && finalValue !== undefined;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
+    <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1 p-4">
       <div className="flex items-center gap-2 mb-4">
         <Info className="w-5 h-5 text-blue-600" />
-        <h3 className="text-lg font-semibold text-gray-900">
+        <h3 className="text-lg font-semibold text-fdp-text-1">
           Scarcity Analysis
         </h3>
       </div>
 
       {profileName && (
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="text-sm text-fdp-text-2 mb-4">
           For <strong>{profileName}</strong> format
         </p>
       )}
 
       {/* Position info */}
       <div className="space-y-3">
-        <div className="flex justify-between items-center py-2 border-b border-gray-100">
-          <span className="text-sm text-gray-600">Position Rank</span>
-          <span className="font-semibold text-gray-900">{position}{positionRank}</span>
+        <div className="flex justify-between items-center py-2 border-b border-fdp-border-1">
+          <span className="text-sm text-fdp-text-2">Position Rank</span>
+          <span className="font-semibold text-fdp-text-1">{position}{positionRank}</span>
         </div>
 
-        <div className="flex justify-between items-center py-2 border-b border-gray-100">
-          <span className="text-sm text-gray-600">Replacement Level</span>
-          <span className="font-semibold text-gray-900">{position}{replacementRank}</span>
+        <div className="flex justify-between items-center py-2 border-b border-fdp-border-1">
+          <span className="text-sm text-fdp-text-2">Replacement Level</span>
+          <span className="font-semibold text-fdp-text-1">{position}{replacementRank}</span>
         </div>
 
-        <div className="flex justify-between items-center py-2 border-b border-gray-100">
-          <span className="text-sm text-gray-600">Distance from Replacement</span>
-          <span className={`font-bold ${distance > 0 ? 'text-green-600' : distance < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+        <div className="flex justify-between items-center py-2 border-b border-fdp-border-1">
+          <span className="text-sm text-fdp-text-2">Distance from Replacement</span>
+          <span className={`font-bold ${distance > 0 ? 'text-green-600' : distance < 0 ? 'text-red-600' : 'text-fdp-text-2'}`}>
             {distance > 0 ? '+' : ''}{distance} spots
           </span>
         </div>
@@ -259,20 +259,20 @@ export function ScarcityPanel({
         {/* Value breakdown if available */}
         {hasDetailedData && (
           <>
-            <div className="pt-3 mt-3 border-t border-gray-200">
-              <h4 className="text-sm font-semibold text-gray-900 mb-3">
+            <div className="pt-3 mt-3 border-t border-fdp-border-1">
+              <h4 className="text-sm font-semibold text-fdp-text-1 mb-3">
                 Value Breakdown
               </h4>
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-600">Base Value</span>
+                  <span className="text-fdp-text-2">Base Value</span>
                   <span className="font-medium">{rawValue.toLocaleString()}</span>
                 </div>
 
                 {vor !== undefined && (
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">VOR Adjustment</span>
-                    <span className={`font-medium ${vor > 0 ? 'text-green-600' : vor < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                    <span className="text-fdp-text-2">VOR Adjustment</span>
+                    <span className={`font-medium ${vor > 0 ? 'text-green-600' : vor < 0 ? 'text-red-600' : 'text-fdp-text-2'}`}>
                       {vor > 0 ? '+' : ''}{vor.toLocaleString()}
                     </span>
                   </div>
@@ -280,15 +280,15 @@ export function ScarcityPanel({
 
                 {elasticityAdjustment !== undefined && elasticityAdjustment !== 0 && (
                   <div className="flex justify-between items-center text-sm">
-                    <span className="text-gray-600">Elasticity Adjustment</span>
+                    <span className="text-fdp-text-2">Elasticity Adjustment</span>
                     <span className={`font-medium ${elasticityAdjustment > 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {elasticityAdjustment > 0 ? '+' : ''}{elasticityAdjustment.toLocaleString()}
                     </span>
                   </div>
                 )}
 
-                <div className="flex justify-between items-center text-sm pt-2 mt-2 border-t border-gray-100">
-                  <span className="text-gray-900 font-semibold">Final Value</span>
+                <div className="flex justify-between items-center text-sm pt-2 mt-2 border-t border-fdp-border-1">
+                  <span className="text-fdp-text-1 font-semibold">Final Value</span>
                   <span className="font-bold text-lg">{finalValue.toLocaleString()}</span>
                 </div>
               </div>
@@ -297,8 +297,8 @@ export function ScarcityPanel({
         )}
 
         {/* Explanation */}
-        <div className="pt-3 mt-3 border-t border-gray-200">
-          <p className="text-sm text-gray-700">
+        <div className="pt-3 mt-3 border-t border-fdp-border-1">
+          <p className="text-sm text-fdp-text-1">
             {distance > 0 ? (
               <>
                 <strong className="text-green-700">Above Replacement:</strong> This player

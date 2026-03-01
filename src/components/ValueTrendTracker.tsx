@@ -118,22 +118,22 @@ export default function ValueTrendTracker({ leagueId }: ValueTrendTrackerProps) 
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <TrendingUp className="w-8 h-8 text-blue-400" />
           <h1 className="text-3xl font-bold">Value Trend Tracker</h1>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+        <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6">
           <div className="relative mb-4">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-3 w-5 h-5 text-fdp-text-3" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search tracked players..."
-              className="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-blue-500"
             />
           </div>
           <button
@@ -148,27 +148,27 @@ export default function ValueTrendTracker({ leagueId }: ValueTrendTrackerProps) 
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading trends...</p>
+            <p className="text-fdp-text-3">Loading trends...</p>
           </div>
         ) : trends.length === 0 ? (
-          <div className="text-center py-12 bg-gray-800/50 rounded-lg border border-gray-700">
-            <TrendingUp className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-            <p className="text-gray-400 text-lg mb-2">No trend data available yet</p>
-            <p className="text-gray-500 text-sm">Player values will be tracked automatically over time</p>
+          <div className="text-center py-12 bg-fdp-surface-1/50 rounded-lg border border-fdp-border-2">
+            <TrendingUp className="w-16 h-16 text-fdp-text-2 mx-auto mb-4" />
+            <p className="text-fdp-text-3 text-lg mb-2">No trend data available yet</p>
+            <p className="text-fdp-text-3 text-sm">Player values will be tracked automatically over time</p>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredTrends.map(trend => (
               <div
                 key={trend.player_id}
-                className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 hover:border-blue-500 transition"
+                className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 hover:border-fdp-accent-1 transition"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-4">
                       <div>
                         <h3 className="text-xl font-bold">{trend.player_name}</h3>
-                        <p className="text-gray-400">{trend.position}</p>
+                        <p className="text-fdp-text-3">{trend.position}</p>
                       </div>
                       {trend.trend === 'up' && (
                         <TrendingUp className="w-6 h-6 text-green-400" />
@@ -180,35 +180,35 @@ export default function ValueTrendTracker({ leagueId }: ValueTrendTrackerProps) 
 
                     <div className="grid grid-cols-3 gap-6">
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">Current Value</p>
+                        <p className="text-sm text-fdp-text-3 mb-1">Current Value</p>
                         <p className="text-2xl font-bold">{trend.current_value.toFixed(1)}</p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">7-Day Change</p>
+                        <p className="text-sm text-fdp-text-3 mb-1">7-Day Change</p>
                         <p className={`text-2xl font-bold ${
                           trend.change_7d > 0 ? 'text-green-400' :
-                          trend.change_7d < 0 ? 'text-red-400' : 'text-gray-400'
+                          trend.change_7d < 0 ? 'text-red-400' : 'text-fdp-text-3'
                         }`}>
                           {trend.change_7d > 0 ? '+' : ''}{trend.change_7d.toFixed(1)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-sm text-gray-400 mb-1">30-Day Change</p>
+                        <p className="text-sm text-fdp-text-3 mb-1">30-Day Change</p>
                         <p className={`text-2xl font-bold ${
                           trend.change_30d > 0 ? 'text-green-400' :
-                          trend.change_30d < 0 ? 'text-red-400' : 'text-gray-400'
+                          trend.change_30d < 0 ? 'text-red-400' : 'text-fdp-text-3'
                         }`}>
                           {trend.change_30d > 0 ? '+' : ''}{trend.change_30d.toFixed(1)}
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-4 bg-gray-700/30 rounded-lg p-4">
-                      <p className="text-sm text-gray-400 mb-2">Value History</p>
+                    <div className="mt-4 bg-fdp-surface-2/30 rounded-lg p-4">
+                      <p className="text-sm text-fdp-text-3 mb-2">Value History</p>
                       <div className="flex gap-2 overflow-x-auto">
                         {trend.history.slice(0, 10).map((point, index) => (
                           <div key={index} className="flex-shrink-0 text-center">
-                            <p className="text-xs text-gray-500 mb-1">
+                            <p className="text-xs text-fdp-text-3 mb-1">
                               {new Date(point.recorded_at).toLocaleDateString()}
                             </p>
                             <p className="text-sm font-semibold">{point.value.toFixed(1)}</p>

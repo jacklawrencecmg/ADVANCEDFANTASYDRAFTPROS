@@ -158,8 +158,8 @@ export function EmbedInstructions({ playerName, playerId }: EmbedInstructionsPro
             <div className="bg-fdp-bg-0 rounded-lg p-3 border border-fdp-border-1 font-mono text-xs text-fdp-text-2">
               <div className="text-green-400">**{playerName}** — Dynasty WR3 (Tier 1)</div>
               <div className="text-blue-400">Value: **3500** 📈</div>
-              <div className="text-gray-400">Rank: #15 Overall | #8 WR</div>
-              <div className="text-gray-400">Updated today</div>
+              <div className="text-fdp-text-3">Rank: #15 Overall | #8 WR</div>
+              <div className="text-fdp-text-3">Updated today</div>
               <div className="text-blue-400 underline">
                 https://www.fantasydraftpros.com/...
               </div>

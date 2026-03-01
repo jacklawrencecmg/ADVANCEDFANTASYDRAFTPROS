@@ -200,7 +200,7 @@ export default function RivalryTracker({ leagueId }: RivalryTrackerProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
@@ -208,29 +208,29 @@ export default function RivalryTracker({ leagueId }: RivalryTrackerProps) {
             <div>
               <h1 className="text-3xl font-bold">Rivalry Tracker</h1>
               {weeksLoaded > 0 && (
-                <p className="text-sm text-gray-400">{weeksLoaded} weeks of real matchup data</p>
+                <p className="text-sm text-fdp-text-3">{weeksLoaded} weeks of real matchup data</p>
               )}
             </div>
           </div>
           <button
             onClick={loadRivalries}
             disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-fdp-surface-2 hover:bg-fdp-surface-2 rounded-lg transition disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+        <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6">
           <h3 className="text-lg font-semibold mb-4">Filter Rivalries</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Team 1</label>
+              <label className="block text-sm text-fdp-text-3 mb-2">Team 1</label>
               <select
                 value={selectedTeam1}
                 onChange={(e) => setSelectedTeam1(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-blue-500"
               >
                 <option value="ALL">All Teams</option>
                 {teams.map(team => (
@@ -241,11 +241,11 @@ export default function RivalryTracker({ leagueId }: RivalryTrackerProps) {
               </select>
             </div>
             <div>
-              <label className="block text-sm text-gray-400 mb-2">Team 2</label>
+              <label className="block text-sm text-fdp-text-3 mb-2">Team 2</label>
               <select
                 value={selectedTeam2}
                 onChange={(e) => setSelectedTeam2(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full px-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-blue-500"
               >
                 <option value="ALL">All Teams</option>
                 {teams.map(team => (
@@ -261,10 +261,10 @@ export default function RivalryTracker({ leagueId }: RivalryTrackerProps) {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading real matchup data...</p>
+            <p className="text-fdp-text-3">Loading real matchup data...</p>
           </div>
         ) : rivalries.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
+          <div className="text-center py-12 text-fdp-text-3">
             <Swords className="w-12 h-12 mx-auto mb-4 opacity-30" />
             <p className="text-lg">No completed matchups found yet this season.</p>
           </div>
@@ -273,7 +273,7 @@ export default function RivalryTracker({ leagueId }: RivalryTrackerProps) {
             {rivalries.map((rivalry, index) => (
               <div
                 key={index}
-                className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 hover:border-blue-500 transition"
+                className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 hover:border-fdp-accent-1 transition"
               >
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-4">
@@ -282,7 +282,7 @@ export default function RivalryTracker({ leagueId }: RivalryTrackerProps) {
                       <h3 className="text-xl font-bold">
                         {rivalry.team1} vs {rivalry.team2}
                       </h3>
-                      <p className="text-sm text-gray-400">
+                      <p className="text-sm text-fdp-text-3">
                         {rivalry.total_matchups} all-time matchup{rivalry.total_matchups !== 1 ? 's' : ''}
                       </p>
                     </div>
@@ -294,15 +294,15 @@ export default function RivalryTracker({ leagueId }: RivalryTrackerProps) {
                     <h4 className="text-lg font-bold mb-3">{rivalry.team1}</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Wins:</span>
+                        <span className="text-fdp-text-3">Wins:</span>
                         <span className="font-bold">{rivalry.team1_wins}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Win %:</span>
+                        <span className="text-fdp-text-3">Win %:</span>
                         <span className="font-bold">{getWinPercentage(rivalry.team1_wins, rivalry.total_matchups)}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Total Points:</span>
+                        <span className="text-fdp-text-3">Total Points:</span>
                         <span className="font-bold">{rivalry.total_points_team1.toFixed(1)}</span>
                       </div>
                     </div>
@@ -312,15 +312,15 @@ export default function RivalryTracker({ leagueId }: RivalryTrackerProps) {
                     <h4 className="text-lg font-bold mb-3">{rivalry.team2}</h4>
                     <div className="space-y-2">
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Wins:</span>
+                        <span className="text-fdp-text-3">Wins:</span>
                         <span className="font-bold">{rivalry.team2_wins}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Win %:</span>
+                        <span className="text-fdp-text-3">Win %:</span>
                         <span className="font-bold">{getWinPercentage(rivalry.team2_wins, rivalry.total_matchups)}%</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-400">Total Points:</span>
+                        <span className="text-fdp-text-3">Total Points:</span>
                         <span className="font-bold">{rivalry.total_points_team2.toFixed(1)}</span>
                       </div>
                     </div>
@@ -328,16 +328,16 @@ export default function RivalryTracker({ leagueId }: RivalryTrackerProps) {
                 </div>
 
                 <div className="grid grid-cols-3 gap-4 text-center">
-                  <div className="bg-gray-700/30 rounded-lg p-3">
-                    <p className="text-sm text-gray-400 mb-1">Avg Margin</p>
+                  <div className="bg-fdp-surface-2/30 rounded-lg p-3">
+                    <p className="text-sm text-fdp-text-3 mb-1">Avg Margin</p>
                     <p className="text-lg font-bold">{rivalry.average_margin.toFixed(1)} pts</p>
                   </div>
-                  <div className="bg-gray-700/30 rounded-lg p-3">
-                    <p className="text-sm text-gray-400 mb-1">Biggest Blowout</p>
+                  <div className="bg-fdp-surface-2/30 rounded-lg p-3">
+                    <p className="text-sm text-fdp-text-3 mb-1">Biggest Blowout</p>
                     <p className="text-lg font-bold">{rivalry.biggest_blowout.toFixed(1)} pts</p>
                   </div>
-                  <div className="bg-gray-700/30 rounded-lg p-3">
-                    <p className="text-sm text-gray-400 mb-1">Closest Game</p>
+                  <div className="bg-fdp-surface-2/30 rounded-lg p-3">
+                    <p className="text-sm text-fdp-text-3 mb-1">Closest Game</p>
                     <p className="text-lg font-bold">{rivalry.closest_game.toFixed(1)} pts</p>
                   </div>
                 </div>

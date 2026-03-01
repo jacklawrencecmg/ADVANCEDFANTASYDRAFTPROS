@@ -127,11 +127,11 @@ export default function MarketTrends({ onSelectPlayer }: MarketTrendsProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-sm p-6 border border-fdp-border-1">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900">Dynasty Market Trends</h2>
-            <p className="text-gray-600 mt-1">
+            <h2 className="text-3xl font-bold text-fdp-text-1">Dynasty Market Trends</h2>
+            <p className="text-fdp-text-2 mt-1">
               Real-time buy-low and sell-high opportunities based on value movement
             </p>
           </div>
@@ -145,14 +145,14 @@ export default function MarketTrends({ onSelectPlayer }: MarketTrendsProps) {
         </div>
 
         {lastComputed && (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-fdp-text-3">
             Last updated: {new Date(lastComputed).toLocaleString()}
           </p>
         )}
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-sm border border-fdp-border-1">
         <div className="grid grid-cols-4 gap-0">
           {(['buy_low', 'sell_high', 'rising', 'falling'] as TrendTag[]).map(tag => {
             const tabConfig = getTrendConfig(tag);
@@ -166,16 +166,16 @@ export default function MarketTrends({ onSelectPlayer }: MarketTrendsProps) {
                 className={`px-6 py-4 text-center border-b-4 transition-all ${
                   isActive
                     ? `${tabConfig.activeBorder} ${tabConfig.activeBg}`
-                    : 'border-transparent hover:bg-gray-50'
+                    : 'border-transparent hover:bg-fdp-surface-1'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2 mb-1">
-                  <TabIcon className={`w-5 h-5 ${isActive ? tabConfig.activeIconText : 'text-gray-400'}`} />
-                  <span className={`font-bold ${isActive ? tabConfig.activeText : 'text-gray-600'}`}>
+                  <TabIcon className={`w-5 h-5 ${isActive ? tabConfig.activeIconText : 'text-fdp-text-3'}`} />
+                  <span className={`font-bold ${isActive ? tabConfig.activeText : 'text-fdp-text-2'}`}>
                     {tabConfig.label}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500">{tabConfig.description}</p>
+                <p className="text-xs text-fdp-text-3">{tabConfig.description}</p>
               </button>
             );
           })}
@@ -183,15 +183,15 @@ export default function MarketTrends({ onSelectPlayer }: MarketTrendsProps) {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-sm p-4 border border-fdp-border-1">
         <div className="flex items-center gap-4 flex-wrap">
           {/* Position Filter */}
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-500" />
+            <Filter className="w-4 h-4 text-fdp-text-3" />
             <select
               value={positionFilter}
               onChange={(e) => setPositionFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="px-3 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent"
             >
               <option value="all">All Positions</option>
               <option value="QB">QB</option>
@@ -204,18 +204,18 @@ export default function MarketTrends({ onSelectPlayer }: MarketTrendsProps) {
           {/* Search */}
           <div className="flex-1 max-w-md">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-fdp-text-3" />
               <input
                 type="text"
                 placeholder="Search players..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent"
               />
             </div>
           </div>
 
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-fdp-text-2">
             Showing {filteredTrends.length} players
           </div>
         </div>
@@ -223,15 +223,15 @@ export default function MarketTrends({ onSelectPlayer }: MarketTrendsProps) {
 
       {/* Trends Grid */}
       {loading ? (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-sm p-12 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading market trends...</p>
+          <p className="text-fdp-text-2">Loading market trends...</p>
         </div>
       ) : filteredTrends.length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-          <Icon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">No trends found</h3>
-          <p className="text-gray-500">Try adjusting your filters or check back later</p>
+        <div className="bg-fdp-surface-1 rounded-lg shadow-sm p-12 text-center">
+          <Icon className="w-16 h-16 text-fdp-text-2 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-fdp-text-1 mb-2">No trends found</h3>
+          <p className="text-fdp-text-3">Try adjusting your filters or check back later</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -260,7 +260,7 @@ function TrendCard({ trend, onSelect }: TrendCardProps) {
       case 'sell_high': return { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200' };
       case 'rising': return { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' };
       case 'falling': return { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200' };
-      default: return { bg: 'bg-gray-50', text: 'text-gray-700', border: 'border-gray-200' };
+      default: return { bg: 'bg-fdp-surface-1', text: 'text-fdp-text-1', border: 'border-fdp-border-1' };
     }
   };
 
@@ -268,19 +268,19 @@ function TrendCard({ trend, onSelect }: TrendCardProps) {
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-sm border-2 ${colors.border} p-4 hover:shadow-md transition-shadow cursor-pointer`}
+      className={`bg-fdp-surface-1 rounded-lg shadow-sm border-2 ${colors.border} p-4 hover:shadow-md transition-shadow cursor-pointer`}
       onClick={() => onSelect?.(trend.player_id)}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-gray-900">{trend.player_name}</h3>
+          <h3 className="text-lg font-bold text-fdp-text-1">{trend.player_name}</h3>
           <div className="flex items-center gap-2 mt-1">
-            <span className="text-sm font-semibold text-gray-600">{trend.player_position}</span>
+            <span className="text-sm font-semibold text-fdp-text-2">{trend.player_position}</span>
             {trend.team && (
               <>
-                <span className="text-gray-400">•</span>
-                <span className="text-sm text-gray-600">{trend.team}</span>
+                <span className="text-fdp-text-3">•</span>
+                <span className="text-sm text-fdp-text-2">{trend.team}</span>
               </>
             )}
           </div>
@@ -292,37 +292,37 @@ function TrendCard({ trend, onSelect }: TrendCardProps) {
 
       {/* Current Value */}
       <div className="mb-3">
-        <div className="text-sm text-gray-500">Current Value</div>
-        <div className="text-2xl font-bold text-gray-900">{trend.value_now.toLocaleString()}</div>
+        <div className="text-sm text-fdp-text-3">Current Value</div>
+        <div className="text-2xl font-bold text-fdp-text-1">{trend.value_now.toLocaleString()}</div>
       </div>
 
       {/* Changes */}
       <div className="grid grid-cols-2 gap-3 mb-3">
         <div className={`${colors.bg} rounded-lg p-2`}>
-          <div className="text-xs text-gray-600 mb-1">7-Day Change</div>
+          <div className="text-xs text-fdp-text-2 mb-1">7-Day Change</div>
           <div className={`text-sm font-bold ${colors.text} flex items-center gap-1`}>
             {trend.change_7d > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
             {trend.change_7d > 0 ? '+' : ''}{trend.change_7d.toLocaleString()}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-fdp-text-3">
             {trend.change_7d_pct > 0 ? '+' : ''}{trend.change_7d_pct}%
           </div>
         </div>
 
         <div className={`${colors.bg} rounded-lg p-2`}>
-          <div className="text-xs text-gray-600 mb-1">30-Day Change</div>
+          <div className="text-xs text-fdp-text-2 mb-1">30-Day Change</div>
           <div className={`text-sm font-bold ${colors.text} flex items-center gap-1`}>
             {trend.change_30d > 0 ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
             {trend.change_30d > 0 ? '+' : ''}{trend.change_30d.toLocaleString()}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-fdp-text-3">
             {trend.change_30d_pct > 0 ? '+' : ''}{trend.change_30d_pct}%
           </div>
         </div>
       </div>
 
       {/* Volatility */}
-      <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+      <div className="flex items-center justify-between text-xs text-fdp-text-3 pt-2 border-t border-fdp-border-1">
         <span>Volatility</span>
         <span className="font-semibold">{trend.volatility.toLocaleString()}</span>
       </div>

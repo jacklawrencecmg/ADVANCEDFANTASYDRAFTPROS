@@ -24,7 +24,7 @@ export function FeedbackButton({ context }: FeedbackButtonProps) {
         title="Give Feedback"
       >
         <MessageSquare className="w-6 h-6" />
-        <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-sm px-3 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+        <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-fdp-bg-0 text-white text-sm px-3 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
           Give Feedback
         </span>
       </button>

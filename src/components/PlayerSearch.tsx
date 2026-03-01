@@ -119,14 +119,14 @@ export default function PlayerSearch({
       case 'RB': return 'bg-green-100 text-green-800';
       case 'WR': return 'bg-blue-100 text-blue-800';
       case 'TE': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-fdp-surface-2 text-fdp-text-1';
     }
   };
 
   return (
     <div ref={searchRef} className="relative w-full max-w-2xl">
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-fdp-text-3 w-5 h-5" />
         <input
           ref={inputRef}
           type="text"
@@ -137,12 +137,12 @@ export default function PlayerSearch({
           }}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          className="w-full pl-12 pr-12 py-4 text-lg border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+          className="w-full pl-12 pr-12 py-4 text-lg border-2 border-fdp-border-1 rounded-xl focus:border-fdp-accent-1 focus:ring-2 focus:ring-fdp-accent-1/20 outline-none transition-all"
         />
         {query && (
           <button
             onClick={handleClear}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-fdp-text-3 hover:text-fdp-text-2 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -150,24 +150,24 @@ export default function PlayerSearch({
       </div>
 
       {showResults && results.length > 0 && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-96 overflow-y-auto">
+        <div className="absolute z-50 w-full mt-2 bg-fdp-surface-1 border border-fdp-border-1 rounded-lg shadow-xl max-h-96 overflow-y-auto">
           {results.map((player) => (
             <button
               key={player.id}
               onClick={() => handleSelectPlayer(player.id)}
-              className="w-full px-4 py-3 flex items-center justify-between hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-b-0 text-left"
+              className="w-full px-4 py-3 flex items-center justify-between hover:bg-blue-50 transition-colors border-b border-fdp-border-1 last:border-b-0 text-left"
             >
               <div className="flex items-center gap-3">
                 <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${getPositionColor(player.position)}`}>
                   {player.position}
                 </span>
                 <div>
-                  <p className="font-semibold text-gray-900">{player.name}</p>
-                  <p className="text-sm text-gray-600">{player.team || 'Free Agent'}</p>
+                  <p className="font-semibold text-fdp-text-1">{player.name}</p>
+                  <p className="text-sm text-fdp-text-2">{player.team || 'Free Agent'}</p>
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-500">Value</p>
+                <p className="text-sm text-fdp-text-3">Value</p>
                 <p className="font-bold text-blue-600">{player.value.toLocaleString()}</p>
               </div>
             </button>
@@ -176,14 +176,14 @@ export default function PlayerSearch({
       )}
 
       {showResults && query && results.length === 0 && !loading && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-6 text-center">
-          <p className="text-gray-600">No players found for "{query}"</p>
+        <div className="absolute z-50 w-full mt-2 bg-fdp-surface-1 border border-fdp-border-1 rounded-lg shadow-xl p-6 text-center">
+          <p className="text-fdp-text-2">No players found for "{query}"</p>
         </div>
       )}
 
       {loading && (
-        <div className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-xl p-6 text-center">
-          <p className="text-gray-600">Searching...</p>
+        <div className="absolute z-50 w-full mt-2 bg-fdp-surface-1 border border-fdp-border-1 rounded-lg shadow-xl p-6 text-center">
+          <p className="text-fdp-text-2">Searching...</p>
         </div>
       )}
     </div>

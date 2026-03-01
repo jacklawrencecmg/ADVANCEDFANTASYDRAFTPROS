@@ -129,13 +129,13 @@ export default function DraftKit({ leagueId, userId }: DraftKitProps) {
       'border-blue-500 bg-blue-500/10',
       'border-green-500 bg-green-500/10',
       'border-orange-500 bg-orange-500/10',
-      'border-gray-500 bg-gray-500/10'
+      'border-fdp-border-2 bg-fdp-text-3/10'
     ];
     return colors[Math.min(tier - 1, colors.length - 1)];
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-3">
@@ -150,22 +150,22 @@ export default function DraftKit({ leagueId, userId }: DraftKitProps) {
           </button>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+        <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6">
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 top-3 w-5 h-5 text-fdp-text-3" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search players..."
-                className="w-full pl-10 pr-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
               />
             </div>
             <select
               value={positionFilter}
               onChange={(e) => setPositionFilter(e.target.value)}
-              className="px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+              className="px-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
             >
               <option value="ALL">All Positions</option>
               <option value="QB">QB</option>
@@ -184,11 +184,11 @@ export default function DraftKit({ leagueId, userId }: DraftKitProps) {
 
           <div className="mt-4 flex gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <span className="text-gray-400">Drafted:</span>
+              <span className="text-fdp-text-3">Drafted:</span>
               <span className="font-bold">{draftedPlayers.size}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-gray-400">Available:</span>
+              <span className="text-fdp-text-3">Available:</span>
               <span className="font-bold">{filteredPlayers.length}</span>
             </div>
           </div>
@@ -197,7 +197,7 @@ export default function DraftKit({ leagueId, userId }: DraftKitProps) {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading draft board...</p>
+            <p className="text-fdp-text-3">Loading draft board...</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -209,9 +209,9 @@ export default function DraftKit({ leagueId, userId }: DraftKitProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 flex-1">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl font-bold text-gray-500 w-12">{player.rank}</span>
+                      <span className="text-2xl font-bold text-fdp-text-3 w-12">{player.rank}</span>
                       <div className="flex flex-col items-center">
-                        <span className="text-xs text-gray-400">Tier</span>
+                        <span className="text-xs text-fdp-text-3">Tier</span>
                         <span className="text-lg font-bold">{player.tier}</span>
                       </div>
                     </div>
@@ -226,11 +226,11 @@ export default function DraftKit({ leagueId, userId }: DraftKitProps) {
                         showTeamLogo={true}
                       />
                       {player.age && (
-                        <p className="text-sm text-gray-400">{player.age}yo</p>
+                        <p className="text-sm text-fdp-text-3">{player.age}yo</p>
                       )}
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-400">Dynasty Value</p>
+                      <p className="text-sm text-fdp-text-3">Dynasty Value</p>
                       <p className="text-xl font-bold text-blue-400">{player.value.toLocaleString()}</p>
                     </div>
                   </div>
@@ -238,7 +238,7 @@ export default function DraftKit({ leagueId, userId }: DraftKitProps) {
                     onClick={() => toggleDrafted(player.player_id)}
                     className={`ml-4 px-6 py-2 rounded-lg font-semibold transition ${
                       draftedPlayers.has(player.player_id)
-                        ? 'bg-gray-600 hover:bg-gray-700'
+                        ? 'bg-fdp-surface-2 hover:bg-fdp-surface-2'
                         : 'bg-green-600 hover:bg-green-700'
                     }`}
                   >

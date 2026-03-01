@@ -188,7 +188,7 @@ export default function RBContextSuggestions() {
     if (confidence >= 0.6) {
       return { color: 'bg-yellow-100 text-yellow-800 border-yellow-300', label: 'Medium' };
     }
-    return { color: 'bg-gray-100 text-gray-600 border-gray-300', label: 'Low' };
+    return { color: 'bg-fdp-surface-2 text-fdp-text-2 border-fdp-border-1', label: 'Low' };
   };
 
   const formatFieldValue = (value: string | null): string => {
@@ -212,8 +212,8 @@ export default function RBContextSuggestions() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">RB Context Suggestions</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <h2 className="text-2xl font-bold text-fdp-text-1">RB Context Suggestions</h2>
+          <p className="text-sm text-fdp-text-2 mt-1">
             Review AI-generated context suggestions for running backs
           </p>
         </div>
@@ -248,8 +248,8 @@ export default function RBContextSuggestions() {
         </div>
       )}
 
-      <div className="flex items-center gap-4 bg-white rounded-lg shadow p-4">
-        <span className="text-sm font-medium text-gray-700">Filter by confidence:</span>
+      <div className="flex items-center gap-4 bg-fdp-surface-1 rounded-lg shadow p-4">
+        <span className="text-sm font-medium text-fdp-text-1">Filter by confidence:</span>
         <div className="flex gap-2">
           {(['all', 'high', 'medium', 'low'] as const).map(f => (
             <button
@@ -258,77 +258,77 @@ export default function RBContextSuggestions() {
               className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                 filter === f
                   ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-fdp-surface-2 text-fdp-text-1 hover:bg-fdp-border-1'
               }`}
             >
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
         </div>
-        <span className="text-sm text-gray-600 ml-auto">
+        <span className="text-sm text-fdp-text-2 ml-auto">
           {filteredSuggestions.length} suggestion{filteredSuggestions.length !== 1 ? 's' : ''}
         </span>
       </div>
 
       {filteredSuggestions.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <Sparkles className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Pending Suggestions</h3>
-          <p className="text-gray-600 mb-4">
+        <div className="bg-fdp-surface-1 rounded-lg shadow p-12 text-center">
+          <Sparkles className="w-12 h-12 text-fdp-text-3 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-fdp-text-1 mb-2">No Pending Suggestions</h3>
+          <p className="text-fdp-text-2 mb-4">
             Click "Generate Suggestions" to analyze RB context data
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-fdp-surface-1 rounded-lg shadow overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-fdp-surface-2 border-b border-fdp-border-1">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-1 uppercase">
                     Player
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-1 uppercase">
                     Current Context
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-1 uppercase">
                     Suggested Context
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase">
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-fdp-text-1 uppercase">
                     Confidence
                   </th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase">
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-fdp-text-1 uppercase">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-fdp-border-1">
                 {filteredSuggestions.map((suggestion) => {
                   const confidenceBadge = getConfidenceBadge(suggestion.confidence);
                   return (
-                    <tr key={suggestion.id} className="hover:bg-gray-50">
+                    <tr key={suggestion.id} className="hover:bg-fdp-surface-2">
                       <td className="px-4 py-3">
                         <div>
-                          <div className="font-medium text-gray-900">{suggestion.player_name}</div>
-                          <div className="text-sm text-gray-500">{suggestion.team || 'FA'}</div>
+                          <div className="font-medium text-fdp-text-1">{suggestion.player_name}</div>
+                          <div className="text-sm text-fdp-text-3">{suggestion.team || 'FA'}</div>
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="text-sm space-y-1">
                           <div>
                             <span className="font-medium">Role:</span>{' '}
-                            <span className="text-gray-600">
+                            <span className="text-fdp-text-2">
                               {formatFieldValue(suggestion.current_depth_role)}
                             </span>
                           </div>
                           <div>
                             <span className="font-medium">Workload:</span>{' '}
-                            <span className="text-gray-600">
+                            <span className="text-fdp-text-2">
                               {formatFieldValue(suggestion.current_workload_tier)}
                             </span>
                           </div>
                           <div>
                             <span className="font-medium">Contract:</span>{' '}
-                            <span className="text-gray-600">
+                            <span className="text-fdp-text-2">
                               {formatFieldValue(suggestion.current_contract_security)}
                             </span>
                           </div>
@@ -355,8 +355,8 @@ export default function RBContextSuggestions() {
                             </span>
                           </div>
                           {suggestion.reasoning && (
-                            <div className="mt-2 pt-2 border-t border-gray-100">
-                              <span className="text-xs text-gray-500 italic">
+                            <div className="mt-2 pt-2 border-t border-fdp-border-1">
+                              <span className="text-xs text-fdp-text-3 italic">
                                 {suggestion.reasoning}
                               </span>
                             </div>
@@ -369,7 +369,7 @@ export default function RBContextSuggestions() {
                         >
                           {Math.round(suggestion.confidence * 100)}%
                         </span>
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-fdp-text-3 mt-1">
                           {confidenceBadge.label}
                         </div>
                       </td>
@@ -386,7 +386,7 @@ export default function RBContextSuggestions() {
                           <button
                             onClick={() => ignoreSuggestion(suggestion)}
                             disabled={processing === suggestion.id}
-                            className="px-3 py-1 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-sm"
+                            className="px-3 py-1 bg-fdp-border-1 text-fdp-text-1 rounded hover:bg-fdp-border-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 text-sm"
                           >
                             <XCircle className="w-3 h-3" />
                             Ignore

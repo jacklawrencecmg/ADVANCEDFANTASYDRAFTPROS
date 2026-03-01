@@ -149,10 +149,10 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
   };
 
   const getRankChangeIcon = (rankChange: number | null) => {
-    if (rankChange === null) return <Minus className="w-4 h-4 text-gray-400" />;
+    if (rankChange === null) return <Minus className="w-4 h-4 text-fdp-text-3" />;
     if (rankChange > 0) return <TrendingUp className="w-4 h-4 text-green-500" />;
     if (rankChange < 0) return <TrendingDown className="w-4 h-4 text-red-500" />;
-    return <Minus className="w-4 h-4 text-gray-400" />;
+    return <Minus className="w-4 h-4 text-fdp-text-3" />;
   };
 
   const getRankChangeText = (rankChange: number | null) => {
@@ -164,14 +164,14 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
 
   const getRankBadgeClass = (rank: number) => {
     if (rank === 1) return 'bg-gradient-to-br from-yellow-400 to-yellow-600 text-white';
-    if (rank === 2) return 'bg-gradient-to-br from-gray-300 to-gray-400 text-gray-800';
+    if (rank === 2) return 'bg-gradient-to-br from-gray-300 to-gray-400 text-fdp-text-1';
     if (rank === 3) return 'bg-gradient-to-br from-orange-400 to-orange-600 text-white';
-    return 'bg-gray-200 text-gray-700';
+    return 'bg-fdp-border-1 text-fdp-text-1';
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-blue-900 to-fdp-bg-0 flex items-center justify-center">
         <div className="text-white text-xl">Loading league rankings...</div>
       </div>
     );
@@ -179,11 +179,11 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
 
   if (error || !league) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md text-center">
+      <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-blue-900 to-fdp-bg-0 flex items-center justify-center">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-xl p-8 max-w-md text-center">
           <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">League Not Found</h1>
-          <p className="text-gray-600 mb-6">{error || 'This league may be private or does not exist.'}</p>
+          <h1 className="text-2xl font-bold text-fdp-text-1 mb-2">League Not Found</h1>
+          <p className="text-fdp-text-2 mb-6">{error || 'This league may be private or does not exist.'}</p>
           <a
             href="/"
             className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
@@ -196,10 +196,10 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-blue-900 to-fdp-bg-0 py-12 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-xl p-6 mb-6">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-xl p-6 mb-6">
           <div className="flex items-center gap-3 mb-4">
             <img
               src="/FDP2.png"
@@ -214,8 +214,8 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
             <div className="flex items-center gap-3">
               <Trophy className="w-8 h-8 text-yellow-500" />
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">{league.name}</h1>
-                <div className="flex items-center gap-3 text-sm text-gray-600 mt-1">
+                <h1 className="text-3xl font-bold text-fdp-text-1">{league.name}</h1>
+                <div className="flex items-center gap-3 text-sm text-fdp-text-2 mt-1">
                   <span className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />
                     Week {currentWeek} • {league.season}
@@ -235,17 +235,17 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
           </div>
 
           {league.last_sync_at && (
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-fdp-text-3">
               Last updated: {formatDate(league.last_sync_at)}
             </div>
           )}
         </div>
 
         {rankings.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-xl p-8 text-center">
-            <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-gray-900 mb-2">No Rankings Yet</h2>
-            <p className="text-gray-600">Rankings will be calculated soon. Check back later!</p>
+          <div className="bg-fdp-surface-1 rounded-lg shadow-xl p-8 text-center">
+            <Users className="w-16 h-16 text-fdp-text-3 mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-fdp-text-1 mb-2">No Rankings Yet</h2>
+            <p className="text-fdp-text-2">Rankings will be calculated soon. Check back later!</p>
           </div>
         ) : (
           <>
@@ -254,7 +254,7 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
               {rankings.slice(0, 3).map((team, idx) => (
                 <div
                   key={team.id}
-                  className={`bg-white rounded-lg shadow-xl p-6 text-center transform transition-all hover:scale-105 ${
+                  className={`bg-fdp-surface-1 rounded-lg shadow-xl p-6 text-center transform transition-all hover:scale-105 ${
                     idx === 0 ? 'md:col-start-2 order-first md:order-none' : ''
                   }`}
                 >
@@ -262,12 +262,12 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
                     {team.rank === 1 && <Crown className="w-8 h-8" />}
                     {team.rank !== 1 && team.rank}
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{team.owner_name}</h3>
+                  <h3 className="text-xl font-bold text-fdp-text-1 mb-1">{team.owner_name}</h3>
                   <div className="text-3xl font-bold text-blue-600 mb-2">{team.total_value.toLocaleString()}</div>
                   {team.rank_change !== null && (
                     <div className="flex items-center justify-center gap-1 text-sm">
                       {getRankChangeIcon(team.rank_change)}
-                      <span className={team.rank_change > 0 ? 'text-green-600' : team.rank_change < 0 ? 'text-red-600' : 'text-gray-500'}>
+                      <span className={team.rank_change > 0 ? 'text-green-600' : team.rank_change < 0 ? 'text-red-600' : 'text-fdp-text-3'}>
                         {getRankChangeText(team.rank_change)}
                       </span>
                     </div>
@@ -277,22 +277,22 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
             </div>
 
             {/* Full Rankings Table */}
-            <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+            <div className="bg-fdp-surface-1 rounded-lg shadow-xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-100 border-b border-gray-200">
+                  <thead className="bg-fdp-surface-2 border-b border-fdp-border-1">
                     <tr>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Rank</th>
-                      <th className="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Team</th>
-                      <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Offense</th>
-                      <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">IDP</th>
-                      <th className="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Total Value</th>
-                      <th className="px-6 py-4 text-center text-xs font-semibold text-gray-700 uppercase tracking-wider">Change</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-fdp-text-1 uppercase tracking-wider">Rank</th>
+                      <th className="px-6 py-4 text-left text-xs font-semibold text-fdp-text-1 uppercase tracking-wider">Team</th>
+                      <th className="px-6 py-4 text-right text-xs font-semibold text-fdp-text-1 uppercase tracking-wider">Offense</th>
+                      <th className="px-6 py-4 text-right text-xs font-semibold text-fdp-text-1 uppercase tracking-wider">IDP</th>
+                      <th className="px-6 py-4 text-right text-xs font-semibold text-fdp-text-1 uppercase tracking-wider">Total Value</th>
+                      <th className="px-6 py-4 text-center text-xs font-semibold text-fdp-text-1 uppercase tracking-wider">Change</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-fdp-border-1">
                     {rankings.map((team) => (
-                      <tr key={team.id} className="hover:bg-gray-50 transition-colors">
+                      <tr key={team.id} className="hover:bg-fdp-surface-1 transition-colors">
                         <td className="px-6 py-4">
                           <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full ${getRankBadgeClass(team.rank)} text-lg font-bold`}>
                             {team.rank}
@@ -311,17 +311,17 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
                               />
                             )}
                             <div>
-                              <div className="font-semibold text-gray-900">{team.owner_name}</div>
+                              <div className="font-semibold text-fdp-text-1">{team.owner_name}</div>
                               {team.top_player_name && (
-                                <div className="text-sm text-gray-600">
+                                <div className="text-sm text-fdp-text-2">
                                   Top: {team.top_player_name} ({team.top_player_value?.toLocaleString()})
                                 </div>
                               )}
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-right font-semibold text-gray-700">{team.offense_value.toLocaleString()}</td>
-                        <td className="px-6 py-4 text-right font-semibold text-gray-700">
+                        <td className="px-6 py-4 text-right font-semibold text-fdp-text-1">{team.offense_value.toLocaleString()}</td>
+                        <td className="px-6 py-4 text-right font-semibold text-fdp-text-1">
                           {team.idp_value > 0 ? team.idp_value.toLocaleString() : '—'}
                         </td>
                         <td className="px-6 py-4 text-right text-lg font-bold text-blue-600">{team.total_value.toLocaleString()}</td>
@@ -331,7 +331,7 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
                             <span className={`font-semibold ${
                               team.rank_change && team.rank_change > 0 ? 'text-green-600' :
                               team.rank_change && team.rank_change < 0 ? 'text-red-600' :
-                              'text-gray-500'
+                              'text-fdp-text-3'
                             }`}>
                               {getRankChangeText(team.rank_change)}
                             </span>
@@ -345,9 +345,9 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
             </div>
 
             {/* Legend */}
-            <div className="mt-6 bg-white rounded-lg shadow-xl p-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-3">About Rankings</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+            <div className="mt-6 bg-fdp-surface-1 rounded-lg shadow-xl p-6">
+              <h3 className="text-lg font-bold text-fdp-text-1 mb-3">About Rankings</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-fdp-text-1">
                 <div>
                   <p className="mb-2">
                     <strong>Total Value:</strong> Sum of all player FDP values on roster
@@ -366,7 +366,7 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
                     <span>Declined rank</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Minus className="w-4 h-4 text-gray-400" />
+                    <Minus className="w-4 h-4 text-fdp-text-3" />
                     <span>No change or first week</span>
                   </div>
                 </div>
@@ -376,8 +376,8 @@ export default function PublicLeagueRankings({ slug }: PublicLeagueRankingsProps
         )}
 
         {/* Footer CTA */}
-        <div className="mt-6 bg-white rounded-lg shadow-xl p-6 text-center">
-          <div className="text-gray-600 mb-4">
+        <div className="mt-6 bg-fdp-surface-1 rounded-lg shadow-xl p-6 text-center">
+          <div className="text-fdp-text-2 mb-4">
             Powered by <span className="font-bold text-blue-600">FantasyDraftPros</span>
           </div>
           <a

@@ -127,11 +127,11 @@ export default function ChampionshipCalculator({ leagueId }: ChampionshipCalcula
     if (odds >= 50) return 'text-green-400';
     if (odds >= 25) return 'text-blue-400';
     if (odds >= 10) return 'text-yellow-400';
-    return 'text-gray-400';
+    return 'text-fdp-text-3';
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <Trophy className="w-8 h-8 text-yellow-400" />
@@ -141,21 +141,21 @@ export default function ChampionshipCalculator({ leagueId }: ChampionshipCalcula
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-400">Calculating championship odds...</p>
+            <p className="text-fdp-text-3">Calculating championship odds...</p>
           </div>
         ) : (
           <div className="space-y-4">
             {teamOdds.map((team, index) => (
               <div
                 key={team.roster_id}
-                className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 hover:border-blue-500 transition"
+                className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 hover:border-fdp-accent-1 transition"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-4">
-                    <span className="text-3xl font-bold text-gray-500">#{index + 1}</span>
+                    <span className="text-3xl font-bold text-fdp-text-3">#{index + 1}</span>
                     <div>
                       <h3 className="text-xl font-bold">{team.team_name}</h3>
-                      <p className="text-gray-400">Total Value: {team.total_value.toFixed(1)}</p>
+                      <p className="text-fdp-text-3">Total Value: {team.total_value.toFixed(1)}</p>
                     </div>
                   </div>
                   {index === 0 && (
@@ -165,11 +165,11 @@ export default function ChampionshipCalculator({ leagueId }: ChampionshipCalcula
 
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-4">
                   <div>
-                    <p className="text-sm text-gray-400 mb-1">Playoff Odds</p>
+                    <p className="text-sm text-fdp-text-3 mb-1">Playoff Odds</p>
                     <p className={`text-2xl font-bold ${getOddsColor(team.playoff_odds)}`}>
                       {team.playoff_odds.toFixed(1)}%
                     </p>
-                    <div className="mt-2 bg-gray-700 rounded-full h-2">
+                    <div className="mt-2 bg-fdp-surface-2 rounded-full h-2">
                       <div
                         className="bg-blue-500 rounded-full h-2 transition-all"
                         style={{ width: `${team.playoff_odds}%` }}
@@ -178,11 +178,11 @@ export default function ChampionshipCalculator({ leagueId }: ChampionshipCalcula
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-400 mb-1">Championship Odds</p>
+                    <p className="text-sm text-fdp-text-3 mb-1">Championship Odds</p>
                     <p className={`text-2xl font-bold ${getOddsColor(team.championship_odds)}`}>
                       {team.championship_odds.toFixed(1)}%
                     </p>
-                    <div className="mt-2 bg-gray-700 rounded-full h-2">
+                    <div className="mt-2 bg-fdp-surface-2 rounded-full h-2">
                       <div
                         className="bg-yellow-500 rounded-full h-2 transition-all"
                         style={{ width: `${team.championship_odds}%` }}
@@ -191,11 +191,11 @@ export default function ChampionshipCalculator({ leagueId }: ChampionshipCalcula
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-400 mb-1">Weekly Win Probability</p>
+                    <p className="text-sm text-fdp-text-3 mb-1">Weekly Win Probability</p>
                     <p className={`text-2xl font-bold ${getOddsColor(team.win_odds)}`}>
                       {team.win_odds.toFixed(1)}%
                     </p>
-                    <div className="mt-2 bg-gray-700 rounded-full h-2">
+                    <div className="mt-2 bg-fdp-surface-2 rounded-full h-2">
                       <div
                         className="bg-green-500 rounded-full h-2 transition-all"
                         style={{ width: `${team.win_odds}%` }}
@@ -219,19 +219,19 @@ export default function ChampionshipCalculator({ leagueId }: ChampionshipCalcula
           </div>
         )}
 
-        <div className="mt-8 bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
+        <div className="mt-8 bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-blue-400" />
             How Odds Are Calculated
           </h3>
-          <div className="space-y-2 text-sm text-gray-300">
+          <div className="space-y-2 text-sm text-fdp-text-2">
             <p>Championship odds are based on:</p>
             <ul className="list-disc list-inside space-y-1 ml-4">
               <li>Total roster value (70% weight)</li>
               <li>Current win-loss record (30% weight)</li>
               <li>Playoff qualification probability</li>
             </ul>
-            <p className="mt-4 text-gray-400">
+            <p className="mt-4 text-fdp-text-3">
               These probabilities are estimates based on current roster strength and performance.
               Actual results may vary based on matchups, injuries, and other factors.
             </p>

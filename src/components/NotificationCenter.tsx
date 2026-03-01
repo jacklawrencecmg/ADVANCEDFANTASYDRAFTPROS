@@ -114,9 +114,9 @@ export function NotificationCenter() {
   if (!user) {
     return (
       <div className="max-w-4xl mx-auto p-8 text-center">
-        <Bell className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Notification Center</h2>
-        <p className="text-gray-600">Please log in to view your notifications</p>
+        <Bell className="w-16 h-16 mx-auto text-fdp-text-3 mb-4" />
+        <h2 className="text-2xl font-bold text-fdp-text-1 mb-2">Notification Center</h2>
+        <p className="text-fdp-text-2">Please log in to view your notifications</p>
       </div>
     );
   }
@@ -127,9 +127,9 @@ export function NotificationCenter() {
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
+            <h1 className="text-3xl font-bold text-fdp-text-1">Notifications</h1>
             {unreadCount > 0 && (
-              <p className="text-sm text-gray-600 mt-1">{unreadCount} unread</p>
+              <p className="text-sm text-fdp-text-2 mt-1">{unreadCount} unread</p>
             )}
           </div>
 
@@ -148,18 +148,18 @@ export function NotificationCenter() {
         <div className="flex flex-col sm:flex-row gap-3">
           {/* Search */}
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fdp-text-3" />
             <input
               type="text"
               placeholder="Search notifications..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-fdp-text-3 hover:text-fdp-text-2"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -198,7 +198,7 @@ export function NotificationCenter() {
           <select
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value as FilterPriority)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            className="px-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1"
           >
             <option value="all">All Priority</option>
             <option value="critical">Critical</option>
@@ -213,7 +213,7 @@ export function NotificationCenter() {
             className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors ${
               filterUnread
                 ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                : 'bg-fdp-surface-1 text-fdp-text-1 border-fdp-border-1 hover:bg-fdp-surface-1'
             }`}
           >
             <Filter className="w-4 h-4" />
@@ -226,13 +226,13 @@ export function NotificationCenter() {
       {loading ? (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading notifications...</p>
+          <p className="text-fdp-text-2">Loading notifications...</p>
         </div>
       ) : filteredNotifications.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <Bell className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No notifications</h3>
-          <p className="text-gray-600">
+        <div className="text-center py-12 bg-fdp-surface-1 rounded-lg">
+          <Bell className="w-16 h-16 mx-auto text-fdp-text-3 mb-4" />
+          <h3 className="text-lg font-semibold text-fdp-text-1 mb-2">No notifications</h3>
+          <p className="text-fdp-text-2">
             {searchTerm || filterUnread || filterPriority !== 'all'
               ? 'Try adjusting your filters'
               : "We'll notify you about opportunities"}
@@ -330,13 +330,13 @@ function NotificationGroup({
   onMarkRead: (id: string) => void;
 }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-lg font-bold text-gray-900">{title}</h2>
-        <p className="text-sm text-gray-600">{notifications.length} notifications</p>
+    <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1">
+      <div className="px-6 py-4 border-b border-fdp-border-1 bg-fdp-surface-1">
+        <h2 className="text-lg font-bold text-fdp-text-1">{title}</h2>
+        <p className="text-sm text-fdp-text-2">{notifications.length} notifications</p>
       </div>
 
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-fdp-border-1">
         {notifications.map((notification) => (
           <NotificationItem
             key={notification.id}
@@ -362,15 +362,15 @@ function NotificationItem({
   const priorityColors = {
     critical: 'bg-red-50 border-l-4 border-red-500',
     high: 'bg-orange-50 border-l-4 border-orange-500',
-    normal: 'bg-white border-l-4 border-blue-500',
-    low: 'bg-white border-l-4 border-gray-300',
+    normal: 'bg-fdp-surface-1 border-l-4 border-blue-500',
+    low: 'bg-fdp-surface-1 border-l-4 border-fdp-border-1',
   };
 
   const priorityBadges = {
     critical: 'bg-red-100 text-red-800',
     high: 'bg-orange-100 text-orange-800',
     normal: 'bg-blue-100 text-blue-800',
-    low: 'bg-gray-100 text-gray-800',
+    low: 'bg-fdp-surface-2 text-fdp-text-1',
   };
 
   const priorityClass = priorityColors[notification.priority];
@@ -380,8 +380,8 @@ function NotificationItem({
 
   return (
     <div
-      className={`p-6 hover:bg-gray-50 transition-colors ${
-        notification.isUnread ? priorityClass : 'bg-white'
+      className={`p-6 hover:bg-fdp-surface-1 transition-colors ${
+        notification.isUnread ? priorityClass : 'bg-fdp-surface-1'
       }`}
     >
       <div className="flex items-start justify-between gap-4">
@@ -390,15 +390,15 @@ function NotificationItem({
             {notification.isUnread && (
               <span className="flex-shrink-0 w-2.5 h-2.5 bg-blue-600 rounded-full"></span>
             )}
-            <h3 className="text-lg font-semibold text-gray-900">{notification.title}</h3>
+            <h3 className="text-lg font-semibold text-fdp-text-1">{notification.title}</h3>
             <span className={`px-2 py-1 text-xs font-semibold rounded ${badgeClass}`}>
               {notification.priority.toUpperCase()}
             </span>
           </div>
 
-          <p className="text-gray-700 mb-3">{notification.message}</p>
+          <p className="text-fdp-text-1 mb-3">{notification.message}</p>
 
-          <div className="flex items-center gap-4 text-sm text-gray-500">
+          <div className="flex items-center gap-4 text-sm text-fdp-text-3">
             <span>{timeAgo}</span>
             {notification.playerName && <span>• Player: {notification.playerName}</span>}
           </div>
@@ -437,7 +437,7 @@ function GroupButton({
       className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
         active
           ? 'bg-blue-600 text-white'
-          : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+          : 'bg-fdp-surface-1 text-fdp-text-1 border border-fdp-border-1 hover:bg-fdp-surface-1'
       }`}
     >
       {icon}

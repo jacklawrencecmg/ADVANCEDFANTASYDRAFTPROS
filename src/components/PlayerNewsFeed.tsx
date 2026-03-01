@@ -98,28 +98,28 @@ export default function PlayerNewsFeed() {
       case 'injury': return <AlertCircle className="w-5 h-5 text-red-400" />;
       case 'trade': return <TrendingUp className="w-5 h-5 text-blue-400" />;
       case 'depth_chart': return <TrendingUp className="w-5 h-5 text-yellow-400" />;
-      default: return <Newspaper className="w-5 h-5 text-gray-400" />;
+      default: return <Newspaper className="w-5 h-5 text-fdp-text-3" />;
     }
   };
 
   const filteredNews = filter === 'all' ? news : news.filter(n => n.type === filter);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <Newspaper className="w-8 h-8 text-blue-400" />
           <h1 className="text-3xl font-bold">Player News Feed</h1>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+        <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6">
           <div className="flex gap-2 flex-wrap">
             {(['all', 'injury', 'trade', 'depth_chart', 'performance'] as const).map(f => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`px-4 py-2 rounded-lg font-semibold transition capitalize ${
-                  filter === f ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'
+                  filter === f ? 'bg-blue-600' : 'bg-fdp-surface-2 hover:bg-fdp-surface-2'
                 }`}
               >
                 {f === 'all' ? 'All News' : f === 'depth_chart' ? 'Depth Chart' : f.charAt(0).toUpperCase() + f.slice(1) + 's'}
@@ -145,10 +145,10 @@ export default function PlayerNewsFeed() {
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading live news...</p>
+            <p className="text-fdp-text-3">Loading live news...</p>
           </div>
         ) : filteredNews.length === 0 ? (
-          <div className="text-center py-12 text-gray-400">
+          <div className="text-center py-12 text-fdp-text-3">
             <Newspaper className="w-12 h-12 mx-auto mb-4 opacity-30" />
             <p>No news items found{filter !== 'all' ? ` for "${filter}"` : ''}.</p>
           </div>
@@ -157,24 +157,24 @@ export default function PlayerNewsFeed() {
             {filteredNews.map((item) => (
               <div
                 key={item.id}
-                className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 hover:border-blue-500 transition"
+                className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 hover:border-blue-500 transition"
               >
                 <div className="flex items-start gap-4">
-                  <div className="p-3 bg-gray-700/50 rounded-lg flex-shrink-0">
+                  <div className="p-3 bg-fdp-surface-2/50 rounded-lg flex-shrink-0">
                     {getTypeIcon(item.type)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between mb-2 gap-2">
                       <div>
                         <h3 className="text-lg font-bold mb-1 leading-tight">{item.title}</h3>
-                        <p className="text-sm text-gray-400">{item.player_name}</p>
+                        <p className="text-sm text-fdp-text-3">{item.player_name}</p>
                       </div>
                       <span className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-semibold border ${getImpactColor(item.impact)}`}>
                         {item.impact.toUpperCase()}
                       </span>
                     </div>
-                    <p className="text-gray-300 mb-3 text-sm leading-relaxed">{item.description}</p>
-                    <div className="flex items-center gap-3 text-xs text-gray-500">
+                    <p className="text-fdp-text-2 mb-3 text-sm leading-relaxed">{item.description}</p>
+                    <div className="flex items-center gap-3 text-xs text-fdp-text-3">
                       <span>{new Date(item.timestamp).toLocaleString()}</span>
                       {item.source && <span>· {item.source}</span>}
                     </div>

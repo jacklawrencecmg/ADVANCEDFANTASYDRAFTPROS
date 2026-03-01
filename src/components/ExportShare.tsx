@@ -37,7 +37,7 @@ export default function ExportShare({ leagueId, rosterId }: ExportShareProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <Share2 className="w-8 h-8 text-blue-400" />
@@ -52,17 +52,17 @@ export default function ExportShare({ leagueId, rosterId }: ExportShareProps) {
                 <div
                   key={template.id}
                   onClick={() => setSelectedTemplate(template.id)}
-                  className={`bg-gray-800/50 backdrop-blur-sm rounded-lg border p-4 cursor-pointer transition ${
+                  className={`bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border p-4 cursor-pointer transition ${
                     selectedTemplate === template.id
                       ? 'border-blue-500 bg-blue-500/10'
-                      : 'border-gray-700 hover:border-gray-600'
+                      : 'border-fdp-border-2 hover:border-fdp-border-1'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <ImageIcon className="w-6 h-6 text-blue-400 flex-shrink-0 mt-1" />
                     <div>
                       <h3 className="font-bold text-lg">{template.name}</h3>
-                      <p className="text-sm text-gray-400">{template.description}</p>
+                      <p className="text-sm text-fdp-text-3">{template.description}</p>
                     </div>
                   </div>
                 </div>
@@ -91,7 +91,7 @@ export default function ExportShare({ leagueId, rosterId }: ExportShareProps) {
           <div>
             <h2 className="text-2xl font-bold mb-6">Export Data</h2>
 
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+            <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6">
               <h3 className="font-bold text-lg mb-4">Download Options</h3>
               <div className="space-y-3">
                 <button
@@ -118,26 +118,26 @@ export default function ExportShare({ leagueId, rosterId }: ExportShareProps) {
               </div>
             </div>
 
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
+            <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6">
               <h3 className="font-bold text-lg mb-4">Share to Social Media</h3>
               <div className="space-y-3">
                 <button
                   onClick={() => shareToSocial('Twitter/X')}
-                  className="w-full px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 bg-fdp-surface-2 hover:bg-fdp-surface-2 rounded-lg font-semibold transition flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-5 h-5" />
                   Share to Twitter/X
                 </button>
                 <button
                   onClick={() => shareToSocial('Facebook')}
-                  className="w-full px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 bg-fdp-surface-2 hover:bg-fdp-surface-2 rounded-lg font-semibold transition flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-5 h-5" />
                   Share to Facebook
                 </button>
                 <button
                   onClick={() => shareToSocial('Reddit')}
-                  className="w-full px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 bg-fdp-surface-2 hover:bg-fdp-surface-2 rounded-lg font-semibold transition flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-5 h-5" />
                   Share to Reddit
@@ -147,7 +147,7 @@ export default function ExportShare({ leagueId, rosterId }: ExportShareProps) {
                     navigator.clipboard.writeText(window.location.href);
                     alert('Link copied to clipboard!');
                   }}
-                  className="w-full px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 bg-fdp-surface-2 hover:bg-fdp-surface-2 rounded-lg font-semibold transition flex items-center justify-center gap-2"
                 >
                   <Share2 className="w-5 h-5" />
                   Copy Link
@@ -159,7 +159,7 @@ export default function ExportShare({ leagueId, rosterId }: ExportShareProps) {
 
         <div className="mt-8 bg-blue-500/10 border border-blue-500/30 rounded-lg p-6">
           <h3 className="font-bold text-lg mb-2">Pro Tip</h3>
-          <p className="text-gray-300">
+          <p className="text-fdp-text-2">
             Generated graphics are optimized for social media sharing. They include your league branding
             and are sized perfectly for Twitter, Facebook, and Instagram posts.
           </p>

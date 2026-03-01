@@ -58,7 +58,7 @@ export function PlayoffMeter({
       );
     } else {
       return (
-        <div className="flex items-center gap-1 text-gray-500">
+        <div className="flex items-center gap-1 text-fdp-text-3">
           <Minus className="w-4 h-4" />
           <span className="text-xs font-semibold">0%</span>
         </div>
@@ -67,12 +67,12 @@ export function PlayoffMeter({
   };
 
   return (
-    <div className={`rounded-xl p-4 border border-gray-700 ${bgColor} backdrop-blur-sm`}>
+    <div className={`rounded-xl p-4 border border-fdp-border-2 ${bgColor} backdrop-blur-sm`}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
           <div className="font-semibold text-white text-sm mb-1">{teamName}</div>
           {rank && (
-            <div className="text-xs text-gray-400">Rank #{rank}</div>
+            <div className="text-xs text-fdp-text-3">Rank #{rank}</div>
           )}
         </div>
         <div className="text-right">
@@ -83,12 +83,12 @@ export function PlayoffMeter({
         </div>
       </div>
 
-      <div className="relative h-3 bg-gray-800 rounded-full overflow-hidden">
+      <div className="relative h-3 bg-fdp-surface-1 rounded-full overflow-hidden">
         <div
           className={`absolute left-0 top-0 h-full bg-gradient-to-r ${color} rounded-full transition-all duration-1000 ease-out`}
           style={{ width: `${clampedProb}%` }}
         >
-          <div className="absolute inset-0 bg-white/20 animate-pulse-subtle"></div>
+          <div className="absolute inset-0 bg-fdp-surface-1/20 animate-pulse-subtle"></div>
         </div>
 
         <div className="absolute inset-0 flex items-center justify-center">
@@ -98,7 +98,7 @@ export function PlayoffMeter({
 
       {showDetails && (
         <div className="mt-3 flex items-center justify-between text-xs">
-          <span className="text-gray-500">Playoff Probability</span>
+          <span className="text-fdp-text-3">Playoff Probability</span>
           <span className={`font-semibold ${textColor}`}>
             {clampedProb >= 80 ? 'Very Likely' :
              clampedProb >= 60 ? 'Likely' :

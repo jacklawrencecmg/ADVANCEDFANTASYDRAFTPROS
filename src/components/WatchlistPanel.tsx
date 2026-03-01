@@ -95,7 +95,7 @@ export default function WatchlistPanel({ onSelectPlayer }: WatchlistPanelProps) 
       case 'sell_high': return 'text-red-600 bg-red-50';
       case 'rising': return 'text-blue-600 bg-blue-50';
       case 'falling': return 'text-orange-600 bg-orange-50';
-      default: return 'text-gray-600 bg-gray-50';
+      default: return 'text-fdp-text-2 bg-fdp-surface-1';
     }
   };
 
@@ -111,23 +111,23 @@ export default function WatchlistPanel({ onSelectPlayer }: WatchlistPanelProps) 
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-sm p-8 text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
-        <p className="text-gray-600 text-sm">Loading watchlist...</p>
+        <p className="text-fdp-text-2 text-sm">Loading watchlist...</p>
       </div>
     );
   }
 
   if (players.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-        <Star className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <h3 className="text-xl font-bold text-gray-700 mb-2">Your Watchlist is Empty</h3>
-        <p className="text-gray-500 mb-6">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-sm p-12 text-center">
+        <Star className="w-16 h-16 text-fdp-text-2 mx-auto mb-4" />
+        <h3 className="text-xl font-bold text-fdp-text-1 mb-2">Your Watchlist is Empty</h3>
+        <p className="text-fdp-text-3 mb-6">
           Follow players to receive alerts when their values change significantly
         </p>
         <div className="bg-blue-50 rounded-lg p-4 max-w-md mx-auto">
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-fdp-text-1">
             Click the star icon on any player card to add them to your watchlist
           </p>
         </div>
@@ -138,11 +138,11 @@ export default function WatchlistPanel({ onSelectPlayer }: WatchlistPanelProps) 
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-sm p-6 border border-fdp-border-1">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Your Watchlist</h2>
-            <p className="text-gray-600 mt-1">
+            <h2 className="text-2xl font-bold text-fdp-text-1">Your Watchlist</h2>
+            <p className="text-fdp-text-2 mt-1">
               Following {players.length} {players.length === 1 ? 'player' : 'players'}
             </p>
           </div>
@@ -160,7 +160,7 @@ export default function WatchlistPanel({ onSelectPlayer }: WatchlistPanelProps) 
         {players.map((player) => (
           <div
             key={player.player_id}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow"
+            className="bg-fdp-surface-1 rounded-lg shadow-sm border border-fdp-border-1 p-4 hover:shadow-md transition-shadow"
           >
             {/* Header */}
             <div className="flex items-start justify-between mb-3">
@@ -168,17 +168,17 @@ export default function WatchlistPanel({ onSelectPlayer }: WatchlistPanelProps) 
                 className="flex-1 cursor-pointer"
                 onClick={() => onSelectPlayer?.(player.player_id)}
               >
-                <h3 className="text-lg font-bold text-gray-900 hover:text-blue-600">
+                <h3 className="text-lg font-bold text-fdp-text-1 hover:text-blue-600">
                   {player.player_name}
                 </h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="text-sm font-semibold text-gray-600">
+                  <span className="text-sm font-semibold text-fdp-text-2">
                     {player.player_position}
                   </span>
                   {player.team && (
                     <>
-                      <span className="text-gray-400">•</span>
-                      <span className="text-sm text-gray-600">{player.team}</span>
+                      <span className="text-fdp-text-3">•</span>
+                      <span className="text-sm text-fdp-text-2">{player.team}</span>
                     </>
                   )}
                 </div>
@@ -186,7 +186,7 @@ export default function WatchlistPanel({ onSelectPlayer }: WatchlistPanelProps) 
               <button
                 onClick={() => handleRemove(player.player_id)}
                 disabled={removing === player.player_id}
-                className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                className="text-fdp-text-3 hover:text-red-600 transition-colors p-1"
                 title="Remove from watchlist"
               >
                 {removing === player.player_id ? (
@@ -199,18 +199,18 @@ export default function WatchlistPanel({ onSelectPlayer }: WatchlistPanelProps) 
 
             {/* Value */}
             <div className="mb-3">
-              <div className="text-sm text-gray-500">Current Value</div>
-              <div className="text-2xl font-bold text-gray-900">
+              <div className="text-sm text-fdp-text-3">Current Value</div>
+              <div className="text-2xl font-bold text-fdp-text-1">
                 {player.value_now.toLocaleString()}
               </div>
             </div>
 
             {/* Changes */}
             <div className="grid grid-cols-2 gap-3 mb-3">
-              <div className="bg-gray-50 rounded-lg p-2">
-                <div className="text-xs text-gray-600 mb-1">7-Day</div>
+              <div className="bg-fdp-surface-1 rounded-lg p-2">
+                <div className="text-xs text-fdp-text-2 mb-1">7-Day</div>
                 <div className={`text-sm font-bold flex items-center gap-1 ${
-                  player.change_7d > 0 ? 'text-green-600' : player.change_7d < 0 ? 'text-red-600' : 'text-gray-600'
+                  player.change_7d > 0 ? 'text-green-600' : player.change_7d < 0 ? 'text-red-600' : 'text-fdp-text-2'
                 }`}>
                   {player.change_7d > 0 ? (
                     <TrendingUp className="w-3 h-3" />
@@ -221,10 +221,10 @@ export default function WatchlistPanel({ onSelectPlayer }: WatchlistPanelProps) 
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-2">
-                <div className="text-xs text-gray-600 mb-1">30-Day</div>
+              <div className="bg-fdp-surface-1 rounded-lg p-2">
+                <div className="text-xs text-fdp-text-2 mb-1">30-Day</div>
                 <div className={`text-sm font-bold flex items-center gap-1 ${
-                  player.change_30d > 0 ? 'text-green-600' : player.change_30d < 0 ? 'text-red-600' : 'text-gray-600'
+                  player.change_30d > 0 ? 'text-green-600' : player.change_30d < 0 ? 'text-red-600' : 'text-fdp-text-2'
                 }`}>
                   {player.change_30d > 0 ? (
                     <TrendingUp className="w-3 h-3" />
@@ -244,7 +244,7 @@ export default function WatchlistPanel({ onSelectPlayer }: WatchlistPanelProps) 
             )}
 
             {/* Added Date */}
-            <div className="text-xs text-gray-400 mt-3">
+            <div className="text-xs text-fdp-text-3 mt-3">
               Added {new Date(player.added_at).toLocaleDateString()}
             </div>
           </div>

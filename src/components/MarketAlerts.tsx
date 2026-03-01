@@ -83,15 +83,15 @@ export default function MarketAlerts({ rosterPlayerIds, onViewMarket }: MarketAl
         <div className="flex items-center gap-3">
           <AlertCircle className="w-6 h-6 text-blue-600" />
           <div>
-            <h3 className="text-lg font-bold text-gray-900">Market Opportunities</h3>
-            <p className="text-sm text-gray-600">
+            <h3 className="text-lg font-bold text-fdp-text-1">Market Opportunities</h3>
+            <p className="text-sm text-fdp-text-2">
               Based on current dynasty market trends
             </p>
           </div>
         </div>
         <button
           onClick={() => setDismissed(true)}
-          className="text-gray-400 hover:text-gray-600 transition-colors"
+          className="text-fdp-text-3 hover:text-fdp-text-2 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -103,7 +103,7 @@ export default function MarketAlerts({ rosterPlayerIds, onViewMarket }: MarketAl
           <div>
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="w-5 h-5 text-red-600" />
-              <h4 className="font-bold text-gray-900">
+              <h4 className="font-bold text-fdp-text-1">
                 {sellHighPlayers.length} Sell-High on Roster
               </h4>
             </div>
@@ -111,14 +111,14 @@ export default function MarketAlerts({ rosterPlayerIds, onViewMarket }: MarketAl
               {sellHighPlayers.map((player) => (
                 <div
                   key={player.player_id}
-                  className="bg-white rounded-lg p-3 border border-red-200"
+                  className="bg-fdp-surface-1 rounded-lg p-3 border border-red-200"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-semibold text-gray-900">
+                      <div className="font-semibold text-fdp-text-1">
                         {player.player_name}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-fdp-text-3">
                         {player.player_position} • {player.team || 'FA'}
                       </div>
                     </div>
@@ -126,7 +126,7 @@ export default function MarketAlerts({ rosterPlayerIds, onViewMarket }: MarketAl
                       <div className="text-sm font-bold text-red-600">
                         +{player.change_30d.toLocaleString()}
                       </div>
-                      <div className="text-xs text-gray-500">30d change</div>
+                      <div className="text-xs text-fdp-text-3">30d change</div>
                     </div>
                   </div>
                 </div>
@@ -140,7 +140,7 @@ export default function MarketAlerts({ rosterPlayerIds, onViewMarket }: MarketAl
           <div>
             <div className="flex items-center gap-2 mb-3">
               <TrendingDown className="w-5 h-5 text-green-600" />
-              <h4 className="font-bold text-gray-900">
+              <h4 className="font-bold text-fdp-text-1">
                 {buyLowTargets.length} Buy-Low Targets
               </h4>
             </div>
@@ -148,14 +148,14 @@ export default function MarketAlerts({ rosterPlayerIds, onViewMarket }: MarketAl
               {buyLowTargets.map((player) => (
                 <div
                   key={player.player_id}
-                  className="bg-white rounded-lg p-3 border border-green-200"
+                  className="bg-fdp-surface-1 rounded-lg p-3 border border-green-200"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-semibold text-gray-900">
+                      <div className="font-semibold text-fdp-text-1">
                         {player.player_name}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-fdp-text-3">
                         {player.player_position} • {player.team || 'FA'}
                       </div>
                     </div>
@@ -163,7 +163,7 @@ export default function MarketAlerts({ rosterPlayerIds, onViewMarket }: MarketAl
                       <div className="text-sm font-bold text-green-600">
                         {player.change_30d.toLocaleString()}
                       </div>
-                      <div className="text-xs text-gray-500">30d change</div>
+                      <div className="text-xs text-fdp-text-3">30d change</div>
                     </div>
                   </div>
                 </div>

@@ -55,11 +55,11 @@ export default function PricingPage({ onBack }: PricingPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-fdp-surface-1 p-6">
       <div className="max-w-6xl mx-auto">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-6"
+          className="flex items-center gap-2 text-fdp-text-2 hover:text-fdp-text-1 transition-colors mb-6"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Dashboard
@@ -76,20 +76,20 @@ export default function PricingPage({ onBack }: PricingPageProps) {
               }}
             />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-fdp-text-1 mb-4">
             Choose Your Plan
           </h1>
-          <p className="text-xl text-gray-600 mb-6">
+          <p className="text-xl text-fdp-text-2 mb-6">
             Start with our free tier or unlock premium features with Pro
           </p>
 
-          <div className="inline-flex items-center gap-2 bg-gray-100 rounded-xl p-1">
+          <div className="inline-flex items-center gap-2 bg-fdp-surface-2 rounded-xl p-1">
             <button
               onClick={() => setBillingCycle('monthly')}
               className={`px-6 py-2 rounded-lg font-semibold transition-all ${
                 billingCycle === 'monthly'
-                  ? 'bg-white text-gray-900 shadow-md'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-fdp-surface-1 text-fdp-text-1 shadow-md'
+                  : 'text-fdp-text-2 hover:text-fdp-text-1'
               }`}
             >
               Monthly
@@ -99,7 +99,7 @@ export default function PricingPage({ onBack }: PricingPageProps) {
               className={`px-6 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
                 billingCycle === 'yearly'
                   ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-md'
-                  : 'text-gray-600 hover:text-gray-900'
+                  : 'text-fdp-text-2 hover:text-fdp-text-1'
               }`}
             >
               <Zap className="w-4 h-4" />
@@ -132,14 +132,14 @@ export default function PricingPage({ onBack }: PricingPageProps) {
         )}
 
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-white rounded-xl shadow-lg border-2 border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Free</h2>
+          <div className="bg-fdp-surface-1 rounded-xl shadow-lg border-2 border-fdp-border-1 overflow-hidden">
+            <div className="p-6 border-b border-fdp-border-1">
+              <h2 className="text-2xl font-bold text-fdp-text-1 mb-2">Free</h2>
               <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-4xl font-bold text-gray-900">$0</span>
-                <span className="text-gray-600">/month</span>
+                <span className="text-4xl font-bold text-fdp-text-1">$0</span>
+                <span className="text-fdp-text-2">/month</span>
               </div>
-              <p className="text-gray-600">
+              <p className="text-fdp-text-2">
                 Perfect for casual dynasty managers
               </p>
             </div>
@@ -151,12 +151,12 @@ export default function PricingPage({ onBack }: PricingPageProps) {
                     {feature.included ? (
                       <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
                     ) : (
-                      <X className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                      <X className="w-5 h-5 text-fdp-text-3 flex-shrink-0 mt-0.5" />
                     )}
-                    <span className={feature.included ? 'text-gray-900' : 'text-gray-400'}>
+                    <span className={feature.included ? 'text-fdp-text-1' : 'text-fdp-text-3'}>
                       {feature.name}
                       {feature.note && (
-                        <span className="text-sm text-gray-500 ml-2">({feature.note})</span>
+                        <span className="text-sm text-fdp-text-3 ml-2">({feature.note})</span>
                       )}
                     </span>
                   </li>
@@ -165,43 +165,43 @@ export default function PricingPage({ onBack }: PricingPageProps) {
 
               <button
                 disabled
-                className="w-full mt-8 py-3 bg-gray-200 text-gray-600 rounded-lg font-semibold cursor-not-allowed"
+                className="w-full mt-8 py-3 bg-fdp-border-1 text-fdp-text-2 rounded-lg font-semibold cursor-not-allowed"
               >
                 Current Plan
               </button>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-2xl border-2 border-orange-500 overflow-hidden relative">
+          <div className="bg-fdp-surface-1 rounded-xl shadow-2xl border-2 border-orange-500 overflow-hidden relative">
             <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-orange-600 text-white px-4 py-1 rounded-bl-lg text-sm font-bold">
               POPULAR
             </div>
 
             <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 border-b border-orange-200">
               <div className="flex items-center gap-2 mb-2">
-                <h2 className="text-2xl font-bold text-gray-900">Pro</h2>
+                <h2 className="text-2xl font-bold text-fdp-text-1">Pro</h2>
                 <ProBadge size="md" />
               </div>
               <div className="flex items-baseline gap-2 mb-2">
                 {billingCycle === 'monthly' ? (
                   <>
-                    <span className="text-4xl font-bold text-gray-900">$4.99</span>
-                    <span className="text-gray-600">/month</span>
+                    <span className="text-4xl font-bold text-fdp-text-1">$4.99</span>
+                    <span className="text-fdp-text-2">/month</span>
                   </>
                 ) : (
                   <>
-                    <span className="text-4xl font-bold text-gray-900">$2.99</span>
-                    <span className="text-gray-600">/month</span>
+                    <span className="text-4xl font-bold text-fdp-text-1">$2.99</span>
+                    <span className="text-fdp-text-2">/month</span>
                   </>
                 )}
               </div>
               {billingCycle === 'yearly' && (
-                <div className="text-sm text-gray-600 mb-4">
+                <div className="text-sm text-fdp-text-2 mb-4">
                   <span className="line-through">$59.88/year</span>
                   <span className="ml-2 font-bold text-green-600">$35.88/year</span>
                 </div>
               )}
-              <p className="text-gray-700">
+              <p className="text-fdp-text-1">
                 For serious dynasty managers who want every edge
               </p>
               <div className="mt-4 inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
@@ -214,7 +214,7 @@ export default function PricingPage({ onBack }: PricingPageProps) {
                 {features.pro.map((feature, idx) => (
                   <li key={idx} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-900 font-medium">
+                    <span className="text-fdp-text-1 font-medium">
                       {feature.name}
                     </span>
                   </li>
@@ -229,7 +229,7 @@ export default function PricingPage({ onBack }: PricingPageProps) {
                 {isPro ? 'Current Plan' : 'Start Free Trial'}
               </button>
 
-              <p className="text-center text-xs text-gray-500 mt-4">
+              <p className="text-center text-xs text-fdp-text-3 mt-4">
                 Cancel anytime. No long-term commitment.
               </p>
             </div>

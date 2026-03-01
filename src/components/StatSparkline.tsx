@@ -59,12 +59,12 @@ export function StatSparkline({
       const firstValue = data[0];
       if (lastValue > firstValue * 1.1) return <TrendingUp className="w-3 h-3 text-green-500" />;
       if (lastValue < firstValue * 0.9) return <TrendingDown className="w-3 h-3 text-red-500" />;
-      return <Minus className="w-3 h-3 text-gray-500" />;
+      return <Minus className="w-3 h-3 text-fdp-text-3" />;
     }
 
     if (trend === 'up') return <TrendingUp className="w-3 h-3 text-green-500" />;
     if (trend === 'down') return <TrendingDown className="w-3 h-3 text-red-500" />;
-    return <Minus className="w-3 h-3 text-gray-500" />;
+    return <Minus className="w-3 h-3 text-fdp-text-3" />;
   };
 
   return (

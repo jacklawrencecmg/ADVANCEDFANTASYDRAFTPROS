@@ -55,14 +55,14 @@ export function QuickReaction({ contentType, contentId, metadata, className = ''
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <span className="text-xs text-gray-500 mr-1">Helpful?</span>
+      <span className="text-xs text-fdp-text-3 mr-1">Helpful?</span>
       <button
         onClick={() => handleReaction('up')}
         disabled={submitting || reaction !== null}
         className={`p-1.5 rounded transition-all ${
           reaction === 'up'
             ? 'bg-green-100 text-green-600'
-            : 'text-gray-400 hover:text-green-600 hover:bg-green-50'
+            : 'text-fdp-text-3 hover:text-green-600 hover:bg-green-50'
         } disabled:opacity-50 disabled:cursor-not-allowed`}
         title="Helpful"
       >
@@ -74,14 +74,14 @@ export function QuickReaction({ contentType, contentId, metadata, className = ''
         className={`p-1.5 rounded transition-all ${
           reaction === 'down'
             ? 'bg-red-100 text-red-600'
-            : 'text-gray-400 hover:text-red-600 hover:bg-red-50'
+            : 'text-fdp-text-3 hover:text-red-600 hover:bg-red-50'
         } disabled:opacity-50 disabled:cursor-not-allowed`}
         title="Not helpful"
       >
         <ThumbsDown className="w-4 h-4" />
       </button>
       {reaction && (
-        <span className="text-xs text-gray-600 animate-fade-in">
+        <span className="text-xs text-fdp-text-2 animate-fade-in">
           Thanks!
         </span>
       )}

@@ -41,7 +41,7 @@ export function TradeGrade({ grade, score, size = 'md', showLabel = true }: Trad
 
       {showLabel && (
         <div className="text-center">
-          <div className="text-xs text-gray-400">Trade Grade</div>
+          <div className="text-xs text-fdp-text-3">Trade Grade</div>
           {score !== undefined && (
             <div className="text-sm font-semibold text-white">{score.toFixed(1)}/100</div>
           )}

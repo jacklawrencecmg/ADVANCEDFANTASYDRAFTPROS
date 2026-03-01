@@ -145,7 +145,7 @@ export default function AlertsDropdown({ onSelectPlayer }: AlertsDropdownProps) 
       case 'trending_down':
         return 'bg-blue-50 border-blue-200 text-blue-900';
       default:
-        return 'bg-gray-50 border-gray-200 text-gray-900';
+        return 'bg-fdp-surface-1 border-fdp-border-1 text-fdp-text-1';
     }
   };
 
@@ -165,7 +165,7 @@ export default function AlertsDropdown({ onSelectPlayer }: AlertsDropdownProps) 
       {/* Bell Icon Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+        className="relative p-2 text-fdp-text-2 hover:text-fdp-text-1 hover:bg-fdp-surface-2 rounded-lg transition-colors"
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
@@ -177,12 +177,12 @@ export default function AlertsDropdown({ onSelectPlayer }: AlertsDropdownProps) 
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-[600px] overflow-hidden flex flex-col">
+        <div className="absolute right-0 mt-2 w-96 bg-fdp-surface-1 rounded-lg shadow-xl border border-fdp-border-1 z-50 max-h-[600px] overflow-hidden flex flex-col">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+          <div className="px-4 py-3 border-b border-fdp-border-1 flex items-center justify-between bg-fdp-surface-1">
             <div className="flex items-center gap-2">
-              <Bell className="w-5 h-5 text-gray-700" />
-              <h3 className="font-bold text-gray-900">
+              <Bell className="w-5 h-5 text-fdp-text-1" />
+              <h3 className="font-bold text-fdp-text-1">
                 Alerts {unreadCount > 0 && `(${unreadCount})`}
               </h3>
             </div>
@@ -202,22 +202,22 @@ export default function AlertsDropdown({ onSelectPlayer }: AlertsDropdownProps) 
             {loading ? (
               <div className="p-8 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-3"></div>
-                <p className="text-gray-600 text-sm">Loading alerts...</p>
+                <p className="text-fdp-text-2 text-sm">Loading alerts...</p>
               </div>
             ) : alerts.length === 0 ? (
               <div className="p-8 text-center">
-                <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-600 font-semibold mb-1">No new alerts</p>
-                <p className="text-gray-500 text-sm">
+                <Bell className="w-12 h-12 text-fdp-text-2 mx-auto mb-3" />
+                <p className="text-fdp-text-2 font-semibold mb-1">No new alerts</p>
+                <p className="text-fdp-text-3 text-sm">
                   Add players to your watchlist to receive alerts
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-fdp-border-1">
                 {alerts.map((alert) => (
                   <div
                     key={alert.alert_id}
-                    className={`p-4 hover:bg-gray-50 transition-colors border-l-4 ${getAlertColor(alert.alert_type, alert.severity)}`}
+                    className={`p-4 hover:bg-fdp-surface-1 transition-colors border-l-4 ${getAlertColor(alert.alert_type, alert.severity)}`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-1">
@@ -232,15 +232,15 @@ export default function AlertsDropdown({ onSelectPlayer }: AlertsDropdownProps) 
                           }}
                           className="text-left w-full hover:underline"
                         >
-                          <p className="text-sm font-semibold text-gray-900 mb-1">
+                          <p className="text-sm font-semibold text-fdp-text-1 mb-1">
                             {alert.player_name}
                           </p>
-                          <p className="text-sm text-gray-700 leading-relaxed">
+                          <p className="text-sm text-fdp-text-1 leading-relaxed">
                             {alert.message}
                           </p>
                         </button>
                         <div className="flex items-center justify-between mt-2">
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-fdp-text-3">
                             {getTimeAgo(alert.created_at)}
                           </p>
                           <button
@@ -263,7 +263,7 @@ export default function AlertsDropdown({ onSelectPlayer }: AlertsDropdownProps) 
 
           {/* Footer */}
           {alerts.length > 0 && (
-            <div className="px-4 py-3 border-t border-gray-200 bg-gray-50">
+            <div className="px-4 py-3 border-t border-fdp-border-1 bg-fdp-surface-1">
               <button
                 onClick={() => {
                   setIsOpen(false);

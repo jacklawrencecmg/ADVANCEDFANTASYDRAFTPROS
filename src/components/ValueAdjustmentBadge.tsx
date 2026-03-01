@@ -61,31 +61,31 @@ export default function ValueAdjustmentBadge({
 
       {/* Tooltip */}
       {showTooltip && adjustments.length > 0 && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 w-72">
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-fdp-surface-1 border border-fdp-border-2 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 w-72">
           <div className="text-xs space-y-2">
             <div className="font-bold text-white mb-2">Active Adjustments</div>
             {adjustments.map((adj, idx) => (
-              <div key={idx} className="pb-2 border-b border-gray-700 last:border-0">
+              <div key={idx} className="pb-2 border-b border-fdp-border-2 last:border-0">
                 <div className="flex items-start justify-between gap-2 mb-1">
                   <span className={`font-medium ${adj.delta > 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {formatAdjustment(adj.delta)}
                   </span>
-                  <span className="text-gray-400 text-right capitalize">
+                  <span className="text-fdp-text-3 text-right capitalize">
                     {adj.source.replace('_', ' ')}
                   </span>
                 </div>
-                <div className="text-gray-300">{adj.reason}</div>
-                <div className="text-gray-500 mt-1">
+                <div className="text-fdp-text-2">{adj.reason}</div>
+                <div className="text-fdp-text-3 mt-1">
                   Expires: {new Date(adj.expires_at).toLocaleDateString()}
                 </div>
                 <div className="flex items-center gap-1 mt-1">
-                  <span className="text-gray-500">Confidence:</span>
+                  <span className="text-fdp-text-3">Confidence:</span>
                   <div className="flex gap-0.5">
                     {[1, 2, 3, 4, 5].map((level) => (
                       <div
                         key={level}
                         className={`w-2 h-2 rounded-full ${
-                          level <= adj.confidence ? 'bg-blue-400' : 'bg-gray-600'
+                          level <= adj.confidence ? 'bg-blue-400' : 'bg-fdp-surface-2'
                         }`}
                       />
                     ))}
@@ -94,14 +94,14 @@ export default function ValueAdjustmentBadge({
               </div>
             ))}
             {adjustments.length > 1 && (
-              <div className="text-gray-400 pt-1 border-t border-gray-700">
+              <div className="text-fdp-text-3 pt-1 border-t border-fdp-border-2">
                 Total: {formatAdjustment(adjustment)} (capped at ±1500)
               </div>
             )}
           </div>
           {/* Arrow */}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-            <div className="w-2 h-2 bg-gray-800 border-r border-b border-gray-700 transform rotate-45" />
+            <div className="w-2 h-2 bg-fdp-surface-1 border-r border-b border-fdp-border-2 transform rotate-45" />
           </div>
         </div>
       )}

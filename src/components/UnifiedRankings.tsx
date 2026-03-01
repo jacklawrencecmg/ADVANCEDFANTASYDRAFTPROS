@@ -89,7 +89,7 @@ export default function UnifiedRankings() {
     if (value >= 8000) return 'text-green-600';
     if (value >= 5000) return 'text-blue-600';
     if (value >= 3000) return 'text-yellow-600';
-    return 'text-gray-600';
+    return 'text-fdp-text-2';
   };
 
   const getTrendIcon = (trend?: 'up' | 'down' | 'stable') => {
@@ -100,7 +100,7 @@ export default function UnifiedRankings() {
       case 'down':
         return <TrendingDown className="w-4 h-4 text-red-600" aria-label="Falling (last 7 days)" />;
       case 'stable':
-        return <Minus className="w-4 h-4 text-gray-400" aria-label="Stable (last 7 days)" />;
+        return <Minus className="w-4 h-4 text-fdp-text-3" aria-label="Stable (last 7 days)" />;
     }
   };
 
@@ -108,13 +108,13 @@ export default function UnifiedRankings() {
     if (rank <= 5) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
     if (rank <= 12) return 'bg-green-100 text-green-800 border-green-300';
     if (rank <= 24) return 'bg-blue-100 text-blue-800 border-blue-300';
-    return 'bg-gray-100 text-gray-800 border-gray-300';
+    return 'bg-fdp-surface-2 text-fdp-text-1 border-fdp-border-1';
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-surface-1 to-fdp-surface-2 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div className="bg-fdp-surface-1 rounded-2xl shadow-xl overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-8">
             <div className="flex items-center gap-3 mb-2">
               <Trophy className="w-10 h-10 text-yellow-300" />
@@ -125,10 +125,10 @@ export default function UnifiedRankings() {
             </p>
           </div>
 
-          <div className="p-6 border-b border-gray-200 space-y-4">
+          <div className="p-6 border-b border-fdp-border-1 space-y-4">
             <div className="flex flex-wrap gap-4 items-center">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-fdp-text-1 mb-2">
                   Position
                 </label>
                 <div className="flex gap-2">
@@ -139,7 +139,7 @@ export default function UnifiedRankings() {
                       className={`px-6 py-2 rounded-lg font-semibold transition-all ${
                         selectedPosition === pos
                           ? 'bg-blue-600 text-white shadow-md'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          : 'bg-fdp-surface-2 text-fdp-text-1 hover:bg-fdp-border-1'
                       }`}
                     >
                       {pos}
@@ -149,7 +149,7 @@ export default function UnifiedRankings() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-fdp-text-1 mb-2">
                   Format
                 </label>
                 <div className="flex gap-2">
@@ -160,7 +160,7 @@ export default function UnifiedRankings() {
                       className={`px-4 py-2 rounded-lg font-medium transition-all ${
                         selectedFormat === format.value
                           ? 'bg-green-600 text-white shadow-md'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          : 'bg-fdp-surface-2 text-fdp-text-1 hover:bg-fdp-border-1'
                       }`}
                       title={format.label}
                     >
@@ -175,31 +175,31 @@ export default function UnifiedRankings() {
 
             <div className="flex flex-wrap gap-4">
               <div className="flex-1 min-w-64">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-fdp-text-1 mb-2">
                   Search Players
                 </label>
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fdp-text-3 w-5 h-5" />
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search by name..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent"
                   />
                 </div>
               </div>
 
               <div className="w-48">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-fdp-text-1 mb-2">
                   Filter by Team
                 </label>
                 <div className="relative">
-                  <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-fdp-text-3 w-5 h-5" />
                   <select
                     value={teamFilter}
                     onChange={(e) => setTeamFilter(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                    className="w-full pl-10 pr-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent appearance-none bg-fdp-surface-1"
                   >
                     <option value="">All Teams</option>
                     {teams.map((team) => (
@@ -226,18 +226,18 @@ export default function UnifiedRankings() {
               </div>
             ) : filteredPlayers.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-xl font-semibold text-gray-600">No players found</p>
-                <p className="text-gray-500 mt-2">Try adjusting your search or filters</p>
+                <Users className="w-16 h-16 text-fdp-text-3 mx-auto mb-4" />
+                <p className="text-xl font-semibold text-fdp-text-2">No players found</p>
+                <p className="text-fdp-text-3 mt-2">Try adjusting your search or filters</p>
               </div>
             ) : (
               <>
                 <div className="mb-4 flex items-center justify-between">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-fdp-text-2">
                     Showing {filteredPlayers.length} of {players.length} players
                   </p>
                   {players.length > 0 && (
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-fdp-text-3">
                       Last updated: {new Date(players[0].captured_at).toLocaleString()}
                     </p>
                   )}
@@ -246,25 +246,25 @@ export default function UnifiedRankings() {
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
-                      <tr className="border-b-2 border-gray-200">
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                      <tr className="border-b-2 border-fdp-border-1">
+                        <th className="px-4 py-3 text-left text-sm font-semibold text-fdp-text-1">
                           Rank
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-left text-sm font-semibold text-fdp-text-1">
                           Player
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-left text-sm font-semibold text-fdp-text-1">
                           Team
                         </th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-left text-sm font-semibold text-fdp-text-1">
                           Position
                         </th>
-                        <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+                        <th className="px-4 py-3 text-right text-sm font-semibold text-fdp-text-1">
                           Value
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-fdp-border-1">
                       {filteredPlayers.map((player) => (
                         <tr
                           key={`${player.full_name}-${player.position_rank}`}
@@ -294,7 +294,7 @@ export default function UnifiedRankings() {
                                 showTeamLogo={false}
                               />
                               <div className="flex items-center gap-2">
-                                <span className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                                <span className="font-semibold text-fdp-text-1 group-hover:text-blue-600 transition-colors">
                                   {player.full_name}
                                 </span>
                                 {getTrendIcon(player.trend)}
@@ -302,7 +302,7 @@ export default function UnifiedRankings() {
                             </button>
                           </td>
                           <td className="px-4 py-3">
-                            <span className="text-gray-600 font-medium">
+                            <span className="text-fdp-text-2 font-medium">
                               {player.team || 'FA'}
                             </span>
                           </td>
@@ -329,42 +329,42 @@ export default function UnifiedRankings() {
           </div>
         </div>
 
-        <div className="mt-6 bg-white rounded-lg shadow p-6">
-          <h3 className="font-semibold text-gray-900 mb-3">About These Rankings</h3>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600 mb-4">
+        <div className="mt-6 bg-fdp-surface-1 rounded-lg shadow p-6">
+          <h3 className="font-semibold text-fdp-text-1 mb-3">About These Rankings</h3>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-fdp-text-2 mb-4">
             <div>
-              <p className="font-medium text-gray-700 mb-1">Data Source</p>
+              <p className="font-medium text-fdp-text-1 mb-1">Data Source</p>
               <p>Rankings from FantasyDraftPros dynasty values</p>
             </div>
             <div>
-              <p className="font-medium text-gray-700 mb-1">Update Frequency</p>
+              <p className="font-medium text-fdp-text-1 mb-1">Update Frequency</p>
               <p>Synced daily via automated cron jobs</p>
             </div>
             <div>
-              <p className="font-medium text-gray-700 mb-1">Format Support</p>
+              <p className="font-medium text-fdp-text-1 mb-1">Format Support</p>
               <p>SF (Superflex), 1QB (Standard), TEP (TE Premium)</p>
             </div>
             <div>
-              <p className="font-medium text-gray-700 mb-1">Value Type</p>
+              <p className="font-medium text-fdp-text-1 mb-1">Value Type</p>
               <p>FDP Values (format-adjusted)</p>
             </div>
           </div>
           <div className="border-t pt-4">
-            <p className="font-medium text-gray-700 mb-2">FDP Value Adjustments</p>
-            <p className="text-sm text-gray-600 mb-2">
+            <p className="font-medium text-fdp-text-1 mb-2">FDP Value Adjustments</p>
+            <p className="text-sm text-fdp-text-2 mb-2">
               FantasyDraftPros (FDP) values apply format-specific multipliers to base values:
             </p>
-            <div className="grid md:grid-cols-3 gap-3 text-xs text-gray-600">
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="font-semibold text-gray-700">Superflex</p>
+            <div className="grid md:grid-cols-3 gap-3 text-xs text-fdp-text-2">
+              <div className="bg-fdp-surface-1 p-2 rounded">
+                <p className="font-semibold text-fdp-text-1">Superflex</p>
                 <p>QB: 1.35x | RB: 1.15x | WR: 1.0x | TE: 1.10x</p>
               </div>
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="font-semibold text-gray-700">1QB</p>
+              <div className="bg-fdp-surface-1 p-2 rounded">
+                <p className="font-semibold text-fdp-text-1">1QB</p>
                 <p>QB: 1.0x | RB: 1.18x | WR: 1.0x | TE: 1.10x</p>
               </div>
-              <div className="bg-gray-50 p-2 rounded">
-                <p className="font-semibold text-gray-700">TE Premium</p>
+              <div className="bg-fdp-surface-1 p-2 rounded">
+                <p className="font-semibold text-fdp-text-1">TE Premium</p>
                 <p>QB: 1.35x | RB: 1.15x | WR: 1.0x | TE: 1.25x</p>
               </div>
             </div>

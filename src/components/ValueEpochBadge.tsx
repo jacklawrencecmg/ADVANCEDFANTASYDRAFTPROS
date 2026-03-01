@@ -52,9 +52,9 @@ export function ValueEpochBadge({ valueEpoch, updatedAt, compact = false }: Valu
       >
         <Clock className={`w-3 h-3 ${age.color.split(' ')[0]}`} />
         {showTooltip && (
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-50 shadow-lg">
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-fdp-bg-0 text-white text-xs rounded-lg whitespace-nowrap z-50 shadow-lg">
             <div className="font-semibold">Values updated: {relativeTime}</div>
-            <div className="text-gray-300 text-xs mt-1">
+            <div className="text-fdp-text-2 text-xs mt-1">
               Epoch: {new Date(valueEpoch).toLocaleString()}
             </div>
             <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1">
@@ -79,12 +79,12 @@ export function ValueEpochBadge({ valueEpoch, updatedAt, compact = false }: Valu
       </span>
 
       {showTooltip && (
-        <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg whitespace-nowrap z-50 shadow-lg min-w-max">
+        <div className="absolute bottom-full left-0 mb-2 px-3 py-2 bg-fdp-bg-0 text-white text-xs rounded-lg whitespace-nowrap z-50 shadow-lg min-w-max">
           <div className="font-semibold mb-1">FDP Value Freshness</div>
-          <div className="space-y-1 text-gray-300">
+          <div className="space-y-1 text-fdp-text-2">
             <div>Updated: {relativeTime}</div>
             <div>Epoch: {new Date(valueEpoch).toLocaleString()}</div>
-            <div className="pt-1 mt-1 border-t border-gray-700 text-xs">
+            <div className="pt-1 mt-1 border-t border-fdp-border-2 text-xs">
               Values are recalculated daily
             </div>
           </div>

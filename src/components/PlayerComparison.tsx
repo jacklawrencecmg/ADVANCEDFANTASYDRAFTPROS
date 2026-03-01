@@ -24,7 +24,7 @@ export function PlayerComparison({ player1, player2, onClose }: PlayerComparison
   const getTrendIcon = (trend?: 'up' | 'down' | 'stable') => {
     if (trend === 'up') return <TrendingUp className="w-4 h-4 text-emerald-500" />;
     if (trend === 'down') return <TrendingDown className="w-4 h-4 text-red-500" />;
-    return <Minus className="w-4 h-4 text-gray-500" />;
+    return <Minus className="w-4 h-4 text-fdp-text-3" />;
   };
 
   const getValueDifference = () => {
@@ -162,7 +162,7 @@ export function PlayerComparison({ player1, player2, onClose }: PlayerComparison
                           {player2.name} +{(stat2.value - stat.value).toFixed(1)}
                         </span>
                       ) : (
-                        <span className="text-gray-500">Tied</span>
+                        <span className="text-fdp-text-3">Tied</span>
                       )}
                     </div>
                   )}

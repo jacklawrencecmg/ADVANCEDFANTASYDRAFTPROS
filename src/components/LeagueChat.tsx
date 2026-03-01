@@ -65,19 +65,19 @@ export default function LeagueChat({ leagueId, userId, username }: LeagueChatPro
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <MessageCircle className="w-8 h-8 text-blue-400" />
           <h1 className="text-3xl font-bold">League Chat</h1>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6 h-[600px] flex flex-col">
+        <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-6 h-[600px] flex flex-col">
           <div className="flex-1 overflow-y-auto mb-4 space-y-4">
             {messages.length === 0 ? (
               <div className="text-center py-12">
-                <MessageCircle className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400">No messages yet. Start the conversation!</p>
+                <MessageCircle className="w-16 h-16 text-fdp-text-2 mx-auto mb-4" />
+                <p className="text-fdp-text-3">No messages yet. Start the conversation!</p>
               </div>
             ) : (
               messages.map((msg) => (
@@ -89,10 +89,10 @@ export default function LeagueChat({ leagueId, userId, username }: LeagueChatPro
                     className={`max-w-[70%] rounded-lg p-4 ${
                       msg.user_id === userId
                         ? 'bg-blue-600'
-                        : 'bg-gray-700'
+                        : 'bg-fdp-surface-2'
                     }`}
                   >
-                    <p className="text-sm text-gray-300 mb-1">
+                    <p className="text-sm text-fdp-text-2 mb-1">
                       {msg.username} • {new Date(msg.created_at).toLocaleTimeString()}
                     </p>
                     <p className="text-white">{msg.message}</p>
@@ -108,7 +108,7 @@ export default function LeagueChat({ leagueId, userId, username }: LeagueChatPro
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type your message..."
-              className="flex-1 px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+              className="flex-1 px-4 py-3 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-blue-500"
             />
             <button
               type="submit"

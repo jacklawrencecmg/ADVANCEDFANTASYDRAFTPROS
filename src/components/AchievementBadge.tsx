@@ -26,7 +26,7 @@ const badgeConfig = {
   star: {
     icon: Star,
     color: 'bg-gradient-to-r from-yellow-400 to-yellow-500',
-    textColor: 'text-gray-900',
+    textColor: 'text-fdp-text-1',
     glow: 'shadow-[0_0_12px_rgba(234,179,8,0.6)]',
     label: 'Star',
   },
@@ -61,7 +61,7 @@ const badgeConfig = {
   champion: {
     icon: Crown,
     color: 'bg-gradient-to-r from-yellow-500 via-yellow-400 to-yellow-500',
-    textColor: 'text-gray-900',
+    textColor: 'text-fdp-text-1',
     glow: 'shadow-[0_0_16px_rgba(234,179,8,0.8)]',
     label: 'Champion',
   },

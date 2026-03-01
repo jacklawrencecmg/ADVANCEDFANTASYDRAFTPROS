@@ -151,7 +151,7 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
       case 'RB': return 'bg-green-100 text-green-800';
       case 'WR': return 'bg-blue-100 text-blue-800';
       case 'TE': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-fdp-surface-2 text-fdp-text-1';
     }
   };
 
@@ -161,20 +161,20 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
       case 'fallers': return <TrendingDown className="w-5 h-5 text-red-600" />;
       case 'buy_low': return <Target className="w-5 h-5 text-blue-600" />;
       case 'sell_high': return <AlertTriangle className="w-5 h-5 text-orange-600" />;
-      default: return <ArrowRight className="w-5 h-5 text-gray-600" />;
+      default: return <ArrowRight className="w-5 h-5 text-fdp-text-2" />;
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-fdp-surface-1 p-6">
         <div className="max-w-4xl mx-auto">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-48 mb-6"></div>
-            <div className="bg-white rounded-lg shadow-sm p-8 mb-6">
-              <div className="h-10 bg-gray-200 rounded w-3/4 mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+            <div className="h-8 bg-fdp-border-1 rounded w-48 mb-6"></div>
+            <div className="bg-fdp-surface-1 rounded-lg shadow-sm p-8 mb-6">
+              <div className="h-10 bg-fdp-border-1 rounded w-3/4 mb-4"></div>
+              <div className="h-4 bg-fdp-border-1 rounded w-full mb-2"></div>
+              <div className="h-4 bg-fdp-border-1 rounded w-5/6"></div>
             </div>
           </div>
         </div>
@@ -184,11 +184,11 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
 
   if (error || !report) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-fdp-surface-1 p-6">
         <div className="max-w-4xl mx-auto">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-6"
+            className="flex items-center gap-2 text-fdp-text-2 hover:text-fdp-text-1 transition-colors mb-6"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Reports
@@ -202,21 +202,21 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-fdp-surface-1 p-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-6"
+          className="flex items-center gap-2 text-fdp-text-2 hover:text-fdp-text-1 transition-colors mb-6"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Reports
         </button>
 
         {/* Report Header */}
-        <article className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 mb-6">
+        <article className="bg-fdp-surface-1 rounded-lg shadow-sm border border-fdp-border-1 p-8 mb-6">
           <div className="mb-6">
-            <div className="flex items-center gap-3 text-sm text-gray-600 mb-3">
+            <div className="flex items-center gap-3 text-sm text-fdp-text-2 mb-3">
               <div className="flex items-center gap-1">
                 <Calendar className="w-4 h-4" />
                 <span>Week {report.week}, {report.season}</span>
@@ -230,40 +230,40 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
               <span>{new Date(report.created_at).toLocaleDateString()}</span>
             </div>
 
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">{report.title}</h1>
+            <h1 className="text-4xl font-bold text-fdp-text-1 mb-4">{report.title}</h1>
 
-            <p className="text-lg text-gray-700 leading-relaxed">{report.summary}</p>
+            <p className="text-lg text-fdp-text-1 leading-relaxed">{report.summary}</p>
           </div>
 
           {/* Key Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-fdp-surface-1 rounded-lg">
             <div>
-              <div className="text-sm text-gray-600 mb-1">Top Riser</div>
+              <div className="text-sm text-fdp-text-2 mb-1">Top Riser</div>
               <div className="font-bold text-green-600">
                 +{report.metadata.top_riser_change.toLocaleString()}
               </div>
-              <div className="text-xs text-gray-500">{report.metadata.top_riser_name}</div>
+              <div className="text-xs text-fdp-text-3">{report.metadata.top_riser_name}</div>
             </div>
             <div>
-              <div className="text-sm text-gray-600 mb-1">Top Faller</div>
+              <div className="text-sm text-fdp-text-2 mb-1">Top Faller</div>
               <div className="font-bold text-red-600">
                 {report.metadata.top_faller_change.toLocaleString()}
               </div>
-              <div className="text-xs text-gray-500">{report.metadata.top_faller_name}</div>
+              <div className="text-xs text-fdp-text-3">{report.metadata.top_faller_name}</div>
             </div>
             <div>
-              <div className="text-sm text-gray-600 mb-1">Significant Movers</div>
-              <div className="font-bold text-gray-900">
+              <div className="text-sm text-fdp-text-2 mb-1">Significant Movers</div>
+              <div className="font-bold text-fdp-text-1">
                 {report.metadata.significant_movers}
               </div>
-              <div className="text-xs text-gray-500">Players</div>
+              <div className="text-xs text-fdp-text-3">Players</div>
             </div>
             <div>
-              <div className="text-sm text-gray-600 mb-1">Players Analyzed</div>
-              <div className="font-bold text-gray-900">
+              <div className="text-sm text-fdp-text-2 mb-1">Players Analyzed</div>
+              <div className="font-bold text-fdp-text-1">
                 {report.metadata.total_players_analyzed}
               </div>
-              <div className="text-xs text-gray-500">Total</div>
+              <div className="text-xs text-fdp-text-3">Total</div>
             </div>
           </div>
         </article>
@@ -282,7 +282,7 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
                     <button
                       key={idx}
                       onClick={() => onSelectPlayer?.(lp.player_id)}
-                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
+                      className="inline-flex items-center gap-2 px-3 py-1.5 bg-fdp-surface-1 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"
                     >
                       <span className="font-semibold text-blue-900">{lp.player_name}</span>
                       <span className="text-xs text-blue-600">
@@ -305,10 +305,10 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
         {/* Report Sections */}
         <div className="space-y-6">
           {report.content.sections.map((section, idx) => (
-            <section key={idx} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <section key={idx} className="bg-fdp-surface-1 rounded-lg shadow-sm border border-fdp-border-1 p-6">
               <div className="flex items-center gap-3 mb-6">
                 {getSectionIcon(section.type)}
-                <h2 className="text-2xl font-bold text-gray-900">{section.title}</h2>
+                <h2 className="text-2xl font-bold text-fdp-text-1">{section.title}</h2>
               </div>
 
               {section.players && section.players.length > 0 && (
@@ -316,13 +316,13 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
                   {section.players.map((player, playerIdx) => (
                     <div
                       key={playerIdx}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-4 bg-fdp-surface-1 rounded-lg hover:bg-fdp-surface-2 transition-colors"
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <button
                             onClick={() => onSelectPlayer?.(player.player_id)}
-                            className="text-lg font-bold text-gray-900 hover:text-blue-600 transition-colors"
+                            className="text-lg font-bold text-fdp-text-1 hover:text-blue-600 transition-colors"
                           >
                             {player.player_name}
                           </button>
@@ -330,26 +330,26 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
                             {player.position}
                           </span>
                           {player.team && (
-                            <span className="text-sm text-gray-600">{player.team}</span>
+                            <span className="text-sm text-fdp-text-2">{player.team}</span>
                           )}
                           <WatchlistButton playerId={player.player_id} variant="icon" />
                         </div>
                         <div className="flex items-center gap-4 text-sm">
                           <div>
-                            <span className="text-gray-600">Current Value: </span>
-                            <span className="font-semibold text-gray-900">
+                            <span className="text-fdp-text-2">Current Value: </span>
+                            <span className="font-semibold text-fdp-text-1">
                               {player.value_now.toLocaleString()}
                             </span>
                           </div>
                           <div className={`flex items-center gap-1 font-semibold ${
-                            player.change_7d > 0 ? 'text-green-600' : player.change_7d < 0 ? 'text-red-600' : 'text-gray-600'
+                            player.change_7d > 0 ? 'text-green-600' : player.change_7d < 0 ? 'text-red-600' : 'text-fdp-text-2'
                           }`}>
                             {player.change_7d > 0 ? <TrendingUp className="w-4 h-4" /> : player.change_7d < 0 ? <TrendingDown className="w-4 h-4" /> : null}
                             <span>{player.change_7d > 0 ? '+' : ''}{player.change_7d.toLocaleString()}</span>
                             <span>({player.change_7d > 0 ? '+' : ''}{player.change_pct}%)</span>
                           </div>
                           {player.signal_strength && (
-                            <div className="text-gray-600">
+                            <div className="text-fdp-text-2">
                               Signal: <span className="font-semibold">{player.signal_strength}%</span>
                             </div>
                           )}
@@ -367,8 +367,8 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
                       key={noteIdx}
                       className="p-4 bg-blue-50 border border-blue-200 rounded-lg"
                     >
-                      <h3 className="font-bold text-gray-900 mb-2">{note.title}</h3>
-                      <p className="text-gray-700">{note.description}</p>
+                      <h3 className="font-bold text-fdp-text-1 mb-2">{note.title}</h3>
+                      <p className="text-fdp-text-1">{note.description}</p>
                     </div>
                   ))}
                 </div>
@@ -385,7 +385,7 @@ export default function DynastyReportPage({ slug, onBack, onSelectPlayer, league
           </p>
           <button
             onClick={onBack}
-            className="px-6 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+            className="px-6 py-3 bg-fdp-surface-1 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
           >
             View More Reports
           </button>

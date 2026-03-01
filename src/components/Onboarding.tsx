@@ -116,7 +116,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-fdp-text-2">Loading...</p>
         </div>
       </div>
     );
@@ -125,9 +125,9 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-xl p-8 max-w-md">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-xl p-8 max-w-md">
           <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-700 mb-6">{error}</p>
+          <p className="text-fdp-text-1 mb-6">{error}</p>
           <button
             onClick={loadOnboardingState}
             className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -144,7 +144,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* Progress Bar */}
-      <div className="fixed top-0 left-0 right-0 h-1 bg-gray-200 z-50">
+      <div className="fixed top-0 left-0 right-0 h-1 bg-fdp-border-1 z-50">
         <div
           className="h-full bg-blue-600 transition-all duration-500"
           style={{ width: `${progress}%` }}
@@ -155,7 +155,7 @@ export function Onboarding({ onComplete }: { onComplete: () => void }) {
       {currentStep !== 'complete' && (
         <button
           onClick={handleSkip}
-          className="fixed top-4 right-4 text-sm text-gray-600 hover:text-gray-900 underline z-40"
+          className="fixed top-4 right-4 text-sm text-fdp-text-2 hover:text-fdp-text-1 underline z-40"
         >
           Skip for now
         </button>

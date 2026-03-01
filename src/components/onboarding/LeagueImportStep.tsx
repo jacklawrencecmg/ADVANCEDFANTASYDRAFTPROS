@@ -50,15 +50,15 @@ export function LeagueImportStep({
   return (
     <div className="max-w-3xl mx-auto">
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Import Your League</h1>
-        <p className="text-xl text-gray-600">
+        <h1 className="text-4xl font-bold text-fdp-text-1 mb-4">Import Your League</h1>
+        <p className="text-xl text-fdp-text-2">
           Everything else builds automatically from this
         </p>
       </div>
 
       {/* Platform Selection */}
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-lg p-8 mb-8">
+        <h2 className="text-lg font-semibold text-fdp-text-1 mb-4">
           1. Choose Your Platform
         </h2>
 
@@ -92,14 +92,14 @@ export function LeagueImportStep({
         {/* Import Input */}
         {platform && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            <h2 className="text-lg font-semibold text-fdp-text-1 mb-4">
               2. Enter League Information
             </h2>
 
             {platform === 'sleeper' && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-fdp-text-1 mb-2">
                     Sleeper Username or League ID
                   </label>
                   <input
@@ -107,9 +107,9 @@ export function LeagueImportStep({
                     value={leagueInput}
                     onChange={(e) => setLeagueInput(e.target.value)}
                     placeholder="username or league ID"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent"
                   />
-                  <p className="mt-2 text-sm text-gray-500">
+                  <p className="mt-2 text-sm text-fdp-text-3">
                     Find your username in the Sleeper app or paste a league ID
                   </p>
                 </div>
@@ -117,7 +117,7 @@ export function LeagueImportStep({
                 <button
                   onClick={handleImport}
                   disabled={!leagueInput || importing}
-                  className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                  className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-fdp-border-1 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                 >
                   {importing ? (
                     <>
@@ -167,7 +167,7 @@ export function LeagueImportStep({
       <div className="text-center">
         <button
           onClick={onSkip}
-          className="text-gray-600 hover:text-gray-900 underline text-sm"
+          className="text-fdp-text-2 hover:text-fdp-text-1 underline text-sm"
         >
           Skip for now (you can import later)
         </button>
@@ -199,12 +199,12 @@ function PlatformButton({
         selected
           ? 'border-blue-600 bg-blue-50'
           : disabled
-          ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
-          : 'border-gray-300 hover:border-blue-400 hover:bg-gray-50'
+          ? 'border-fdp-border-1 bg-fdp-surface-1 cursor-not-allowed'
+          : 'border-fdp-border-1 hover:border-blue-400 hover:bg-fdp-surface-1'
       }`}
     >
       <div className="text-4xl mb-2">{icon}</div>
-      <div className="font-semibold text-gray-900">{name}</div>
+      <div className="font-semibold text-fdp-text-1">{name}</div>
 
       {comingSoon && (
         <div className="absolute top-2 right-2 px-2 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded">

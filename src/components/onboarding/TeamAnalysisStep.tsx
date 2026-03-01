@@ -26,11 +26,11 @@ export function TeamAnalysisStep({
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-lg p-12 text-center">
         <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
 
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">Analyzing Your Team</h2>
-        <p className="text-gray-600 mb-8">This will just take a moment...</p>
+        <h2 className="text-3xl font-bold text-fdp-text-1 mb-2">Analyzing Your Team</h2>
+        <p className="text-fdp-text-2 mb-8">This will just take a moment...</p>
 
         <div className="space-y-3 text-left max-w-md mx-auto">
           <AnalysisStep text="Loading roster data" done />
@@ -51,9 +51,9 @@ function AnalysisStep({ text, done = false, active = false }: { text: string; do
       ) : active ? (
         <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
       ) : (
-        <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex-shrink-0"></div>
+        <div className="w-5 h-5 border-2 border-fdp-border-1 rounded-full flex-shrink-0"></div>
       )}
-      <span className={`${done ? 'text-gray-600' : active ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
+      <span className={`${done ? 'text-fdp-text-2' : active ? 'text-blue-600 font-medium' : 'text-fdp-text-3'}`}>
         {text}
       </span>
     </div>

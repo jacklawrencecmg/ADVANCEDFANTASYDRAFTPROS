@@ -171,8 +171,8 @@ export default function RookiePickValues() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Rookie Pick Values</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <h2 className="text-2xl font-bold text-fdp-text-1">Rookie Pick Values</h2>
+          <p className="text-sm text-fdp-text-2 mt-1">
             Dynamic pick valuations based on NFL calendar phase
           </p>
         </div>
@@ -180,7 +180,7 @@ export default function RookiePickValues() {
           <select
             value={selectedSeason}
             onChange={(e) => setSelectedSeason(parseInt(e.target.value))}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+            className="px-3 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 outline-none"
           >
             {seasons.map(year => (
               <option key={year} value={year}>{year} Draft</option>
@@ -227,7 +227,7 @@ export default function RookiePickValues() {
           </div>
         </div>
         <p className="text-blue-800 mb-3">{phaseInfo.description}</p>
-        <div className="bg-white/60 rounded-lg p-3">
+        <div className="bg-fdp-surface-1/60 rounded-lg p-3">
           <p className="text-sm font-semibold text-blue-900">
             Current Adjustment: {getMultiplierPercentage(phaseInfo.phase)}
           </p>
@@ -237,49 +237,49 @@ export default function RookiePickValues() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-fdp-surface-1 rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-fdp-surface-1 border-b border-fdp-border-1">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-fdp-text-1 uppercase">
                   Pick Type
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-1 uppercase">
                   Base Value
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-1 uppercase">
                   Phase Adj
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-1 uppercase">
                   Adjusted Value
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase">
+                <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-1 uppercase">
                   Current Value
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-fdp-text-1 uppercase">
                   Source
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-semibold text-gray-700 uppercase">
+                <th className="px-4 py-3 text-center text-xs font-semibold text-fdp-text-1 uppercase">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-fdp-border-1">
               {pickValues.map((pick) => {
                 const isEditing = editingPick === pick.id;
                 const adjustment = getAdjustment(pick);
                 const currentValue = getCurrentValue(pick);
 
                 return (
-                  <tr key={pick.id} className="hover:bg-gray-50">
+                  <tr key={pick.id} className="hover:bg-fdp-surface-1">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-fdp-text-1">
                         {getPickLabel(pick.pick)}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className="text-gray-600">{formatValue(pick.base_value)}</span>
+                      <span className="text-fdp-text-2">{formatValue(pick.base_value)}</span>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <span
@@ -288,7 +288,7 @@ export default function RookiePickValues() {
                             ? 'text-green-600'
                             : adjustment < 0
                             ? 'text-red-600'
-                            : 'text-gray-600'
+                            : 'text-fdp-text-2'
                         }`}
                       >
                         {adjustment > 0 ? '+' : ''}
@@ -296,7 +296,7 @@ export default function RookiePickValues() {
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className="text-gray-900 font-semibold">
+                      <span className="text-fdp-text-1 font-semibold">
                         {formatValue(pick.adjusted_value)}
                       </span>
                     </td>
@@ -306,12 +306,12 @@ export default function RookiePickValues() {
                           type="number"
                           value={overrideValue}
                           onChange={(e) => setOverrideValue(parseInt(e.target.value) || 0)}
-                          className="w-20 px-2 py-1 border border-gray-300 rounded text-right focus:ring-2 focus:ring-blue-500 outline-none"
+                          className="w-20 px-2 py-1 border border-fdp-border-1 rounded text-right focus:ring-2 focus:ring-fdp-accent-1 outline-none"
                           min="0"
                           max="15000"
                         />
                       ) : (
-                        <span className="text-gray-900 font-bold text-lg">
+                        <span className="text-fdp-text-1 font-bold text-lg">
                           {formatValue(currentValue)}
                         </span>
                       )}
@@ -340,7 +340,7 @@ export default function RookiePickValues() {
                             </button>
                             <button
                               onClick={cancelEdit}
-                              className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                              className="p-1 text-fdp-text-2 hover:bg-fdp-surface-2 rounded transition-colors"
                               title="Cancel"
                             >
                               <X className="w-4 h-4" />

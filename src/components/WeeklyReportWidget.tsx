@@ -54,11 +54,11 @@ export function WeeklyReportWidget({ leagueId, onViewAll }: WeeklyReportWidgetPr
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-fdp-surface-1 rounded-xl border border-fdp-border-1 p-6">
         <div className="animate-pulse space-y-4">
-          <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-          <div className="h-4 bg-gray-200 rounded w-full"></div>
-          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+          <div className="h-6 bg-fdp-border-1 rounded w-1/3"></div>
+          <div className="h-4 bg-fdp-border-1 rounded w-full"></div>
+          <div className="h-4 bg-fdp-border-1 rounded w-2/3"></div>
         </div>
       </div>
     );
@@ -66,9 +66,9 @@ export function WeeklyReportWidget({ leagueId, onViewAll }: WeeklyReportWidgetPr
 
   if (!report) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Weekly Team Report</h3>
-        <p className="text-sm text-gray-600">
+      <div className="bg-fdp-surface-1 rounded-xl border border-fdp-border-1 p-6">
+        <h3 className="text-lg font-semibold text-fdp-text-1 mb-2">Weekly Team Report</h3>
+        <p className="text-sm text-fdp-text-2">
           Your personalized weekly report will appear here after the first week.
         </p>
       </div>
@@ -79,10 +79,10 @@ export function WeeklyReportWidget({ leagueId, onViewAll }: WeeklyReportWidgetPr
     <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-200 p-6">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+          <h3 className="text-lg font-semibold text-fdp-text-1 mb-1">
             Week {report.week} Report
           </h3>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-fdp-text-2">
             {new Date(report.created_at).toLocaleDateString()}
           </p>
         </div>
@@ -91,7 +91,7 @@ export function WeeklyReportWidget({ leagueId, onViewAll }: WeeklyReportWidgetPr
             ? 'bg-green-100 text-green-700'
             : report.value_change < 0
             ? 'bg-red-100 text-red-700'
-            : 'bg-gray-100 text-gray-700'
+            : 'bg-fdp-surface-2 text-fdp-text-1'
         }`}>
           {report.value_change > 0 ? (
             <TrendingUp className="w-4 h-4" />
@@ -104,19 +104,19 @@ export function WeeklyReportWidget({ leagueId, onViewAll }: WeeklyReportWidgetPr
         </div>
       </div>
 
-      <div className="bg-white rounded-lg p-4 mb-4">
-        <p className="text-gray-800 leading-relaxed">{report.summary}</p>
+      <div className="bg-fdp-surface-1 rounded-lg p-4 mb-4">
+        <p className="text-fdp-text-1 leading-relaxed">{report.summary}</p>
       </div>
 
       {report.strengths.length > 0 && (
         <div className="mb-3">
           <div className="flex items-center gap-2 mb-2">
             <Target className="w-4 h-4 text-green-600" />
-            <span className="text-sm font-semibold text-gray-900">Strengths</span>
+            <span className="text-sm font-semibold text-fdp-text-1">Strengths</span>
           </div>
           <ul className="space-y-1">
             {report.strengths.slice(0, 2).map((strength, idx) => (
-              <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+              <li key={idx} className="text-sm text-fdp-text-1 flex items-start gap-2">
                 <span className="text-green-600 mt-0.5">•</span>
                 <span>{strength.reason}</span>
               </li>
@@ -129,11 +129,11 @@ export function WeeklyReportWidget({ leagueId, onViewAll }: WeeklyReportWidgetPr
         <div className="mb-3">
           <div className="flex items-center gap-2 mb-2">
             <AlertTriangle className="w-4 h-4 text-orange-600" />
-            <span className="text-sm font-semibold text-gray-900">Areas to Improve</span>
+            <span className="text-sm font-semibold text-fdp-text-1">Areas to Improve</span>
           </div>
           <ul className="space-y-1">
             {report.weaknesses.slice(0, 2).map((weakness, idx) => (
-              <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+              <li key={idx} className="text-sm text-fdp-text-1 flex items-start gap-2">
                 <span className="text-orange-600 mt-0.5">•</span>
                 <span>{weakness.reason}</span>
               </li>
@@ -144,12 +144,12 @@ export function WeeklyReportWidget({ leagueId, onViewAll }: WeeklyReportWidgetPr
 
       {report.recommended_moves.length > 0 && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-          <div className="text-sm font-semibold text-gray-900 mb-2">Recommended Action</div>
-          <p className="text-sm text-gray-700">{report.recommended_moves[0].action}</p>
+          <div className="text-sm font-semibold text-fdp-text-1 mb-2">Recommended Action</div>
+          <p className="text-sm text-fdp-text-1">{report.recommended_moves[0].action}</p>
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+      <div className="flex items-center justify-between pt-3 border-t border-fdp-border-1">
         <QuickReaction
           contentType="advice"
           contentId={report.id}

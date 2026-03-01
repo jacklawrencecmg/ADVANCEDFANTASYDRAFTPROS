@@ -95,7 +95,7 @@ export default function RosterHealth({ leagueId, rosterId }: RosterHealthProps) 
       case 'Doubtful': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
       case 'Out':
       case 'IR': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      default: return 'bg-fdp-text-3/20 text-fdp-text-3 border-fdp-text-3/30';
     }
   };
 
@@ -120,7 +120,7 @@ export default function RosterHealth({ leagueId, rosterId }: RosterHealthProps) 
   }, {} as Record<string, number>);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gradient-to-br from-fdp-bg-0 via-fdp-surface-1 to-fdp-bg-0 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           <Activity className="w-8 h-8 text-blue-400" />
@@ -131,65 +131,65 @@ export default function RosterHealth({ leagueId, rosterId }: RosterHealthProps) 
           <div className="bg-green-500/10 backdrop-blur-sm rounded-lg border border-green-500/30 p-6">
             <div className="flex items-center gap-3 mb-2">
               <CheckCircle className="w-6 h-6 text-green-400" />
-              <p className="text-gray-400">Healthy</p>
+              <p className="text-fdp-text-3">Healthy</p>
             </div>
             <p className="text-3xl font-bold text-green-400">{healthyCount}</p>
           </div>
           <div className="bg-red-500/10 backdrop-blur-sm rounded-lg border border-red-500/30 p-6">
             <div className="flex items-center gap-3 mb-2">
               <AlertTriangle className="w-6 h-6 text-red-400" />
-              <p className="text-gray-400">Injured</p>
+              <p className="text-fdp-text-3">Injured</p>
             </div>
             <p className="text-3xl font-bold text-red-400">{injuredCount}</p>
           </div>
           <div className="bg-blue-500/10 backdrop-blur-sm rounded-lg border border-blue-500/30 p-6">
             <div className="flex items-center gap-3 mb-2">
               <Calendar className="w-6 h-6 text-blue-400" />
-              <p className="text-gray-400">On Bye (Week {week})</p>
+              <p className="text-fdp-text-3">On Bye (Week {week})</p>
             </div>
             <p className="text-3xl font-bold text-blue-400">{byeWeekCount}</p>
           </div>
-          <div className="bg-gray-500/10 backdrop-blur-sm rounded-lg border border-gray-500/30 p-6">
-            <p className="text-gray-400 mb-2">Roster Size</p>
+          <div className="bg-fdp-text-3/10 backdrop-blur-sm rounded-lg border border-fdp-text-3/30 p-6">
+            <p className="text-fdp-text-3 mb-2">Roster Size</p>
             <p className="text-3xl font-bold">{players.length}</p>
           </div>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-8">
+        <div className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-6 mb-8">
           <h3 className="text-lg font-semibold mb-4">Position Breakdown</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Object.entries(positionCounts).map(([pos, count]) => (
               <div key={pos} className="text-center">
                 <p className="text-2xl font-bold">{count}</p>
-                <p className="text-sm text-gray-400">{pos}</p>
+                <p className="text-sm text-fdp-text-3">{pos}</p>
               </div>
             ))}
           </div>
         </div>
 
         <div className="mb-6">
-          <label className="block text-sm text-gray-400 mb-2">Check Bye Week</label>
+          <label className="block text-sm text-fdp-text-3 mb-2">Check Bye Week</label>
           <input
             type="number"
             min="1"
             max="18"
             value={week}
             onChange={(e) => setWeek(parseInt(e.target.value) || 1)}
-            className="px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+            className="px-4 py-2 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
           />
         </div>
 
         {loading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-400">Loading roster health...</p>
+            <p className="text-fdp-text-3">Loading roster health...</p>
           </div>
         ) : (
           <div className="space-y-3">
             {players.map(player => (
               <div
                 key={player.player_id}
-                className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-4 hover:border-blue-500 transition hover-lift card-enter"
+                className="bg-fdp-surface-1/50 backdrop-blur-sm rounded-lg border border-fdp-border-2 p-4 hover:border-blue-500 transition hover-lift card-enter"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
@@ -222,10 +222,10 @@ export default function RosterHealth({ leagueId, rosterId }: RosterHealthProps) 
                             {player.sportsdata_injury_notes && (
                               <div>
                                 <div className="font-semibold text-orange-400">Notes</div>
-                                <div className="text-gray-400">{player.sportsdata_injury_notes}</div>
+                                <div className="text-fdp-text-3">{player.sportsdata_injury_notes}</div>
                               </div>
                             )}
-                            <div className="text-gray-400 text-xs pt-2 border-t border-gray-600">
+                            <div className="text-fdp-text-3 text-xs pt-2 border-t border-fdp-border-1">
                               Data from SportsData.io
                             </div>
                           </div>
@@ -249,7 +249,7 @@ export default function RosterHealth({ leagueId, rosterId }: RosterHealthProps) 
                       )}
 
                       {(player.injury_notes || player.sportsdata_injury_notes) && (
-                        <p className="text-sm text-gray-400 italic">
+                        <p className="text-sm text-fdp-text-3 italic">
                           {player.sportsdata_injury_notes || player.injury_notes}
                         </p>
                       )}

@@ -86,10 +86,10 @@ export function ValueProofStep({
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-lg p-12 text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-6"></div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Analyzing Your Team...</h2>
-          <p className="text-gray-600">
+          <h2 className="text-2xl font-bold text-fdp-text-1 mb-2">Analyzing Your Team...</h2>
+          <p className="text-fdp-text-2">
             Calculating strengths, weaknesses, and opportunities
           </p>
 
@@ -107,11 +107,11 @@ export function ValueProofStep({
   if (!teamAnalysis) {
     return (
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-lg p-8 text-center">
+          <h2 className="text-2xl font-bold text-fdp-text-1 mb-4">
             Unable to analyze team
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-fdp-text-2 mb-6">
             We need league data to provide personalized insights
           </p>
           <button
@@ -129,8 +129,8 @@ export function ValueProofStep({
     <div className="max-w-5xl mx-auto">
       {/* Header */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">Your Team Insights</h1>
-        <p className="text-lg text-gray-600">
+        <h1 className="text-4xl font-bold text-fdp-text-1 mb-2">Your Team Insights</h1>
+        <p className="text-lg text-fdp-text-2">
           Personalized analysis for your roster
         </p>
       </div>
@@ -140,10 +140,10 @@ export function ValueProofStep({
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-1">
+              <h3 className="text-lg font-bold text-fdp-text-1 mb-1">
                 Model Confidence: {confidence.level === 'very_high' ? 'Very High' : confidence.level === 'high' ? 'High' : confidence.level === 'medium' ? 'Medium' : 'Low'}
               </h3>
-              <p className="text-sm text-gray-600">{confidence.recommendation}</p>
+              <p className="text-sm text-fdp-text-2">{confidence.recommendation}</p>
             </div>
             <div className="text-right">
               <div className="text-4xl font-bold text-blue-600">{confidence.overall}%</div>
@@ -151,7 +151,7 @@ export function ValueProofStep({
           </div>
 
           {/* Progress Bar */}
-          <div className="mt-4 h-3 bg-gray-200 rounded-full overflow-hidden">
+          <div className="mt-4 h-3 bg-fdp-border-1 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-1000"
               style={{ width: `${confidence.overall}%` }}
@@ -161,8 +161,8 @@ export function ValueProofStep({
       )}
 
       {/* Team Strategy */}
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Team Strength</h2>
+      <div className="bg-fdp-surface-1 rounded-lg shadow-lg p-8 mb-8">
+        <h2 className="text-2xl font-bold text-fdp-text-1 mb-6">Team Strength</h2>
 
         <div className="text-center mb-8">
           <div
@@ -176,7 +176,7 @@ export function ValueProofStep({
           >
             {teamAnalysis.strategy}
           </div>
-          <p className="text-gray-600 mt-2">
+          <p className="text-fdp-text-2 mt-2">
             {teamAnalysis.strategy === 'Contender'
               ? 'Championship-caliber roster with multiple elite assets'
               : teamAnalysis.strategy === 'Playoff'
@@ -188,7 +188,7 @@ export function ValueProofStep({
         {/* Positional Breakdown */}
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <h3 className="font-semibold text-fdp-text-1 mb-3 flex items-center gap-2">
               <CheckCircle className="w-5 h-5 text-green-600" />
               Strengths
             </h3>
@@ -206,7 +206,7 @@ export function ValueProofStep({
           </div>
 
           <div>
-            <h3 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+            <h3 className="font-semibold text-fdp-text-1 mb-3 flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-red-600" />
               Weaknesses
             </h3>
@@ -226,12 +226,12 @@ export function ValueProofStep({
       </div>
 
       {/* 3 Things To Do Today */}
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+      <div className="bg-fdp-surface-1 rounded-lg shadow-lg p-8 mb-8">
+        <h2 className="text-2xl font-bold text-fdp-text-1 mb-2 flex items-center gap-2">
           <Target className="w-7 h-7 text-blue-600" />
           3 Things You Should Do Today
         </h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-fdp-text-2 mb-6">
           Actionable opportunities based on your roster
         </p>
 
@@ -263,9 +263,9 @@ function AnalysisStep({ text, done = false, active = false }: { text: string; do
       ) : active ? (
         <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin flex-shrink-0"></div>
       ) : (
-        <div className="w-5 h-5 border-2 border-gray-300 rounded-full flex-shrink-0"></div>
+        <div className="w-5 h-5 border-2 border-fdp-border-1 rounded-full flex-shrink-0"></div>
       )}
-      <span className={`${done ? 'text-gray-600' : active ? 'text-blue-600 font-medium' : 'text-gray-400'}`}>
+      <span className={`${done ? 'text-fdp-text-2' : active ? 'text-blue-600 font-medium' : 'text-fdp-text-3'}`}>
         {text}
       </span>
     </div>
@@ -288,10 +288,10 @@ function PositionBar({
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <span className="font-semibold text-gray-900">{position}</span>
-        <span className="text-sm text-gray-600">{label}</span>
+        <span className="font-semibold text-fdp-text-1">{position}</span>
+        <span className="text-sm text-fdp-text-2">{label}</span>
       </div>
-      <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+      <div className="h-2 bg-fdp-border-1 rounded-full overflow-hidden">
         <div
           className={`h-full ${colorClasses} transition-all duration-1000`}
           style={{ width: `${score}%` }}
@@ -315,7 +315,7 @@ function OpportunityCard({ opportunity, rank }: { opportunity: any; rank: number
   };
 
   return (
-    <div className="border-2 border-gray-200 rounded-lg p-6 hover:border-blue-400 transition-colors">
+    <div className="border-2 border-fdp-border-1 rounded-lg p-6 hover:border-blue-400 transition-colors">
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
           {rank}
@@ -324,7 +324,7 @@ function OpportunityCard({ opportunity, rank }: { opportunity: any; rank: number
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
             {icons[opportunity.type as keyof typeof icons]}
-            <h3 className="text-lg font-bold text-gray-900">
+            <h3 className="text-lg font-bold text-fdp-text-1">
               {labels[opportunity.type as keyof typeof labels]}: {opportunity.player}
             </h3>
             <span className="ml-auto text-sm font-semibold text-blue-600">
@@ -332,7 +332,7 @@ function OpportunityCard({ opportunity, rank }: { opportunity: any; rank: number
             </span>
           </div>
 
-          <p className="text-gray-700">{opportunity.reason}</p>
+          <p className="text-fdp-text-1">{opportunity.reason}</p>
         </div>
       </div>
     </div>

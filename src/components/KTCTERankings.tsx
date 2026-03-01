@@ -99,11 +99,11 @@ export default function KTCTERankings() {
 
   const getRankBadgeColor = (rank: number) => {
     if (rank === 1) return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-    if (rank <= 3) return 'bg-gray-100 text-gray-700 border-gray-300';
+    if (rank <= 3) return 'bg-fdp-surface-2 text-fdp-text-1 border-fdp-border-1';
     if (rank <= 6) return 'bg-green-50 text-green-700 border-green-200';
     if (rank <= 12) return 'bg-blue-50 text-blue-700 border-blue-200';
     if (rank <= 18) return 'bg-purple-50 text-purple-700 border-purple-200';
-    return 'bg-gray-50 text-gray-600 border-gray-200';
+    return 'bg-fdp-surface-1 text-fdp-text-2 border-fdp-border-1';
   };
 
   const getTierLabel = (rank: number) => {
@@ -138,11 +138,11 @@ export default function KTCTERankings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-fdp-text-1 flex items-center gap-2">
             <Zap className="w-7 h-7 text-orange-600" />
             Tight End Rankings
           </h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-fdp-text-2 mt-1">
             Dynasty Superflex values from Fantasy Draft Pros
           </p>
         </div>
@@ -167,24 +167,24 @@ export default function KTCTERankings() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-4">
+      <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1 p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-fdp-text-3" />
             <input
               type="text"
               placeholder="Search tight ends..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             />
           </div>
           <div className="relative">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-fdp-text-3" />
             <select
               value={teamFilter}
               onChange={(e) => setTeamFilter(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none"
+              className="w-full pl-10 pr-4 py-2 border border-fdp-border-1 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent appearance-none"
             >
               <option value="">All Teams</option>
               {uniqueTeams.map((team) => (
@@ -197,29 +197,29 @@ export default function KTCTERankings() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-fdp-surface-1 border-b border-fdp-border-1">
               <tr>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-fdp-text-2 uppercase tracking-wider">
                   Rank
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-fdp-text-2 uppercase tracking-wider">
                   Player
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-fdp-text-2 uppercase tracking-wider">
                   Team
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-fdp-text-2 uppercase tracking-wider">
                   Tier
                 </th>
-                <th className="text-right px-6 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="text-right px-6 py-3 text-xs font-semibold text-fdp-text-2 uppercase tracking-wider">
                   Value
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-fdp-border-1">
               {paginatedTes.map((te, idx) => {
                 const displayRank = (currentPage - 1) * itemsPerPage + idx + 1;
                 return (
@@ -228,7 +228,7 @@ export default function KTCTERankings() {
                   className={`transition-colors ${
                     isPremium(displayRank)
                       ? 'bg-orange-50 hover:bg-orange-100'
-                      : 'hover:bg-gray-50'
+                      : 'hover:bg-fdp-surface-1'
                   }`}
                 >
                   <td className="px-6 py-4">
@@ -257,26 +257,26 @@ export default function KTCTERankings() {
                         showTeamLogo={false}
                       />
                       <div>
-                        <div className="font-semibold text-gray-900">{te.full_name}</div>
-                        <div className="text-xs text-gray-500">Tight End</div>
+                        <div className="font-semibold text-fdp-text-1">{te.full_name}</div>
+                        <div className="text-xs text-fdp-text-3">Tight End</div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-fdp-surface-2 text-fdp-text-1">
                       {te.team || 'FA'}
                     </span>
                   </td>
                   <td className="px-6 py-4">
                     <span className={`text-sm font-medium ${
-                      isPremium(displayRank) ? 'text-orange-700' : 'text-gray-700'
+                      isPremium(displayRank) ? 'text-orange-700' : 'text-fdp-text-1'
                     }`}>
                       {getTierLabel(displayRank)}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <span className="text-lg font-bold text-gray-900">{te.fdp_value.toLocaleString()}</span>
+                      <span className="text-lg font-bold text-fdp-text-1">{te.fdp_value.toLocaleString()}</span>
                     </div>
                   </td>
                 </tr>
@@ -286,8 +286,8 @@ export default function KTCTERankings() {
         </div>
 
         {totalPages > 1 && (
-          <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
+          <div className="px-6 py-4 border-t border-fdp-border-1 flex items-center justify-between">
+            <div className="text-sm text-fdp-text-1">
               Showing {(currentPage - 1) * itemsPerPage + 1} to{' '}
               {Math.min(currentPage * itemsPerPage, filteredTes.length)} of {filteredTes.length}{' '}
               tight ends
@@ -296,17 +296,17 @@ export default function KTCTERankings() {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 border border-fdp-border-1 rounded-lg hover:bg-fdp-surface-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Previous
               </button>
-              <span className="px-4 py-2 text-sm text-gray-700">
+              <span className="px-4 py-2 text-sm text-fdp-text-1">
                 Page {currentPage} of {totalPages}
               </span>
               <button
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 border border-fdp-border-1 rounded-lg hover:bg-fdp-surface-1 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 Next
               </button>
@@ -316,8 +316,8 @@ export default function KTCTERankings() {
       </div>
 
       {filteredTes.length === 0 && (
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-          <p className="text-gray-600">No tight ends found matching your criteria</p>
+        <div className="bg-fdp-surface-1 border border-fdp-border-1 rounded-lg p-8 text-center">
+          <p className="text-fdp-text-2">No tight ends found matching your criteria</p>
         </div>
       )}
     </div>

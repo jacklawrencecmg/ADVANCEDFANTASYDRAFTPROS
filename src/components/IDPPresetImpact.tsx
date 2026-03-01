@@ -12,14 +12,14 @@ export function IDPPresetImpact({ baseValue, position, currentPreset = 'balanced
   const comparison = getPresetComparison(baseValue, position);
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200 p-4">
+    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-fdp-border-1 p-4">
       <div className="flex items-center gap-2 mb-3">
         <Info className="w-5 h-5 text-blue-600" />
-        <h3 className="font-semibold text-gray-900">IDP Scoring Impact</h3>
+        <h3 className="font-semibold text-fdp-text-1">IDP Scoring Impact</h3>
       </div>
 
       <div className="space-y-3">
-        <div className="text-sm text-gray-600 mb-3">
+        <div className="text-sm text-fdp-text-2 mb-3">
           How this {position} player's value changes across different IDP scoring systems:
         </div>
 
@@ -35,7 +35,7 @@ export function IDPPresetImpact({ baseValue, position, currentPreset = 'balanced
                 className={`relative rounded-lg p-3 border-2 transition-all ${
                   isCurrent
                     ? 'border-blue-500 bg-blue-50 shadow-md'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                    : 'border-fdp-border-1 bg-fdp-surface-1 hover:border-fdp-border-1'
                 }`}
               >
                 {isCurrent && (
@@ -48,17 +48,17 @@ export function IDPPresetImpact({ baseValue, position, currentPreset = 'balanced
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{getPresetIcon(preset)}</span>
                     <div>
-                      <div className="font-semibold text-gray-900">
+                      <div className="font-semibold text-fdp-text-1">
                         {getPresetLabel(preset)}
                       </div>
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-fdp-text-3">
                         {multiplier.toFixed(2)}x multiplier
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-lg font-bold text-gray-900">
+                    <div className="text-lg font-bold text-fdp-text-1">
                       {value.toLocaleString()}
                     </div>
                     <div className="flex items-center gap-1 text-xs font-semibold">
@@ -76,15 +76,15 @@ export function IDPPresetImpact({ baseValue, position, currentPreset = 'balanced
                       )}
                       {!isPositive && !isNegative && (
                         <>
-                          <Minus className="w-3 h-3 text-gray-400" />
-                          <span className="text-gray-500">Baseline</span>
+                          <Minus className="w-3 h-3 text-fdp-text-3" />
+                          <span className="text-fdp-text-3">Baseline</span>
                         </>
                       )}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-2 pt-2 border-t border-gray-200">
+                <div className="mt-2 pt-2 border-t border-fdp-border-1">
                   <div
                     className={`inline-flex px-2 py-0.5 rounded text-xs font-semibold ${
                       label === 'Best'
@@ -95,7 +95,7 @@ export function IDPPresetImpact({ baseValue, position, currentPreset = 'balanced
                         ? 'bg-blue-100 text-blue-800'
                         : label === 'Below Avg'
                         ? 'bg-orange-100 text-orange-800'
-                        : 'bg-gray-100 text-gray-700'
+                        : 'bg-fdp-surface-2 text-fdp-text-1'
                     }`}
                   >
                     {label}

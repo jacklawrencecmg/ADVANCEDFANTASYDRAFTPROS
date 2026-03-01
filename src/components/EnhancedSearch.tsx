@@ -168,7 +168,7 @@ export function EnhancedSearch({
                 <div className="font-semibold text-white text-sm">
                   {highlightMatch(result.name, query)}
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="text-xs text-fdp-text-3">
                   {highlightMatch(`${result.team} • ${result.position}`, query)}
                 </div>
               </div>

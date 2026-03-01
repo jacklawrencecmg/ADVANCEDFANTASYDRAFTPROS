@@ -134,7 +134,7 @@ export function HighIntentUpgradeTrigger({ trigger, context, onClose }: HighInte
         </button>
 
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center text-white flex-shrink-0">
+          <div className="w-12 h-12 bg-fdp-surface-1/20 rounded-xl flex items-center justify-center text-white flex-shrink-0">
             {config.icon}
           </div>
 
@@ -144,7 +144,7 @@ export function HighIntentUpgradeTrigger({ trigger, context, onClose }: HighInte
             </h3>
 
             {config.urgency && (
-              <div className="inline-flex items-center gap-1 bg-white/20 rounded-full px-2 py-1 mb-2">
+              <div className="inline-flex items-center gap-1 bg-fdp-surface-1/20 rounded-full px-2 py-1 mb-2">
                 <Clock className="w-3 h-3 text-white" />
                 <span className="text-xs font-semibold text-white">
                   {config.urgency}
@@ -159,7 +159,7 @@ export function HighIntentUpgradeTrigger({ trigger, context, onClose }: HighInte
             <button
               onClick={handleUpgrade}
               disabled={isGrantingTrial}
-              className="w-full bg-white text-orange-600 font-bold py-3 px-6 rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
+              className="w-full bg-fdp-surface-1 text-orange-600 font-bold py-3 px-6 rounded-lg hover:bg-fdp-surface-2 transition-all flex items-center justify-center gap-2 group disabled:opacity-50"
             >
               {isGrantingTrial ? (
                 'Starting Trial...'

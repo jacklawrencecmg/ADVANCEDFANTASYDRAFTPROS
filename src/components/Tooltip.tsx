@@ -25,11 +25,11 @@ export default function Tooltip({ content, children, position = 'top' }: Tooltip
       {children}
       {isVisible && (
         <div
-          className={`absolute ${positionClasses[position]} z-50 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg border border-gray-700 shadow-xl whitespace-nowrap animate-in fade-in zoom-in-95 duration-150`}
+          className={`absolute ${positionClasses[position]} z-50 px-3 py-2 bg-fdp-bg-0 text-white text-sm rounded-lg border border-fdp-border-2 shadow-xl whitespace-nowrap animate-in fade-in zoom-in-95 duration-150`}
         >
           {content}
           <div
-            className={`absolute w-2 h-2 bg-gray-900 border-gray-700 rotate-45 ${
+            className={`absolute w-2 h-2 bg-fdp-bg-0 border-fdp-border-2 rotate-45 ${
               position === 'top'
                 ? 'bottom-[-4px] left-1/2 -translate-x-1/2 border-b border-r'
                 : position === 'bottom'

@@ -35,17 +35,17 @@ interface FeatureLockProps {
 export function FeatureLock({ feature, onUpgrade, children }: FeatureLockProps) {
   return (
     <div className="relative">
-      <div className="absolute inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
+      <div className="absolute inset-0 bg-fdp-bg-0 bg-opacity-50 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
         <button
           onClick={onUpgrade}
-          className="flex flex-col items-center gap-3 p-6 bg-white rounded-lg shadow-xl max-w-sm"
+          className="flex flex-col items-center gap-3 p-6 bg-fdp-surface-1 rounded-lg shadow-xl max-w-sm"
         >
           <div className="flex items-center gap-2">
             <Lock className="w-6 h-6 text-orange-600" />
             <ProBadge size="md" />
           </div>
-          <h3 className="text-xl font-bold text-gray-900">Premium Feature</h3>
-          <p className="text-gray-600 text-center">{feature} is available for Pro members</p>
+          <h3 className="text-xl font-bold text-fdp-text-1">Premium Feature</h3>
+          <p className="text-fdp-text-2 text-center">{feature} is available for Pro members</p>
           <div className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg font-semibold hover:from-orange-600 hover:to-orange-700 transition-all">
             Upgrade to Pro
           </div>

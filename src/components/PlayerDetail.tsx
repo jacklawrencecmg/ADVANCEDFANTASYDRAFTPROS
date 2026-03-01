@@ -87,7 +87,7 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
       case 'RB': return 'bg-green-100 text-green-800';
       case 'WR': return 'bg-blue-100 text-blue-800';
       case 'TE': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-fdp-surface-2 text-fdp-text-1';
     }
   };
 
@@ -95,7 +95,7 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
     switch (trend) {
       case 'up': return <TrendingUp className="w-5 h-5 text-green-600" />;
       case 'down': return <TrendingDown className="w-5 h-5 text-red-600" />;
-      case 'stable': return <Minus className="w-5 h-5 text-gray-600" />;
+      case 'stable': return <Minus className="w-5 h-5 text-fdp-text-2" />;
     }
   };
 
@@ -109,12 +109,12 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-fdp-surface-1 p-6">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6">
             <button
               onClick={onBack}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-2 text-fdp-text-2 hover:text-fdp-text-1 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               Back to Rankings
@@ -128,12 +128,12 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-fdp-surface-1 p-6">
         <div className="max-w-6xl mx-auto">
           <div className="mb-6">
             <button
               onClick={onBack}
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+              className="flex items-center gap-2 text-fdp-text-2 hover:text-fdp-text-1 transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
               Back to Rankings
@@ -149,34 +149,34 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-fdp-surface-1 p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-6">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+            className="flex items-center gap-2 text-fdp-text-2 hover:text-fdp-text-1 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Rankings
           </button>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-md p-6 mb-6">
           <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
             <div>
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold text-gray-900">{data.player.name}</h1>
+                <h1 className="text-3xl font-bold text-fdp-text-1">{data.player.name}</h1>
                 <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getPositionColor(data.player.position)}`}>
                   {data.player.position}
                 </span>
               </div>
-              <p className="text-lg text-gray-600">{data.player.team || 'Free Agent'}</p>
+              <p className="text-lg text-fdp-text-2">{data.player.team || 'Free Agent'}</p>
             </div>
 
             <div className="flex items-center gap-3">
               <WatchlistButton playerId={playerId} playerName={data.player.name} variant="small" />
               {getTrendIcon(data.trend)}
-              <span className="text-lg font-medium text-gray-700">{getTrendText(data.trend)}</span>
+              <span className="text-lg font-medium text-fdp-text-1">{getTrendText(data.trend)}</span>
             </div>
           </div>
 
@@ -205,15 +205,15 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
 
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-blue-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-1">FDP Value</p>
+              <p className="text-sm text-fdp-text-2 mb-1">FDP Value</p>
               <p className="text-3xl font-bold text-blue-600">{data.latest.fdp_value.toLocaleString()}</p>
             </div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-1">Base Value</p>
-              <p className="text-3xl font-bold text-gray-700">{data.latest.ktc_value.toLocaleString()}</p>
+            <div className="bg-fdp-surface-1 rounded-lg p-4">
+              <p className="text-sm text-fdp-text-2 mb-1">Base Value</p>
+              <p className="text-3xl font-bold text-fdp-text-1">{data.latest.ktc_value.toLocaleString()}</p>
             </div>
             <div className="bg-purple-50 rounded-lg p-4">
-              <p className="text-sm text-gray-600 mb-1">Position Rank</p>
+              <p className="text-sm text-fdp-text-2 mb-1">Position Rank</p>
               <div className="flex items-center gap-2">
                 <Trophy className="w-6 h-6 text-purple-600" />
                 <p className="text-3xl font-bold text-purple-600">#{data.latest.rank}</p>
@@ -222,16 +222,16 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900">Value History</h2>
+            <h2 className="text-xl font-bold text-fdp-text-1">Value History</h2>
             <div className="flex gap-2">
               <button
                 onClick={() => setFormat('dynasty_sf')}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   format === 'dynasty_sf'
                     ? 'bg-green-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-fdp-surface-2 text-fdp-text-1 hover:bg-fdp-border-1'
                 }`}
               >
                 Superflex
@@ -241,7 +241,7 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   format === 'dynasty_1qb'
                     ? 'bg-green-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-fdp-surface-2 text-fdp-text-1 hover:bg-fdp-border-1'
                 }`}
               >
                 1QB
@@ -251,7 +251,7 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                   format === 'dynasty_tep'
                     ? 'bg-green-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    : 'bg-fdp-surface-2 text-fdp-text-1 hover:bg-fdp-border-1'
                 }`}
               >
                 TEP
@@ -261,24 +261,24 @@ export default function PlayerDetail({ playerId, onBack }: PlayerDetailProps) {
 
           <ValueChart data={data.history} height={400} />
 
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-fdp-text-3">
             Last updated: {new Date(data.latest.updated_at).toLocaleString()}
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-md p-6 mb-6">
           <PlayerCareerTimeline playerId={playerId} />
         </div>
 
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="font-semibold text-gray-900 mb-3">About This Data</h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+        <div className="bg-fdp-surface-1 rounded-lg shadow-md p-6">
+          <h3 className="font-semibold text-fdp-text-1 mb-3">About This Data</h3>
+          <div className="grid md:grid-cols-2 gap-4 text-sm text-fdp-text-2">
             <div>
-              <p className="font-medium text-gray-700 mb-1">Value Sources</p>
+              <p className="font-medium text-fdp-text-1 mb-1">Value Sources</p>
               <p>Base values from FantasyDraftPros, FDP values use format-adjusted multipliers</p>
             </div>
             <div>
-              <p className="font-medium text-gray-700 mb-1">History Range</p>
+              <p className="font-medium text-fdp-text-1 mb-1">History Range</p>
               <p>Last 180 days of value snapshots, updated daily</p>
             </div>
           </div>

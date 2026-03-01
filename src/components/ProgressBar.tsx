@@ -49,7 +49,7 @@ export function ProgressBar({
           className={`h-full bg-gradient-to-r ${colorClasses[color]} rounded-full transition-all duration-500 ease-out relative overflow-hidden`}
           style={{ width: `${percentage}%` }}
         >
-          <div className="absolute inset-0 bg-white opacity-20 animate-pulse-subtle"></div>
+          <div className="absolute inset-0 bg-fdp-surface-1 opacity-20 animate-pulse-subtle"></div>
         </div>
       </div>
     </div>

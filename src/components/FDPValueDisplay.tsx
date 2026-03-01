@@ -38,7 +38,7 @@ export function FDPValueDisplay({
 
   if (style === 'minimal') {
     return (
-      <span className={`font-semibold ${isStale ? 'text-orange-600' : 'text-gray-900'} ${className}`}>
+      <span className={`font-semibold ${isStale ? 'text-orange-600' : 'text-fdp-text-1'} ${className}`}>
         {formatFDPValue(fdp.value)}
       </span>
     );
@@ -47,7 +47,7 @@ export function FDPValueDisplay({
   if (style === 'compact') {
     return (
       <div className={`inline-flex items-center gap-2 ${className}`}>
-        <span className={`text-lg font-bold ${isStale ? 'text-orange-600' : 'text-gray-900'}`}>
+        <span className={`text-lg font-bold ${isStale ? 'text-orange-600' : 'text-fdp-text-1'}`}>
           {formatFDPValue(fdp.value)}
         </span>
         {showTier && (
@@ -56,7 +56,7 @@ export function FDPValueDisplay({
           </span>
         )}
         {showRank && (
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-fdp-text-3">
             {formatFDPRank(fdp.overall_rank)}
           </span>
         )}
@@ -73,7 +73,7 @@ export function FDPValueDisplay({
   return (
     <div className={`flex flex-col gap-1 ${className}`}>
       <div className="flex items-center gap-2">
-        <span className={`text-2xl font-bold ${isStale ? 'text-orange-600' : 'text-gray-900'}`}>
+        <span className={`text-2xl font-bold ${isStale ? 'text-orange-600' : 'text-fdp-text-1'}`}>
           {formatFDPValue(fdp.value)}
         </span>
         <span className="text-sm px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-medium">
@@ -81,13 +81,13 @@ export function FDPValueDisplay({
         </span>
       </div>
 
-      <div className="flex items-center gap-3 text-sm text-gray-600">
+      <div className="flex items-center gap-3 text-sm text-fdp-text-2">
         <span>{formatFDPRank(fdp.overall_rank)}</span>
-        <span className="text-gray-400">•</span>
+        <span className="text-fdp-text-3">•</span>
         <span>{formatFDPRank(fdp.pos_rank, true)} {fdp.position}</span>
         {showAge && (
           <>
-            <span className="text-gray-400">•</span>
+            <span className="text-fdp-text-3">•</span>
             <span className={isStale ? 'text-orange-600' : ''}>
               {getFDPValueAge(fdp)}
             </span>

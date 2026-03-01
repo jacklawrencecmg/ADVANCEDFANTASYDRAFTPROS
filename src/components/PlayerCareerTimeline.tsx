@@ -96,10 +96,10 @@ export default function PlayerCareerTimeline({ playerId }: PlayerCareerTimelineP
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+        <div className="h-6 bg-fdp-border-1 rounded w-1/3"></div>
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 bg-gray-200 rounded"></div>
+            <div key={i} className="h-16 bg-fdp-border-1 rounded"></div>
           ))}
         </div>
       </div>
@@ -108,10 +108,10 @@ export default function PlayerCareerTimeline({ playerId }: PlayerCareerTimelineP
 
   if (transactions.length === 0 && teamHistory.length === 0) {
     return (
-      <div className="bg-gray-50 rounded-lg p-8 text-center">
-        <Calendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-        <p className="text-gray-600">No career history available</p>
-        <p className="text-sm text-gray-500 mt-1">
+      <div className="bg-fdp-surface-1 rounded-lg p-8 text-center">
+        <Calendar className="w-12 h-12 text-fdp-text-3 mx-auto mb-3" />
+        <p className="text-fdp-text-2">No career history available</p>
+        <p className="text-sm text-fdp-text-3 mt-1">
           Team changes and transactions will appear here
         </p>
       </div>
@@ -133,47 +133,47 @@ export default function PlayerCareerTimeline({ playerId }: PlayerCareerTimelineP
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+      <h3 className="text-lg font-semibold text-fdp-text-1 flex items-center gap-2">
         <Calendar className="w-5 h-5" />
         Career Timeline
       </h3>
 
       <div className="relative">
-        <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+        <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-fdp-border-1"></div>
 
         <div className="space-y-4">
           {allEvents.map((event, index) => {
             if (event.type === 'transaction') {
               const tx = event.data as TransactionRecord;
               const Icon = TRANSACTION_ICONS[tx.transaction_type] || Activity;
-              const color = TRANSACTION_COLORS[tx.transaction_type] || 'text-gray-600';
+              const color = TRANSACTION_COLORS[tx.transaction_type] || 'text-fdp-text-2';
 
               return (
                 <div key={`tx-${tx.id}-${index}`} className="relative pl-16 pr-4">
-                  <div className={`absolute left-6 w-4 h-4 rounded-full bg-white border-2 border-current ${color} z-10`}>
+                  <div className={`absolute left-6 w-4 h-4 rounded-full bg-fdp-surface-1 border-2 border-current ${color} z-10`}>
                     <Icon className="w-2.5 h-2.5 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" />
                   </div>
 
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="bg-fdp-surface-1 border border-fdp-border-1 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-fdp-text-1">
                           {formatTransactionText(tx)}
                         </p>
                         {tx.metadata && Object.keys(tx.metadata).length > 0 && (
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-sm text-fdp-text-2 mt-1">
                             {tx.metadata.details || ''}
                           </p>
                         )}
-                        <p className="text-xs text-gray-500 mt-2">
+                        <p className="text-xs text-fdp-text-3 mt-2">
                           Source: {tx.source}
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className="text-sm font-medium text-fdp-text-1">
                           {formatDate(tx.transaction_date)}
                         </p>
-                        <p className="text-xs text-gray-500 capitalize">
+                        <p className="text-xs text-fdp-text-3 capitalize">
                           {tx.transaction_type.replace(/_/g, ' ')}
                         </p>
                       </div>
@@ -187,25 +187,25 @@ export default function PlayerCareerTimeline({ playerId }: PlayerCareerTimelineP
 
               return (
                 <div key={`hist-${history.id}-${index}`} className="relative pl-16 pr-4">
-                  <div className="absolute left-6 w-4 h-4 rounded-full bg-white border-2 border-gray-400 z-10"></div>
+                  <div className="absolute left-6 w-4 h-4 rounded-full bg-fdp-surface-1 border-2 border-fdp-border-2 z-10"></div>
 
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                  <div className="bg-fdp-surface-1 border border-fdp-border-1 rounded-lg p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <p className="font-medium text-gray-700">
+                        <p className="font-medium text-fdp-text-1">
                           Team: {history.team}
                         </p>
                         {history.to_date && (
-                          <p className="text-sm text-gray-600 mt-1">
+                          <p className="text-sm text-fdp-text-2 mt-1">
                             Ended: {formatDate(history.to_date)}
                           </p>
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-medium text-gray-700">
+                        <p className="text-sm font-medium text-fdp-text-1">
                           {formatDate(history.from_date)}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-fdp-text-3">
                           {history.source}
                         </p>
                       </div>
@@ -228,7 +228,7 @@ export default function PlayerCareerTimeline({ playerId }: PlayerCareerTimelineP
                 className={`px-3 py-1 rounded-full text-sm font-medium ${
                   th.is_current
                     ? 'bg-blue-600 text-white'
-                    : 'bg-gray-200 text-gray-700'
+                    : 'bg-fdp-border-1 text-fdp-text-1'
                 }`}
               >
                 {th.team}

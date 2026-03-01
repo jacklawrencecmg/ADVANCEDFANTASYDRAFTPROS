@@ -107,10 +107,10 @@ export function TodaysOpportunities({
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1 p-6">
         <div className="flex items-center gap-2 mb-4">
           <RefreshCw className="w-5 h-5 text-blue-600 animate-spin" />
-          <h2 className="text-xl font-bold text-gray-900">Loading Opportunities...</h2>
+          <h2 className="text-xl font-bold text-fdp-text-1">Loading Opportunities...</h2>
         </div>
       </div>
     );
@@ -131,18 +131,18 @@ export function TodaysOpportunities({
     : opportunities;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
+    <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1">
       {/* Header */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-fdp-border-1">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Today's Opportunities</h2>
-            <p className="text-sm text-gray-600 mt-1">
+            <h2 className="text-xl font-bold text-fdp-text-1">Today's Opportunities</h2>
+            <p className="text-sm text-fdp-text-2 mt-1">
               Actionable player advice based on value vs market
             </p>
           </div>
           {lastUpdated && (
-            <div className="text-xs text-gray-500">
+            <div className="text-xs text-fdp-text-3">
               Updated {lastUpdated.toLocaleTimeString()}
             </div>
           )}
@@ -150,7 +150,7 @@ export function TodaysOpportunities({
       </div>
 
       {/* Filter tabs */}
-      <div className="flex overflow-x-auto border-b border-gray-200">
+      <div className="flex overflow-x-auto border-b border-fdp-border-1">
         <FilterTab
           label="All"
           count={opportunities.length}
@@ -170,10 +170,10 @@ export function TodaysOpportunities({
       </div>
 
       {/* Opportunities list */}
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-fdp-border-1">
         {displayOpportunities.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            <AlertTriangle className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+          <div className="p-8 text-center text-fdp-text-3">
+            <AlertTriangle className="w-12 h-12 mx-auto mb-2 text-fdp-text-3" />
             <p>No opportunities available</p>
             <p className="text-xs mt-1">Check back after the daily update</p>
           </div>
@@ -185,7 +185,7 @@ export function TodaysOpportunities({
       </div>
 
       {/* Footer */}
-      <div className="p-4 bg-gray-50 text-center">
+      <div className="p-4 bg-fdp-surface-1 text-center">
         <button
           onClick={loadOpportunities}
           className="text-sm text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1"
@@ -220,12 +220,12 @@ function FilterTab({
       className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
         active
           ? 'text-blue-600 border-b-2 border-blue-600'
-          : 'text-gray-600 hover:text-gray-900'
+          : 'text-fdp-text-2 hover:text-fdp-text-1'
       }`}
     >
       {icon}
       <span>{label}</span>
-      <span className="px-1.5 py-0.5 text-xs bg-gray-100 text-gray-700 rounded">{count}</span>
+      <span className="px-1.5 py-0.5 text-xs bg-fdp-surface-2 text-fdp-text-1 rounded">{count}</span>
     </button>
   );
 }
@@ -239,7 +239,7 @@ function OpportunityCard({ opportunity }: { opportunity: PlayerAdvice }) {
   const config = getAdviceConfig(opportunity.adviceType);
 
   return (
-    <div className="p-4 hover:bg-gray-50 transition-colors">
+    <div className="p-4 hover:bg-fdp-surface-1 transition-colors">
       <div className="flex items-start gap-3">
         {/* Icon */}
         <div className={`${config.bgColor} p-2 rounded-lg flex-shrink-0`}>
@@ -256,8 +256,8 @@ function OpportunityCard({ opportunity }: { opportunity: PlayerAdvice }) {
                 </span>
                 <ConfidenceBadge confidence={opportunity.confidence} />
               </div>
-              <h3 className="font-bold text-gray-900 mt-1">{opportunity.playerName}</h3>
-              <p className="text-sm text-gray-600">{opportunity.position}</p>
+              <h3 className="font-bold text-fdp-text-1 mt-1">{opportunity.playerName}</h3>
+              <p className="text-sm text-fdp-text-2">{opportunity.position}</p>
             </div>
 
             {opportunity.valueDelta !== 0 && (
@@ -270,13 +270,13 @@ function OpportunityCard({ opportunity }: { opportunity: PlayerAdvice }) {
                   {opportunity.valueDelta > 0 ? '+' : ''}
                   {opportunity.valueDelta}
                 </div>
-                <div className="text-xs text-gray-500">delta</div>
+                <div className="text-xs text-fdp-text-3">delta</div>
               </div>
             )}
           </div>
 
           {/* Reason */}
-          <p className="text-sm text-gray-700 leading-relaxed mt-2">{opportunity.reason}</p>
+          <p className="text-sm text-fdp-text-1 leading-relaxed mt-2">{opportunity.reason}</p>
 
           {/* Supporting factors (collapsible) */}
           {opportunity.supportingFactors && opportunity.supportingFactors.length > 0 && (
@@ -291,8 +291,8 @@ function OpportunityCard({ opportunity }: { opportunity: PlayerAdvice }) {
               {expanded && (
                 <ul className="mt-2 space-y-1">
                   {opportunity.supportingFactors.map((factor, idx) => (
-                    <li key={idx} className="text-xs text-gray-600 flex items-start gap-1">
-                      <span className="text-gray-400 mt-0.5">•</span>
+                    <li key={idx} className="text-xs text-fdp-text-2 flex items-start gap-1">
+                      <span className="text-fdp-text-3 mt-0.5">•</span>
                       <span>{factor}</span>
                     </li>
                   ))}
@@ -310,7 +310,7 @@ function OpportunityCard({ opportunity }: { opportunity: PlayerAdvice }) {
  * Confidence badge
  */
 function ConfidenceBadge({ confidence }: { confidence: number }) {
-  let color = 'bg-gray-100 text-gray-700';
+  let color = 'bg-fdp-surface-2 text-fdp-text-1';
 
   if (confidence >= 80) {
     color = 'bg-green-100 text-green-700';
@@ -374,9 +374,9 @@ function getAdviceConfig(adviceType: string) {
   return (
     configs[adviceType] || {
       label: adviceType,
-      icon: <AlertTriangle className="w-5 h-5 text-gray-600" />,
-      bgColor: 'bg-gray-50',
-      textColor: 'text-gray-600',
+      icon: <AlertTriangle className="w-5 h-5 text-fdp-text-2" />,
+      bgColor: 'bg-fdp-surface-1',
+      textColor: 'text-fdp-text-2',
     }
   );
 }
