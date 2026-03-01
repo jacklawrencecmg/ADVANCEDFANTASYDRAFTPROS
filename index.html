@@ -23,6 +23,16 @@
     <meta name="twitter:title" content="Fantasy Draft Pros - Dynasty Trade Analyzer" />
     <meta name="twitter:description" content="Free dynasty fantasy football trade analyzer with player values, IDP support, and shareable trade links" />
     <meta name="twitter:image" content="https://www.fantasydraftpros.com/FDP2.png" />
+  <script>
+    // GitHub Pages SPA: restore path from 404.html redirect
+    (function() {
+      var redirect = sessionStorage.getItem('spa_redirect');
+      if (redirect && redirect !== '/') {
+        sessionStorage.removeItem('spa_redirect');
+        window.history.replaceState(null, null, redirect);
+      }
+    })();
+  </script>
   </head>
   <body>
     <div id="root"></div>
