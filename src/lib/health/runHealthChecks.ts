@@ -19,7 +19,7 @@ export interface SystemHealthSummary {
 async function checkPlayerSyncFreshness(): Promise<HealthCheckResult> {
   try {
     const { data, error } = await supabase
-      .from('player_values')
+      .from('latest_player_values')
       .select('updated_at')
       .order('updated_at', { ascending: false })
       .limit(1)
@@ -38,7 +38,7 @@ async function checkPlayerSyncFreshness(): Promise<HealthCheckResult> {
       return {
         check_name: 'player_sync_freshness',
         status: 'critical',
-        message: 'No player values found — sync has never run',
+        message: 'No player values found in latest_player_values — sync has never run',
         meta: { last_sync: null },
       };
     }
@@ -83,7 +83,7 @@ async function checkPlayerSyncFreshness(): Promise<HealthCheckResult> {
 async function checkValueSnapshotFreshness(): Promise<HealthCheckResult> {
   try {
     const { count: totalCount, error: countError } = await supabase
-      .from('player_values')
+      .from('latest_player_values')
       .select('*', { count: 'exact', head: true });
 
     if (countError) {
@@ -105,7 +105,7 @@ async function checkValueSnapshotFreshness(): Promise<HealthCheckResult> {
     }
 
     const { data: freshData } = await supabase
-      .from('player_values')
+      .from('latest_player_values')
       .select('updated_at')
       .order('updated_at', { ascending: false })
       .limit(1)
@@ -160,7 +160,7 @@ async function checkPositionCoverage(): Promise<HealthCheckResult> {
 
     for (const pos of positions) {
       const { count, error } = await supabase
-        .from('player_values')
+        .from('latest_player_values')
         .select('player_id', { count: 'exact', head: true })
         .eq('position', pos);
 
@@ -212,7 +212,7 @@ async function checkMissingTeamHistory(): Promise<HealthCheckResult> {
   try {
     // Repurposed: check total player value records in DB
     const { count, error } = await supabase
-      .from('player_values')
+      .from('latest_player_values')
       .select('*', { count: 'exact', head: true });
 
     if (error) {
@@ -262,58 +262,55 @@ async function checkMissingTeamHistory(): Promise<HealthCheckResult> {
 
 async function checkUnresolvedPlayersQueue(): Promise<HealthCheckResult> {
   try {
-    // Repurposed: check that multiple formats are populated
-    const formats = ['standard', 'ppr', 'half_ppr', 'superflex'];
-    const formatCounts: Record<string, number> = {};
-    let missingFormats: string[] = [];
+    // Check that at least one valid format ('standard' or 'superflex') has data.
+    // The sync writes one row per player; the format reflects the most recent sync mode.
+    const { data, error } = await supabase
+      .from('latest_player_values')
+      .select('format')
+      .limit(1)
+      .maybeSingle();
 
-    for (const fmt of formats) {
-      const { count, error } = await supabase
-        .from('player_values')
-        .select('*', { count: 'exact', head: true })
-        .eq('format', fmt);
-
-      if (error) {
-        // Format might not exist — not a critical error
-        formatCounts[fmt] = 0;
-      } else {
-        formatCounts[fmt] = count || 0;
-      }
-
-      if (formatCounts[fmt] === 0) {
-        missingFormats.push(fmt);
-      }
-    }
-
-    if (missingFormats.length === formats.length) {
-      return {
-        check_name: 'unresolved_players_queue',
-        status: 'critical',
-        message: 'No format data found in player_values — sync required',
-        meta: { format_counts: formatCounts },
-      };
-    }
-
-    if (missingFormats.length > 0) {
+    if (error) {
       return {
         check_name: 'unresolved_players_queue',
         status: 'warning',
-        message: `Missing format data for: ${missingFormats.join(', ')}`,
-        meta: { format_counts: formatCounts, missing_formats: missingFormats },
+        message: 'Unable to check scoring format data',
+        meta: { error: error.message },
+      };
+    }
+
+    if (!data) {
+      return {
+        check_name: 'unresolved_players_queue',
+        status: 'critical',
+        message: 'No player value data found — sync has not run',
+        meta: {},
+      };
+    }
+
+    const activeFormat = data.format || 'unknown';
+    const validFormats = ['standard', 'superflex'];
+
+    if (!validFormats.includes(activeFormat)) {
+      return {
+        check_name: 'unresolved_players_queue',
+        status: 'warning',
+        message: `Unexpected format value: "${activeFormat}"`,
+        meta: { active_format: activeFormat },
       };
     }
 
     return {
       check_name: 'unresolved_players_queue',
       status: 'ok',
-      message: `All scoring formats populated`,
-      meta: { format_counts: formatCounts },
+      message: `Active scoring format: ${activeFormat}`,
+      meta: { active_format: activeFormat },
     };
   } catch (err) {
     return {
       check_name: 'unresolved_players_queue',
       status: 'warning',
-      message: 'Error checking format coverage',
+      message: 'Error checking scoring format',
       meta: { error: String(err) },
     };
   }
@@ -327,7 +324,7 @@ async function checkScraperFailures(): Promise<HealthCheckResult> {
 
     for (const pos of positions) {
       const { count, error } = await supabase
-        .from('player_values')
+        .from('latest_player_values')
         .select('player_id', { count: 'exact', head: true })
         .eq('position', pos);
 
@@ -364,7 +361,7 @@ async function checkScraperFailures(): Promise<HealthCheckResult> {
 async function checkDatabaseConnectivity(): Promise<HealthCheckResult> {
   try {
     const startTime = Date.now();
-    const { error } = await supabase.from('player_values').select('player_id').limit(1);
+    const { error } = await supabase.from('latest_player_values').select('player_id').limit(1);
     const responseTime = Date.now() - startTime;
 
     if (error) {
