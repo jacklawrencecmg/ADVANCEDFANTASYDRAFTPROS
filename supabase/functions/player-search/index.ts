@@ -94,6 +94,7 @@ Deno.serve(async (req: Request) => {
         position: p.position,
         team: p.team,
         value: p.adjusted_value,
+        espn_id: sleeperPlayers[p.player_id]?.espn_id ?? null,
       }));
 
     const remaining = limit - dbMatches.length;
@@ -137,6 +138,7 @@ Deno.serve(async (req: Request) => {
             position: p.position,
             team: p.team,
             value: p.value,
+            espn_id: sleeperPlayers[p.id]?.espn_id ?? null,
           });
         });
     }

@@ -63,6 +63,7 @@ export interface SleeperPlayer {
   status?: string;
   fantasy_positions?: string[];
   years_exp?: number;
+  espn_id?: number;
 }
 
 export function getPlayerImageUrl(playerId: string): string {

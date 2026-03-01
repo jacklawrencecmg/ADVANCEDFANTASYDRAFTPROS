@@ -3,6 +3,7 @@ import { User } from 'lucide-react';
 
 interface PlayerAvatarProps {
   playerId?: string;
+  espnId?: number;
   playerName: string;
   team?: string;
   position?: string;
@@ -70,10 +71,13 @@ const teamLogoSize = {
   xl: 'w-7 h-7 text-base',
 };
 
-function buildFallbackChain(playerId: string, providedUrl?: string): string[] {
+function buildFallbackChain(playerId: string, espnId?: number, providedUrl?: string): string[] {
   const fullSize = `https://sleepercdn.com/content/nfl/players/${playerId}.jpg`;
   const thumb = `https://sleepercdn.com/content/nfl/players/thumb/${playerId}.jpg`;
   const chain: string[] = [fullSize];
+  if (espnId) {
+    chain.push(`https://a.espncdn.com/i/headshots/nfl/players/full/${espnId}.png`);
+  }
   if (providedUrl && providedUrl !== fullSize && providedUrl !== thumb) {
     chain.push(providedUrl);
   }
@@ -83,6 +87,7 @@ function buildFallbackChain(playerId: string, providedUrl?: string): string[] {
 
 export function PlayerAvatar({
   playerId,
+  espnId,
   playerName,
   team,
   position,
@@ -94,7 +99,7 @@ export function PlayerAvatar({
   headshotUrl: providedHeadshotUrl,
 }: PlayerAvatarProps) {
   const fallbackUrls = playerId
-    ? buildFallbackChain(playerId, providedHeadshotUrl || undefined)
+    ? buildFallbackChain(playerId, espnId, providedHeadshotUrl || undefined)
     : providedHeadshotUrl ? [providedHeadshotUrl] : [];
 
   const [fallbackIndex, setFallbackIndex] = useState(0);

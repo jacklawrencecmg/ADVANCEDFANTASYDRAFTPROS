@@ -151,6 +151,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
         age: 0,
         injury_status: null,
         status: 'Active',
+        espn_id: p.espn_id ?? undefined,
       }));
 
       setResults(results);
@@ -1368,6 +1369,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                           position={player.position}
                           size="md"
                           playerId={player.player_id}
+                          espnId={player.espn_id}
                         />
                         <div className="flex-1">
                           <span className="text-white font-medium">{player.full_name}</span>
@@ -1392,6 +1394,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                     >
                       <PlayerAvatar
                         playerId={playerId}
+                        espnId={player.espn_id}
                         playerName={player.full_name}
                         team={player.team ?? undefined}
                         position={player.position}
@@ -1548,6 +1551,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                           position={player.position}
                           size="md"
                           playerId={player.player_id}
+                          espnId={player.espn_id}
                         />
                         <div className="flex-1">
                           <span className="text-white font-medium">{player.full_name}</span>
@@ -1572,6 +1576,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                     >
                       <PlayerAvatar
                         playerId={playerId}
+                        espnId={player.espn_id}
                         playerName={player.full_name}
                         team={player.team ?? undefined}
                         position={player.position}
@@ -1815,6 +1820,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                       {item.type === 'player' && (
                         <PlayerAvatar
                           playerId={item.id}
+                          espnId={players[item.id]?.espn_id}
                           playerName={item.name}
                           position={item.position}
                           team={item.team}
@@ -1861,6 +1867,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false 
                       {item.type === 'player' && (
                         <PlayerAvatar
                           playerId={item.id}
+                          espnId={players[item.id]?.espn_id}
                           playerName={item.name}
                           position={item.position}
                           team={item.team}
