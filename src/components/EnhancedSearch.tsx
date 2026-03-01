@@ -98,7 +98,7 @@ export function EnhancedSearch({
     const parts = text.split(new RegExp(`(${query})`, 'gi'));
     return parts.map((part, index) =>
       part.toLowerCase() === query.toLowerCase() ? (
-        <span key={index} className="bg-[#00d4ff]/30 text-[#00d4ff] font-semibold">
+        <span key={index} className="bg-fdp-accent-1/30 text-fdp-accent-1 font-semibold">
           {part}
         </span>
       ) : (
@@ -116,7 +116,7 @@ export function EnhancedSearch({
   return (
     <div ref={searchRef} className="relative w-full">
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-fdp-text-3" />
         <input
           type="text"
           value={query}
@@ -124,7 +124,7 @@ export function EnhancedSearch({
           onFocus={() => setIsOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="w-full pl-12 pr-12 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00d4ff] focus:border-transparent transition-all"
+          className="w-full pl-12 pr-12 py-3 bg-fdp-surface-2 border border-fdp-border-1 rounded-xl text-fdp-text-1 placeholder-fdp-text-3 focus:outline-none focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent transition-all"
         />
         {query && (
           <button
@@ -132,19 +132,19 @@ export function EnhancedSearch({
               setQuery('');
               setResults([]);
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-700 rounded-lg transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-fdp-surface-1 rounded-lg transition-colors"
           >
-            <X className="w-4 h-4 text-gray-400" />
+            <X className="w-4 h-4 text-fdp-text-3" />
           </button>
         )}
       </div>
 
       {isOpen && displayList.length > 0 && (
-        <div className="absolute top-full mt-2 w-full bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700 rounded-xl shadow-2xl max-h-96 overflow-y-auto z-50">
+        <div className="absolute top-full mt-2 w-full bg-fdp-surface-1 border border-fdp-border-1 rounded-xl shadow-2xl max-h-96 overflow-y-auto z-50">
           {!query && showRecent && (
-            <div className="px-4 py-3 border-b border-gray-700 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-400 font-medium">Recent Searches</span>
+            <div className="px-4 py-3 border-b border-fdp-border-1 flex items-center gap-2">
+              <Clock className="w-4 h-4 text-fdp-text-3" />
+              <span className="text-sm text-fdp-text-3 font-medium">Recent Searches</span>
             </div>
           )}
 
@@ -152,11 +152,11 @@ export function EnhancedSearch({
             <button
               key={result.id}
               onClick={() => handleSelect(result)}
-              className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-700/50 transition-colors ${
-                index === selectedIndex ? 'bg-gray-700/50' : ''
+              className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-fdp-surface-2/50 transition-colors ${
+                index === selectedIndex ? 'bg-fdp-surface-2/50' : ''
               }`}
             >
-              <div className="w-12 h-12 bg-gradient-to-br from-[#00d4ff] to-[#0099cc] rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg">
+              <div className="w-12 h-12 bg-gradient-to-br from-fdp-accent-1 to-fdp-accent-2 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg">
                 {result.avatar ? (
                   <img src={result.avatar} alt={result.name} className="w-full h-full rounded-full object-cover" />
                 ) : (
@@ -176,8 +176,8 @@ export function EnhancedSearch({
               {result.value && (
                 <div className="flex items-center gap-2">
                   <div className="text-right">
-                    <div className="text-xs text-gray-400">Value</div>
-                    <div className="font-bold text-[#00d4ff]">{result.value}</div>
+                    <div className="text-xs text-fdp-text-3">Value</div>
+                    <div className="font-bold text-fdp-accent-1">{result.value}</div>
                   </div>
                   {result.trend === 'up' && (
                     <TrendingUp className="w-4 h-4 text-emerald-500" />
@@ -188,7 +188,7 @@ export function EnhancedSearch({
           ))}
 
           {query && results.length === 0 && (
-            <div className="px-4 py-8 text-center text-gray-400">
+            <div className="px-4 py-8 text-center text-fdp-text-3">
               <Star className="w-12 h-12 mx-auto mb-3 opacity-50" />
               <div className="font-medium">No players found</div>
               <div className="text-sm mt-1">Try a different search term</div>

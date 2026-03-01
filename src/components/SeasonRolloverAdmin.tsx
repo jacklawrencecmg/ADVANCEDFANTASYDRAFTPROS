@@ -84,7 +84,7 @@ export default function SeasonRolloverAdmin() {
       {/* Season Context */}
       <div className="bg-gray-900 rounded-lg border border-gray-700 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <Calendar className="w-6 h-6 text-[#00d4ff]" />
+          <Calendar className="w-6 h-6 text-fdp-accent-1" />
           <h2 className="text-xl font-bold text-white">Season Context</h2>
         </div>
 
@@ -101,7 +101,7 @@ export default function SeasonRolloverAdmin() {
 
           <div className="bg-gray-800 rounded-lg p-4">
             <div className="text-sm text-gray-400 mb-1">Phase</div>
-            <div className="text-lg font-bold text-[#00d4ff] capitalize">{SEASON_CONTEXT.phase}</div>
+            <div className="text-lg font-bold text-fdp-accent-1 capitalize">{SEASON_CONTEXT.phase}</div>
           </div>
 
           <div className="bg-gray-800 rounded-lg p-4">
@@ -145,7 +145,7 @@ export default function SeasonRolloverAdmin() {
       <div className="bg-gray-900 rounded-lg border border-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <Database className="w-6 h-6 text-[#00d4ff]" />
+            <Database className="w-6 h-6 text-fdp-accent-1" />
             <h2 className="text-xl font-bold text-white">Value Rebuild</h2>
           </div>
           {rebuildStatus && (
@@ -220,7 +220,7 @@ export default function SeasonRolloverAdmin() {
       {/* Trigger Rebuild */}
       <div className="bg-gray-900 rounded-lg border border-gray-700 p-6">
         <div className="flex items-center gap-3 mb-4">
-          <Play className="w-6 h-6 text-[#00d4ff]" />
+          <Play className="w-6 h-6 text-fdp-accent-1" />
           <h2 className="text-xl font-bold text-white">Trigger Rebuild</h2>
         </div>
 
@@ -257,7 +257,7 @@ export default function SeasonRolloverAdmin() {
             className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
               loading || !confirmRebuild
                 ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                : 'bg-[#00d4ff] hover:bg-[#00b8e6] text-gray-900'
+                : 'bg-fdp-accent-1 hover:bg-fdp-accent-2 text-fdp-bg-0'
             }`}
           >
             {loading ? (
@@ -314,7 +314,7 @@ export default function SeasonRolloverAdmin() {
       {rolloverStatus && (
         <div className="bg-gray-900 rounded-lg border border-gray-700 p-6">
           <div className="flex items-center gap-3 mb-4">
-            <Calendar className="w-6 h-6 text-[#00d4ff]" />
+            <Calendar className="w-6 h-6 text-fdp-accent-1" />
             <h2 className="text-xl font-bold text-white">Last Season Rollover</h2>
           </div>
 

@@ -299,7 +299,7 @@ export default function Top1000HealthCheck() {
     return (
       <div className="bg-gray-900 rounded-lg border border-gray-700 p-6">
         <div className="flex items-center gap-3">
-          <RefreshCw className="w-6 h-6 animate-spin text-[#00d4ff]" />
+          <RefreshCw className="w-6 h-6 animate-spin text-fdp-accent-1" />
           <span className="text-gray-300">Running health checks...</span>
         </div>
       </div>
@@ -340,7 +340,7 @@ export default function Top1000HealthCheck() {
     <div className={`${bgColor} border ${borderColor} rounded-lg p-6`}>
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <Activity className="w-6 h-6 text-[#00d4ff]" />
+          <Activity className="w-6 h-6 text-fdp-accent-1" />
           <div>
             <h3 className="text-xl font-bold text-white">System Health</h3>
             <p className="text-xs text-gray-400 mt-1">

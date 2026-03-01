@@ -120,10 +120,10 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
 
   if (trades.length === 0) {
     return (
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-gray-700 p-12 text-center">
-        <History className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+      <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1 p-12 text-center">
+        <History className="w-16 h-16 mx-auto mb-4 text-fdp-text-3" />
         <h3 className="text-xl font-bold text-white mb-2">No Trade History</h3>
-        <p className="text-gray-400">
+        <p className="text-fdp-text-3">
           Analyzed trades will be automatically saved here for future reference.
         </p>
       </div>
@@ -132,20 +132,20 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-gray-700 p-6 shadow-xl">
+      <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1 p-6 shadow-xl">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-            <History className="w-7 h-7 text-[#00d4ff]" />
+            <History className="w-7 h-7 text-fdp-accent-1" />
             Trade History
           </h2>
-          <div className="text-sm text-gray-400">{trades.length} saved trades</div>
+          <div className="text-sm text-fdp-text-3">{trades.length} saved trades</div>
         </div>
 
         <div className="space-y-4">
           {trades.map((trade) => (
             <div
               key={trade.id}
-              className="bg-gray-800 rounded-lg border border-gray-700 p-5 hover:border-[#00d4ff] transition-all duration-300 hover-lift card-enter"
+              className="bg-fdp-surface-2 rounded-lg border border-fdp-border-1 p-5 hover:border-fdp-accent-1 transition-all duration-300 hover-lift card-enter"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                               : trade.trade_result?.team_b_name || 'Team B'
                           } Wins`}
                     </div>
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm text-fdp-text-3">
                       {new Date(trade.created_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -177,7 +177,7 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                 </div>
                 <button
                   onClick={() => setDeleteConfirm(trade.id)}
-                  className="text-gray-400 hover:text-red-400 transition-colors p-2"
+                  className="text-fdp-text-3 hover:text-red-400 transition-colors p-2"
                   title="Delete trade"
                 >
                   <Trash2 className="w-5 h-5" />
@@ -185,25 +185,25 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
               </div>
 
               <div className="grid md:grid-cols-3 gap-4 mb-4">
-                <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-                  <div className="text-sm text-gray-400 mb-1">
+                <div className="bg-fdp-bg-0 rounded-lg p-4 border border-fdp-border-1">
+                  <div className="text-sm text-fdp-text-3 mb-1">
                     {trade.trade_result?.team_a_name || 'Team A'} Value
                   </div>
                   <div className="text-2xl font-bold text-white">
                     {trade.trade_result?.team_a_value || trade.team_a_value}
                   </div>
                 </div>
-                <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-                  <div className="text-sm text-gray-400 mb-1">
+                <div className="bg-fdp-bg-0 rounded-lg p-4 border border-fdp-border-1">
+                  <div className="text-sm text-fdp-text-3 mb-1">
                     {trade.trade_result?.team_b_name || 'Team B'} Value
                   </div>
                   <div className="text-2xl font-bold text-white">
                     {trade.trade_result?.team_b_value || trade.team_b_value}
                   </div>
                 </div>
-                <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-                  <div className="text-sm text-gray-400 mb-1">Difference</div>
-                  <div className="text-2xl font-bold text-[#00d4ff]">
+                <div className="bg-fdp-bg-0 rounded-lg p-4 border border-fdp-border-1">
+                  <div className="text-sm text-fdp-text-3 mb-1">Difference</div>
+                  <div className="text-2xl font-bold text-fdp-accent-1">
                     {trade.trade_result?.difference || trade.difference}
                   </div>
                 </div>
@@ -212,14 +212,14 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
               {trade.trade_result?.team_a_items ? (
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <div className="text-sm font-semibold text-gray-400 mb-2">
+                    <div className="text-sm font-semibold text-fdp-text-3 mb-2">
                       {trade.trade_result?.team_a_name || 'Team A'} Gives
                     </div>
                     <div className="space-y-1">
                       {trade.trade_result.team_a_items.map((item) => (
                         <div
                           key={item.id}
-                          className="text-sm bg-gray-900 px-3 py-2 rounded border border-gray-700 text-white flex items-center justify-between"
+                          className="text-sm bg-fdp-bg-0 px-3 py-2 rounded border border-fdp-border-1 text-fdp-text-1 flex items-center justify-between"
                         >
                           <div className="flex items-center gap-2">
                             {item.type === 'player' ? (
@@ -233,25 +233,25 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                               />
                             ) : (
                               <div className="flex items-center gap-2">
-                                <Calendar className="w-3 h-3 text-[#00d4ff]" />
+                                <Calendar className="w-3 h-3 text-fdp-accent-1" />
                                 <span>{item.name}</span>
                               </div>
                             )}
                           </div>
-                          <span className="text-gray-400">{item.value}</span>
+                          <span className="text-fdp-text-3">{item.value}</span>
                         </div>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-gray-400 mb-2">
+                    <div className="text-sm font-semibold text-fdp-text-3 mb-2">
                       {trade.trade_result?.team_a_name || 'Team A'} Gets
                     </div>
                     <div className="space-y-1">
                       {(trade.trade_result?.team_b_items || []).map((item) => (
                         <div
                           key={item.id}
-                          className="text-sm bg-gray-900 px-3 py-2 rounded border border-gray-700 text-white flex items-center justify-between"
+                          className="text-sm bg-fdp-bg-0 px-3 py-2 rounded border border-fdp-border-1 text-fdp-text-1 flex items-center justify-between"
                         >
                           <div className="flex items-center gap-2">
                             {item.type === 'player' ? (
@@ -265,12 +265,12 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                               />
                             ) : (
                               <div className="flex items-center gap-2">
-                                <Calendar className="w-3 h-3 text-[#00d4ff]" />
+                                <Calendar className="w-3 h-3 text-fdp-accent-1" />
                                 <span>{item.name}</span>
                               </div>
                             )}
                           </div>
-                          <span className="text-gray-400">{item.value}</span>
+                          <span className="text-fdp-text-3">{item.value}</span>
                         </div>
                       ))}
                     </div>
@@ -279,12 +279,12 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
               ) : (
                 <div className="grid md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <div className="text-sm font-semibold text-gray-400 mb-2">Team A Gives</div>
+                    <div className="text-sm font-semibold text-fdp-text-3 mb-2">Team A Gives</div>
                     <div className="space-y-1">
                       {trade.trade_data?.team_a_gives?.map((playerId: string) => (
                         <div
                           key={playerId}
-                          className="text-sm bg-gray-900 px-3 py-2 rounded border border-gray-700 text-white flex items-center gap-2"
+                          className="text-sm bg-fdp-bg-0 px-3 py-2 rounded border border-fdp-border-1 text-fdp-text-1 flex items-center gap-2"
                         >
                           <PlayerAvatar
                             playerId={playerId}
@@ -299,7 +299,7 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                         trade.team_a_gives?.map((playerId: string) => (
                           <div
                             key={playerId}
-                            className="text-sm bg-gray-900 px-3 py-2 rounded border border-gray-700 text-white flex items-center gap-2"
+                            className="text-sm bg-fdp-bg-0 px-3 py-2 rounded border border-fdp-border-1 text-fdp-text-1 flex items-center gap-2"
                           >
                             <PlayerAvatar
                               playerId={playerId}
@@ -314,21 +314,21 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                       {trade.trade_data?.team_a_gives_picks?.map((pick) => (
                         <div
                           key={pick.id}
-                          className="text-sm bg-gray-900 px-3 py-2 rounded border border-gray-700 text-white flex items-center gap-2"
+                          className="text-sm bg-fdp-bg-0 px-3 py-2 rounded border border-fdp-border-1 text-fdp-text-1 flex items-center gap-2"
                         >
-                          <Calendar className="w-3 h-3 text-[#00d4ff]" />
+                          <Calendar className="w-3 h-3 text-fdp-accent-1" />
                           {pick.displayName}
                         </div>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <div className="text-sm font-semibold text-gray-400 mb-2">Team A Gets</div>
+                    <div className="text-sm font-semibold text-fdp-text-3 mb-2">Team A Gets</div>
                     <div className="space-y-1">
                       {trade.trade_data?.team_a_gets?.map((playerId: string) => (
                         <div
                           key={playerId}
-                          className="text-sm bg-gray-900 px-3 py-2 rounded border border-gray-700 text-white flex items-center gap-2"
+                          className="text-sm bg-fdp-bg-0 px-3 py-2 rounded border border-fdp-border-1 text-fdp-text-1 flex items-center gap-2"
                         >
                           <PlayerAvatar
                             playerId={playerId}
@@ -343,7 +343,7 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                         trade.team_a_gets?.map((playerId: string) => (
                           <div
                             key={playerId}
-                            className="text-sm bg-gray-900 px-3 py-2 rounded border border-gray-700 text-white flex items-center gap-2"
+                            className="text-sm bg-fdp-bg-0 px-3 py-2 rounded border border-fdp-border-1 text-fdp-text-1 flex items-center gap-2"
                           >
                             <PlayerAvatar
                               playerId={playerId}
@@ -358,9 +358,9 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                       {trade.trade_data?.team_a_gets_picks?.map((pick) => (
                         <div
                           key={pick.id}
-                          className="text-sm bg-gray-900 px-3 py-2 rounded border border-gray-700 text-white flex items-center gap-2"
+                          className="text-sm bg-fdp-bg-0 px-3 py-2 rounded border border-fdp-border-1 text-fdp-text-1 flex items-center gap-2"
                         >
-                          <Calendar className="w-3 h-3 text-[#00d4ff]" />
+                          <Calendar className="w-3 h-3 text-fdp-accent-1" />
                           {pick.displayName}
                         </div>
                       ))}
@@ -369,14 +369,14 @@ export default function TradeHistory({ leagueId }: TradeHistoryProps) {
                 </div>
               )}
 
-              <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
-                <div className="text-sm text-gray-400 mb-2">Analysis</div>
+              <div className="bg-fdp-bg-0 rounded-lg p-4 border border-fdp-border-1">
+                <div className="text-sm text-fdp-text-3 mb-2">Analysis</div>
                 <p className="text-white">{trade.trade_result?.fairness || trade.fairness}</p>
               </div>
 
               {trade.notes && (
-                <div className="mt-4 bg-gray-900 rounded-lg p-4 border border-gray-700">
-                  <div className="text-sm text-gray-400 mb-2">Notes</div>
+                <div className="mt-4 bg-fdp-bg-0 rounded-lg p-4 border border-fdp-border-1">
+                  <div className="text-sm text-fdp-text-3 mb-2">Notes</div>
                   <p className="text-white">{trade.notes}</p>
                 </div>
               )}

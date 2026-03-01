@@ -32,17 +32,17 @@ export function TeamStrengthsModal({ isOpen, onClose, teamName, strengths }: Tea
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-gray-700 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-        <div className="sticky top-0 bg-gray-900/95 backdrop-blur-sm border-b border-gray-700 p-6 flex items-center justify-between z-10">
+      <div className="bg-fdp-surface-1 rounded-2xl border border-fdp-border-1 max-w-4xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="sticky top-0 bg-fdp-bg-0/95 backdrop-blur-sm border-b border-fdp-border-1 p-6 flex items-center justify-between z-10">
           <div>
             <h2 className="text-2xl font-bold text-white">{teamName}</h2>
-            <p className="text-gray-400 text-sm mt-1">Team Strengths Analysis</p>
+            <p className="text-fdp-text-3 text-sm mt-1">Team Strengths Analysis</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+            className="p-2 hover:bg-fdp-surface-2 rounded-lg transition-colors"
           >
-            <X className="w-6 h-6 text-gray-400" />
+            <X className="w-6 h-6 text-fdp-text-3" />
           </button>
         </div>
 
@@ -63,8 +63,8 @@ export function TeamStrengthsModal({ isOpen, onClose, teamName, strengths }: Tea
                     key={index}
                     className={`p-4 rounded-xl border transition-all duration-300 ${
                       isHovered
-                        ? 'border-[#00d4ff] bg-gray-800 scale-105 shadow-lg shadow-[#00d4ff]/20'
-                        : 'border-gray-700 bg-gray-800/50'
+                        ? 'border-fdp-accent-1 bg-fdp-surface-2 scale-105 shadow-lg shadow-fdp-accent-1/20'
+                        : 'border-fdp-border-1 bg-fdp-surface-2/50'
                     }`}
                     onMouseEnter={() => setHoveredSegment(index)}
                     onMouseLeave={() => setHoveredSegment(null)}
@@ -79,7 +79,7 @@ export function TeamStrengthsModal({ isOpen, onClose, teamName, strengths }: Tea
                       </div>
                       <div className="text-right">
                         <div className="text-white font-bold text-xl">{percentage}%</div>
-                        <div className="text-gray-400 text-sm">{strength.value.toFixed(0)} pts</div>
+                        <div className="text-fdp-text-3 text-sm">{strength.value.toFixed(0)} pts</div>
                       </div>
                     </div>
                     <ProgressBar
@@ -95,16 +95,16 @@ export function TeamStrengthsModal({ isOpen, onClose, teamName, strengths }: Tea
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
-            <div className="p-4 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-xl">
+            <div className="p-4 bg-fdp-surface-2 border border-fdp-border-1 rounded-xl">
               <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
-                <div className="w-2 h-2 bg-[#00d4ff] rounded-full"></div>
+                <div className="w-2 h-2 bg-fdp-accent-1 rounded-full"></div>
                 Total Value
               </h3>
-              <p className="text-3xl font-bold text-[#00d4ff]">{total.toFixed(0)}</p>
-              <p className="text-gray-400 text-sm mt-1">Combined positional strength</p>
+              <p className="text-3xl font-bold text-fdp-accent-1">{total.toFixed(0)}</p>
+              <p className="text-fdp-text-3 text-sm mt-1">Combined positional strength</p>
             </div>
 
-            <div className="p-4 bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-xl">
+            <div className="p-4 bg-fdp-surface-2 border border-fdp-border-1 rounded-xl">
               <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
                 <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                 Strongest Position
@@ -112,15 +112,15 @@ export function TeamStrengthsModal({ isOpen, onClose, teamName, strengths }: Tea
               <p className="text-3xl font-bold text-emerald-500">
                 {strengths.reduce((max, s) => s.value > max.value ? s : max, strengths[0]).category}
               </p>
-              <p className="text-gray-400 text-sm mt-1">
+              <p className="text-fdp-text-3 text-sm mt-1">
                 {((strengths.reduce((max, s) => s.value > max.value ? s : max, strengths[0]).value / total) * 100).toFixed(1)}% of total value
               </p>
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-gray-800/50 border border-gray-700 rounded-xl">
+          <div className="mt-6 p-4 bg-fdp-surface-2/50 border border-fdp-border-1 rounded-xl">
             <h3 className="text-white font-semibold mb-2">About Team Strengths</h3>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-fdp-text-3 text-sm leading-relaxed">
               Team strengths are calculated based on positional value distribution across your roster.
               A balanced team typically has strength across all positions, while specialized teams may
               excel in specific areas. The radar chart provides a visual representation of your team's

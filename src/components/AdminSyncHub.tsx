@@ -319,15 +319,15 @@ export function AdminSyncHub() {
           <button
             onClick={() => runSync('rebuild')}
             disabled={syncing !== null}
-            className="flex flex-col items-center gap-3 p-6 border-2 border-gray-200 rounded-lg hover:border-[#00d4ff] hover:bg-[#00d4ff]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex flex-col items-center gap-3 p-6 border-2 border-fdp-border-1 rounded-lg hover:border-fdp-accent-1 hover:bg-fdp-accent-1/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Shield className="w-8 h-8 text-[#00d4ff]" />
+            <Shield className="w-8 h-8 text-fdp-accent-1" />
             <div className="text-center">
               <h3 className="font-semibold text-gray-900">Rebuild Player Values</h3>
               <p className="text-sm text-gray-600 mt-1">Full rebuild with validation</p>
             </div>
             {syncing === 'rebuild' && (
-              <Loader2 className="w-5 h-5 animate-spin text-[#00d4ff]" />
+              <Loader2 className="w-5 h-5 animate-spin text-fdp-accent-1" />
             )}
           </button>
 

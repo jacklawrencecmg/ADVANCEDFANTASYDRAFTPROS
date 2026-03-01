@@ -59,8 +59,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       case 'info':
         return (
           <div className="relative">
-            <div className="absolute inset-0 bg-[#00d4ff] blur-md opacity-50"></div>
-            <Info className={`${iconClass} text-[#00d4ff] relative`} />
+            <div className="absolute inset-0 bg-fdp-accent-1 blur-md opacity-50"></div>
+            <Info className={`${iconClass} text-fdp-accent-1 relative`} />
           </div>
         );
     }
@@ -73,7 +73,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       case 'error':
         return 'border-red-500/50 bg-gradient-to-r from-red-950/90 to-red-900/90 shadow-red-500/20';
       case 'info':
-        return 'border-[#00d4ff]/50 bg-gradient-to-r from-gray-900/90 to-gray-800/90 shadow-[#00d4ff]/20';
+        return 'border-fdp-accent-1/50 bg-fdp-surface-1/90 shadow-fdp-accent-1/20';
     }
   };
 

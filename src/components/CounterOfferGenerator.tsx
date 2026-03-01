@@ -73,14 +73,14 @@ export default function CounterOfferGenerator() {
   const balance = receivingTotal - givingTotal;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
+    <div className="min-h-screen bg-fdp-bg-0 text-white p-6">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
-          <RefreshCw className="w-8 h-8 text-blue-400" />
+          <RefreshCw className="w-8 h-8 text-fdp-accent-1" />
           <h1 className="text-3xl font-bold">Counter-Offer Generator</h1>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+        <div className="bg-fdp-surface-1 backdrop-blur-sm rounded-lg border border-fdp-border-1 p-6 mb-6">
           <h3 className="text-lg font-semibold mb-4">Add Players to Trade</h3>
           <div className="flex gap-3 mb-4">
             <input
@@ -88,26 +88,26 @@ export default function CounterOfferGenerator() {
               placeholder="Player ID"
               value={newPlayer.id}
               onChange={(e) => setNewPlayer({ ...newPlayer, id: e.target.value })}
-              className="flex-1 px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+              className="flex-1 px-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
             />
             <input
               type="text"
               placeholder="Player Name"
               value={newPlayer.name}
               onChange={(e) => setNewPlayer({ ...newPlayer, name: e.target.value })}
-              className="flex-1 px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+              className="flex-1 px-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
             />
             <select
               value={newPlayer.list}
               onChange={(e) => setNewPlayer({ ...newPlayer, list: e.target.value as 'receiving' | 'giving' })}
-              className="px-4 py-2 bg-gray-700/50 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+              className="px-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg focus:outline-none focus:border-fdp-accent-1"
             >
               <option value="receiving">Receiving</option>
               <option value="giving">Giving</option>
             </select>
             <button
               onClick={addPlayer}
-              className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition"
+              className="px-6 py-2 bg-fdp-accent-1 hover:bg-fdp-accent-2 rounded-lg font-semibold transition"
             >
               <Plus className="w-5 h-5" />
             </button>
@@ -121,14 +121,14 @@ export default function CounterOfferGenerator() {
               <span className="text-green-400">{receivingTotal.toLocaleString()}</span>
             </h3>
             {receivingPlayers.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No players added yet</p>
+              <p className="text-fdp-text-3 text-center py-8">No players added yet</p>
             ) : (
               <div className="space-y-2">
                 {receivingPlayers.map(player => (
-                  <div key={player.id} className="flex items-center justify-between bg-gray-700/30 p-3 rounded-lg">
+                  <div key={player.id} className="flex items-center justify-between bg-fdp-surface-2/30 p-3 rounded-lg">
                     <div>
                       <p className="font-semibold">{player.name}</p>
-                      <p className="text-sm text-gray-400">Value: {player.value.toLocaleString()}</p>
+                      <p className="text-sm text-fdp-text-3">Value: {player.value.toLocaleString()}</p>
                     </div>
                     <button
                       onClick={() => removePlayer(player.id, 'receiving')}
@@ -148,14 +148,14 @@ export default function CounterOfferGenerator() {
               <span className="text-red-400">{givingTotal.toLocaleString()}</span>
             </h3>
             {givingPlayers.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">No players added yet</p>
+              <p className="text-fdp-text-3 text-center py-8">No players added yet</p>
             ) : (
               <div className="space-y-2">
                 {givingPlayers.map(player => (
-                  <div key={player.id} className="flex items-center justify-between bg-gray-700/30 p-3 rounded-lg">
+                  <div key={player.id} className="flex items-center justify-between bg-fdp-surface-2/30 p-3 rounded-lg">
                     <div>
                       <p className="font-semibold">{player.name}</p>
-                      <p className="text-sm text-gray-400">Value: {player.value.toLocaleString()}</p>
+                      <p className="text-sm text-fdp-text-3">Value: {player.value.toLocaleString()}</p>
                     </div>
                     <button
                       onClick={() => removePlayer(player.id, 'giving')}
@@ -170,23 +170,23 @@ export default function CounterOfferGenerator() {
           </div>
         </div>
 
-        <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6 mb-6">
+        <div className="bg-fdp-surface-1 backdrop-blur-sm rounded-lg border border-fdp-border-1 p-6 mb-6">
           <div className="grid grid-cols-3 gap-6 mb-4">
             <div>
-              <p className="text-sm text-gray-400 mb-1">Net Value</p>
-              <p className={`text-2xl font-bold ${balance > 0 ? 'text-green-400' : balance < 0 ? 'text-red-400' : 'text-gray-400'}`}>
+              <p className="text-sm text-fdp-text-3 mb-1">Net Value</p>
+              <p className={`text-2xl font-bold ${balance > 0 ? 'text-green-400' : balance < 0 ? 'text-red-400' : 'text-fdp-text-3'}`}>
                 {balance > 0 ? '+' : ''}{balance.toLocaleString()}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-1">Trade Balance</p>
+              <p className="text-sm text-fdp-text-3 mb-1">Trade Balance</p>
               <p className="text-2xl font-bold">
                 {balance === 0 ? 'Even' : balance > 0 ? 'You Win' : 'You Lose'}
               </p>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-1">Fairness</p>
-              <p className="text-2xl font-bold text-blue-400">
+              <p className="text-sm text-fdp-text-3 mb-1">Fairness</p>
+              <p className="text-2xl font-bold text-fdp-accent-1">
                 {receivingTotal && givingTotal ? (
                   (100 - (Math.abs(balance) / Math.max(receivingTotal, givingTotal)) * 100).toFixed(0)
                 ) : 0}%
@@ -197,18 +197,18 @@ export default function CounterOfferGenerator() {
           <button
             onClick={generateCounterOffer}
             disabled={receivingPlayers.length === 0 || givingPlayers.length === 0}
-            className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-semibold transition disabled:opacity-50"
+            className="w-full px-6 py-3 bg-fdp-accent-1 hover:bg-fdp-accent-2 text-fdp-bg-0 rounded-lg font-semibold transition disabled:opacity-50"
           >
             Generate Counter-Offer
           </button>
         </div>
 
         {counterOffer && (
-          <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700 p-6">
+          <div className="bg-fdp-surface-1 backdrop-blur-sm rounded-lg border border-fdp-border-1 p-6">
             <h3 className="text-xl font-bold mb-4">Counter-Offer Analysis</h3>
             <div className="space-y-4">
-              <div className="p-4 bg-gray-700/30 rounded-lg">
-                <p className="text-gray-300">
+              <div className="p-4 bg-fdp-surface-2/30 rounded-lg">
+                <p className="text-fdp-text-2">
                   {counterOffer.difference > 0 ? (
                     <>This trade favors you by <span className="text-green-400 font-bold">{counterOffer.difference.toLocaleString()}</span> points.</>
                   ) : counterOffer.difference < 0 ? (
@@ -217,15 +217,15 @@ export default function CounterOfferGenerator() {
                     <>This is a perfectly balanced trade.</>
                   )}
                 </p>
-                <p className="text-gray-300 mt-2">
-                  Trade fairness score: <span className="text-blue-400 font-bold">{counterOffer.fairness.toFixed(1)}%</span>
+                <p className="text-fdp-text-2 mt-2">
+                  Trade fairness score: <span className="text-fdp-accent-1 font-bold">{counterOffer.fairness.toFixed(1)}%</span>
                 </p>
               </div>
 
               {Math.abs(counterOffer.difference) > 500 && (
                 <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                   <p className="text-yellow-400 font-semibold">Suggestion:</p>
-                  <p className="text-gray-300 mt-2">
+                  <p className="text-fdp-text-2 mt-2">
                     {counterOffer.difference > 0 ? (
                       <>Consider removing a player worth approximately {counterOffer.difference.toLocaleString()} or asking for an additional piece to balance the trade.</>
                     ) : (

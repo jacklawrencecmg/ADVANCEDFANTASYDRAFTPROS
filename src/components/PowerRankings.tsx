@@ -83,8 +83,8 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
       );
     } else {
       return (
-        <div className="flex items-center justify-center w-10 h-10 bg-gray-800 rounded-full border border-gray-700">
-          <span className="text-gray-400 font-bold">{rank}</span>
+        <div className="flex items-center justify-center w-10 h-10 bg-fdp-surface-2 rounded-full border border-fdp-border-1">
+          <span className="text-fdp-text-3 font-bold">{rank}</span>
         </div>
       );
     }
@@ -92,14 +92,14 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-lg border border-gray-700 p-6 shadow-xl">
+      <div className="bg-fdp-surface-1 rounded-lg border border-fdp-border-1 p-6 shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <TrendingUp className="w-7 h-7 text-[#00d4ff]" />
+              <TrendingUp className="w-7 h-7 text-fdp-accent-1" />
               Power Rankings
             </h2>
-            <p className="text-sm text-gray-400 mt-1 flex items-center gap-2">
+            <p className="text-sm text-fdp-text-3 mt-1 flex items-center gap-2">
               <DollarSign className="w-4 h-4" />
               Powered by FDP Values
             </p>
@@ -108,7 +108,7 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
             <button
               onClick={syncPlayerValues}
               disabled={syncing}
-              className="text-sm px-4 py-2 bg-[#00d4ff]/10 hover:bg-[#00d4ff]/20 text-[#00d4ff] rounded-lg transition-colors border border-[#00d4ff]/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="text-sm px-4 py-2 bg-fdp-accent-1/10 hover:bg-fdp-accent-1/20 text-fdp-accent-1 rounded-lg transition-colors border border-fdp-accent-1/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               title="Sync latest FDP player values"
             >
               <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
@@ -117,7 +117,7 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
             <button
               onClick={loadRankings}
               disabled={loading}
-              className="text-sm px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition-colors border border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-sm px-4 py-2 bg-fdp-surface-2 hover:bg-fdp-border-1 text-fdp-text-2 rounded-lg transition-colors border border-fdp-border-1 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Refresh
             </button>
@@ -142,10 +142,10 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
           {rankings.map((team) => (
             <div
               key={team.roster_id}
-              className={`bg-gray-800 rounded-lg border ${
-                team.rank <= 3 ? 'border-[#00d4ff]' : 'border-gray-700'
-              } overflow-hidden hover:border-[#00d4ff] transition-all duration-300 ${
-                team.rank <= 3 ? 'shadow-lg shadow-[#00d4ff]/20' : ''
+              className={`bg-fdp-surface-2 rounded-lg border ${
+                team.rank <= 3 ? 'border-fdp-accent-1' : 'border-fdp-border-1'
+              } overflow-hidden hover:border-fdp-accent-1 transition-all duration-300 ${
+                team.rank <= 3 ? 'shadow-lg shadow-fdp-accent-1/20' : ''
               }`}
             >
               <div className="p-5">
@@ -154,12 +154,12 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                     {getRankBadge(team.rank)}
                     <div className="flex-1">
                       <h3
-                        className="text-xl font-bold text-white hover:text-[#00d4ff] cursor-pointer transition-colors"
+                        className="text-xl font-bold text-white hover:text-fdp-accent-1 cursor-pointer transition-colors"
                         onClick={() => setSelectedTeam(team)}
                       >
                         {team.team_name}
                       </h3>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-400">
+                      <div className="flex items-center gap-4 mt-1 text-sm text-fdp-text-3">
                         <span className="flex items-center gap-1">
                           <Users className="w-4 h-4" />
                           {team.record}
@@ -169,31 +169,31 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                     </div>
                   </div>
                   <div className="text-right ml-4">
-                    <div className="text-sm text-gray-400 mb-1 flex items-center justify-end gap-1">
+                    <div className="text-sm text-fdp-text-3 mb-1 flex items-center justify-end gap-1">
                       <DollarSign className="w-3 h-3" />
                       FDP Value
                     </div>
-                    <div className="text-2xl font-bold text-[#00d4ff]">
+                    <div className="text-2xl font-bold text-fdp-accent-1">
                       {team.total_value.toFixed(1)}
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
-                  <div className="bg-gray-900 rounded-lg p-3 border border-gray-700">
-                    <div className="text-xs text-gray-400 mb-1">Players</div>
+                  <div className="bg-fdp-bg-0 rounded-lg p-3 border border-fdp-border-1">
+                    <div className="text-xs text-fdp-text-3 mb-1">Players</div>
                     <div className="text-lg font-bold text-white">{team.all_players.length}</div>
                   </div>
-                  <div className="bg-gray-900 rounded-lg p-3 border border-gray-700">
-                    <div className="text-xs text-gray-400 mb-1">Draft Picks</div>
+                  <div className="bg-fdp-bg-0 rounded-lg p-3 border border-fdp-border-1">
+                    <div className="text-xs text-fdp-text-3 mb-1">Draft Picks</div>
                     <div className="text-lg font-bold text-white">{team.draft_picks.length}</div>
                   </div>
-                  <div className="bg-gray-900 rounded-lg p-3 border border-gray-700">
-                    <div className="text-xs text-gray-400 mb-1">FAAB</div>
+                  <div className="bg-fdp-bg-0 rounded-lg p-3 border border-fdp-border-1">
+                    <div className="text-xs text-fdp-text-3 mb-1">FAAB</div>
                     <div className="text-lg font-bold text-white">${team.faab_remaining}</div>
                   </div>
-                  <div className="bg-gray-900 rounded-lg p-3 border border-gray-700">
-                    <div className="text-xs text-gray-400 mb-1">Avg Player</div>
+                  <div className="bg-fdp-bg-0 rounded-lg p-3 border border-fdp-border-1">
+                    <div className="text-xs text-fdp-text-3 mb-1">Avg Player</div>
                     <div className="text-lg font-bold text-white">
                       {team.all_players.length > 0
                         ? (team.total_value / team.all_players.length).toFixed(1)
@@ -204,7 +204,7 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
 
                 <button
                   onClick={() => setSelectedTeam(team)}
-                  className="w-full py-2 bg-gray-900 hover:bg-gray-700 text-[#00d4ff] rounded-lg transition-colors border border-gray-700 text-sm font-semibold"
+                  className="w-full py-2 bg-fdp-bg-0 hover:bg-fdp-border-1 text-fdp-accent-1 rounded-lg transition-colors border border-fdp-border-1 text-sm font-semibold"
                 >
                   View Full Roster
                 </button>
@@ -216,19 +216,19 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
 
       {selectedTeam && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-gray-900 rounded-xl border border-gray-700 max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-gray-700 bg-gray-800">
+          <div className="bg-fdp-bg-0 rounded-xl border border-fdp-border-1 max-w-6xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+            <div className="flex items-center justify-between p-6 border-b border-fdp-border-1 bg-fdp-surface-2">
               <div className="flex items-center gap-4">
                 {getRankBadge(selectedTeam.rank)}
                 <div>
                   <h2 className="text-2xl font-bold text-white">{selectedTeam.team_name}</h2>
                   <div className="flex flex-wrap items-center gap-4 mt-2 text-sm">
-                    <span className="flex items-center gap-1 text-gray-400">
+                    <span className="flex items-center gap-1 text-fdp-text-3">
                       <Users className="w-4 h-4" />
                       {selectedTeam.record}
                     </span>
-                    <span className="text-gray-400">{selectedTeam.points_for.toFixed(1)} pts</span>
-                    <span className="text-[#00d4ff] font-semibold flex items-center gap-1">
+                    <span className="text-fdp-text-3">{selectedTeam.points_for.toFixed(1)} pts</span>
+                    <span className="text-fdp-accent-1 font-semibold flex items-center gap-1">
                       <DollarSign className="w-4 h-4" />
                       FDP Value: {selectedTeam.total_value.toFixed(1)}
                     </span>
@@ -237,7 +237,7 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
               </div>
               <button
                 onClick={() => setSelectedTeam(null)}
-                className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-lg"
+                className="text-fdp-text-3 hover:text-fdp-text-1 transition-colors p-2 hover:bg-fdp-border-1 rounded-lg"
               >
                 <X className="w-6 h-6" />
               </button>
@@ -246,24 +246,24 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
             <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
               <div className="p-6 space-y-8">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                  <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Users className="w-5 h-5 text-[#00d4ff]" />
-                      <div className="text-sm text-gray-400">Total Players</div>
+                      <Users className="w-5 h-5 text-fdp-accent-1" />
+                      <div className="text-sm text-fdp-text-3">Total Players</div>
                     </div>
                     <div className="text-3xl font-bold text-white">{selectedTeam.all_players.length}</div>
                   </div>
-                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                  <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Calendar className="w-5 h-5 text-[#00d4ff]" />
-                      <div className="text-sm text-gray-400">Draft Picks</div>
+                      <Calendar className="w-5 h-5 text-fdp-accent-1" />
+                      <div className="text-sm text-fdp-text-3">Draft Picks</div>
                     </div>
                     <div className="text-3xl font-bold text-white">{selectedTeam.draft_picks.length}</div>
                   </div>
-                  <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
+                  <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <DollarSign className="w-5 h-5 text-[#00d4ff]" />
-                      <div className="text-sm text-gray-400">FAAB Left</div>
+                      <DollarSign className="w-5 h-5 text-fdp-accent-1" />
+                      <div className="text-sm text-fdp-text-3">FAAB Left</div>
                     </div>
                     <div className="text-3xl font-bold text-white">${selectedTeam.faab_remaining}</div>
                   </div>
@@ -272,10 +272,10 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                      <Users className="w-6 h-6 text-[#00d4ff]" />
+                      <Users className="w-6 h-6 text-fdp-accent-1" />
                       Roster
                     </h3>
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm text-fdp-text-3">
                       {selectedTeam.all_players.length} players
                     </div>
                   </div>
@@ -283,7 +283,7 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                     {selectedTeam.all_players.map((player, idx) => (
                       <div
                         key={player.player_id}
-                        className="bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-[#00d4ff] transition-all duration-200 hover:shadow-lg hover:shadow-[#00d4ff]/10"
+                        className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1 hover:border-fdp-accent-1 transition-all duration-200 hover:shadow-lg hover:shadow-fdp-accent-1/10"
                       >
                         <div className="flex items-start gap-3 mb-3">
                           <div className="relative flex-shrink-0">
@@ -295,7 +295,7 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                               size="lg"
                               showTeamLogo={false}
                             />
-                            <span className="absolute -top-1 -right-1 text-xs font-bold text-[#00d4ff] bg-gray-900 px-1.5 py-0.5 rounded-full border border-[#00d4ff]/30">
+                            <span className="absolute -top-1 -right-1 text-xs font-bold text-fdp-accent-1 bg-fdp-bg-0 px-1.5 py-0.5 rounded-full border border-fdp-accent-1/30">
                               #{idx + 1}
                             </span>
                           </div>
@@ -304,14 +304,14 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                               <div className="text-sm font-semibold text-white truncate" title={player.name}>
                                 {player.name}
                               </div>
-                              <span className="text-xs px-2 py-1 bg-gray-900 rounded text-gray-300 font-semibold flex-shrink-0">
+                              <span className="text-xs px-2 py-1 bg-fdp-bg-0 rounded text-fdp-text-2 font-semibold flex-shrink-0">
                                 {player.position}
                               </span>
                             </div>
                             {player.team && (
-                              <div className="text-xs text-gray-500 mb-2">{player.team}</div>
+                              <div className="text-xs text-fdp-text-3 mb-2">{player.team}</div>
                             )}
-                            <div className="text-xs font-medium text-[#00d4ff] bg-[#00d4ff]/10 px-2 py-1 rounded inline-flex items-center gap-1">
+                            <div className="text-xs font-medium text-fdp-accent-1 bg-fdp-accent-1/10 px-2 py-1 rounded inline-flex items-center gap-1">
                               <DollarSign className="w-3 h-3" />
                               {player.value.toFixed(1)}
                             </div>
@@ -326,10 +326,10 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                        <Calendar className="w-6 h-6 text-[#00d4ff]" />
+                        <Calendar className="w-6 h-6 text-fdp-accent-1" />
                         Draft Picks
                       </h3>
-                      <div className="text-sm text-gray-400">
+                      <div className="text-sm text-fdp-text-3">
                         {selectedTeam.draft_picks.length} picks
                       </div>
                     </div>
@@ -337,15 +337,15 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                       {selectedTeam.draft_picks.map((pick, idx) => (
                         <div
                           key={idx}
-                          className="bg-gray-800 rounded-lg p-3 border border-gray-700 text-center hover:border-[#00d4ff] transition-colors"
+                          className="bg-fdp-surface-2 rounded-lg p-3 border border-fdp-border-1 text-center hover:border-fdp-accent-1 transition-colors"
                         >
                           <div className="text-sm font-bold text-white mb-1">
                             {pick.season}
                           </div>
-                          <div className="text-xs text-[#00d4ff] font-semibold mb-1">
+                          <div className="text-xs text-fdp-accent-1 font-semibold mb-1">
                             Round {pick.round}
                           </div>
-                          <div className="text-xs text-gray-400">
+                          <div className="text-xs text-fdp-text-3">
                             {pick.original_owner_id === selectedTeam.roster_id.toString()
                               ? 'Own'
                               : `R${pick.original_owner_id}`}

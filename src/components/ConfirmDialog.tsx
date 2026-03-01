@@ -37,10 +37,10 @@ export default function ConfirmDialog({
       border: 'border-yellow-500',
     },
     info: {
-      bg: 'bg-[#00d4ff]',
-      hover: 'hover:bg-[#00b8e6]',
-      text: 'text-[#00d4ff]',
-      border: 'border-[#00d4ff]',
+      bg: 'bg-fdp-accent-1',
+      hover: 'hover:bg-fdp-accent-2',
+      text: 'text-fdp-accent-1',
+      border: 'border-fdp-accent-1',
     },
   };
 
@@ -48,7 +48,7 @@ export default function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-gray-900 rounded-lg border border-gray-700 p-6 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
+      <div className="bg-fdp-bg-0 rounded-lg border border-fdp-border-1 p-6 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-200">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-full ${colorScheme.border} border bg-opacity-10`}>
@@ -58,18 +58,18 @@ export default function ConfirmDialog({
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="text-fdp-text-3 hover:text-fdp-text-1 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <p className="text-gray-300 mb-6 ml-14">{message}</p>
+        <p className="text-fdp-text-2 mb-6 ml-14">{message}</p>
 
         <div className="flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors border border-gray-700"
+            className="px-4 py-2 bg-fdp-surface-2 hover:bg-fdp-border-1 text-fdp-text-1 rounded-lg transition-colors border border-fdp-border-1"
           >
             {cancelText}
           </button>

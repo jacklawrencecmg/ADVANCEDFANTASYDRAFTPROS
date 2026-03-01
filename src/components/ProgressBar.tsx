@@ -8,7 +8,7 @@ interface ProgressBarProps {
 }
 
 const colorClasses = {
-  blue: 'from-[#00d4ff] to-[#0099cc]',
+  blue: 'from-fdp-accent-1 to-fdp-accent-2',
   green: 'from-emerald-500 to-emerald-600',
   yellow: 'from-yellow-500 to-yellow-600',
   red: 'from-red-500 to-red-600',
@@ -35,16 +35,16 @@ export function ProgressBar({
     <div className="w-full">
       {(label || showPercentage) && (
         <div className="flex justify-between items-center mb-2">
-          {label && <span className="text-sm text-gray-400">{label}</span>}
+          {label && <span className="text-sm text-fdp-text-3">{label}</span>}
           {showPercentage && (
-            <span className="text-sm font-semibold text-white">
+            <span className="text-sm font-semibold text-fdp-text-1">
               {percentage.toFixed(0)}%
             </span>
           )}
         </div>
       )}
 
-      <div className={`w-full bg-gray-800 rounded-full overflow-hidden ${sizeClasses[size]} relative`}>
+      <div className={`w-full bg-fdp-surface-2 rounded-full overflow-hidden ${sizeClasses[size]} relative`}>
         <div
           className={`h-full bg-gradient-to-r ${colorClasses[color]} rounded-full transition-all duration-500 ease-out relative overflow-hidden`}
           style={{ width: `${percentage}%` }}
@@ -74,8 +74,8 @@ export function RankingBar({ rank, totalPlayers, playerName }: RankingBarProps) 
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
-        <span className="text-sm font-medium text-gray-300">{playerName}</span>
-        <span className="text-xs text-gray-500">
+        <span className="text-sm font-medium text-fdp-text-2">{playerName}</span>
+        <span className="text-xs text-fdp-text-3">
           Rank {rank} of {totalPlayers}
         </span>
       </div>

@@ -36,24 +36,24 @@ export default function TrendingPlayersPanel() {
   });
 
   return (
-    <div className="bg-gray-900 rounded-lg border border-gray-700 overflow-hidden">
+    <div className="bg-fdp-bg-0 rounded-lg border border-fdp-border-1 overflow-hidden">
       {/* Header */}
-      <div className="border-b border-gray-700 p-4">
+      <div className="border-b border-fdp-border-1 p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <TrendingUp className="w-6 h-6 text-[#00d4ff]" />
+            <TrendingUp className="w-6 h-6 text-fdp-accent-1" />
             <div>
               <h2 className="text-xl font-bold text-white">Trending Players</h2>
-              <p className="text-sm text-gray-400">Real-time value adjustments</p>
+              <p className="text-sm text-fdp-text-3">Real-time value adjustments</p>
             </div>
           </div>
           <button
             onClick={loadTrendingPlayers}
             disabled={loading}
-            className="p-2 hover:bg-gray-800 rounded transition-colors"
+            className="p-2 hover:bg-fdp-surface-2 rounded transition-colors"
             title="Refresh"
           >
-            <RefreshCw className={`w-5 h-5 text-gray-400 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-5 h-5 text-fdp-text-3 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
 
@@ -63,8 +63,8 @@ export default function TrendingPlayersPanel() {
             onClick={() => setFilter('all')}
             className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
               filter === 'all'
-                ? 'bg-[#00d4ff] text-gray-900'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                ? 'bg-fdp-accent-1 text-fdp-bg-0'
+                : 'bg-fdp-surface-2 text-fdp-text-3 hover:bg-fdp-border-1'
             }`}
           >
             All ({trendingPlayers.length})
@@ -74,7 +74,7 @@ export default function TrendingPlayersPanel() {
             className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
               filter === 'up'
                 ? 'bg-green-900/30 text-green-400 border border-green-500/30'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                : 'bg-fdp-surface-2 text-fdp-text-3 hover:bg-fdp-border-1'
             }`}
           >
             <TrendingUp className="w-4 h-4 inline mr-1" />
@@ -85,7 +85,7 @@ export default function TrendingPlayersPanel() {
             className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
               filter === 'down'
                 ? 'bg-red-900/30 text-red-400 border border-red-500/30'
-                : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                : 'bg-fdp-surface-2 text-fdp-text-3 hover:bg-fdp-border-1'
             }`}
           >
             <TrendingDown className="w-4 h-4 inline mr-1" />
@@ -94,7 +94,7 @@ export default function TrendingPlayersPanel() {
         </div>
 
         {/* Last Update */}
-        <div className="flex items-center gap-2 mt-3 text-xs text-gray-500">
+        <div className="flex items-center gap-2 mt-3 text-xs text-fdp-text-3">
           <Clock className="w-3 h-3" />
           <span>Last updated: {lastUpdate.toLocaleTimeString()}</span>
         </div>
@@ -112,31 +112,31 @@ export default function TrendingPlayersPanel() {
       </div>
 
       {/* Player List */}
-      <div className="divide-y divide-gray-800 max-h-[600px] overflow-y-auto">
+      <div className="divide-y divide-fdp-border-1 max-h-[600px] overflow-y-auto">
         {loading ? (
-          <div className="p-8 text-center text-gray-400">
+          <div className="p-8 text-center text-fdp-text-3">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2" />
             <p>Loading trending players...</p>
           </div>
         ) : filteredPlayers.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">
+          <div className="p-8 text-center text-fdp-text-3">
             <TrendingUp className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p>No trending players at the moment</p>
             <p className="text-sm mt-1">Check back after injuries or transactions</p>
           </div>
         ) : (
           filteredPlayers.map((player) => (
-            <div key={player.id} className="p-4 hover:bg-gray-800/50 transition-colors">
+            <div key={player.id} className="p-4 hover:bg-fdp-surface-2/50 transition-colors">
               <div className="flex items-start justify-between gap-4">
                 {/* Player Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-white font-medium truncate">{player.full_name}</h3>
-                    <span className="px-2 py-0.5 bg-gray-800 rounded text-xs text-gray-400">
+                    <span className="px-2 py-0.5 bg-fdp-surface-2 rounded text-xs text-fdp-text-3">
                       {player.player_position}
                     </span>
                     {player.team && (
-                      <span className="px-2 py-0.5 bg-gray-800 rounded text-xs text-gray-400">
+                      <span className="px-2 py-0.5 bg-fdp-surface-2 rounded text-xs text-fdp-text-3">
                         {player.team}
                       </span>
                     )}
@@ -147,7 +147,7 @@ export default function TrendingPlayersPanel() {
                     {player.sources && player.sources.map((source: string, idx: number) => (
                       <span
                         key={idx}
-                        className="px-2 py-0.5 bg-gray-800 rounded text-xs text-gray-400 capitalize"
+                        className="px-2 py-0.5 bg-fdp-surface-2 rounded text-xs text-fdp-text-3 capitalize"
                       >
                         {source.replace('_', ' ')}
                       </span>
@@ -156,7 +156,7 @@ export default function TrendingPlayersPanel() {
 
                   {/* Expiry */}
                   {player.latest_expiry && (
-                    <div className="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                    <div className="text-xs text-fdp-text-3 mt-2 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       <span>
                         Expires: {new Date(player.latest_expiry).toLocaleDateString()}
@@ -173,7 +173,7 @@ export default function TrendingPlayersPanel() {
                     size="lg"
                     showTooltip={false}
                   />
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-fdp-text-3">
                     {player.adjustment_count} adjustment{player.adjustment_count !== 1 ? 's' : ''}
                   </div>
                   {player.max_confidence && (
@@ -182,7 +182,7 @@ export default function TrendingPlayersPanel() {
                         <div
                           key={level}
                           className={`w-1.5 h-1.5 rounded-full ${
-                            level <= player.max_confidence ? 'bg-blue-400' : 'bg-gray-700'
+                            level <= player.max_confidence ? 'bg-blue-400' : 'bg-fdp-border-1'
                           }`}
                         />
                       ))}
@@ -197,8 +197,8 @@ export default function TrendingPlayersPanel() {
 
       {/* Footer */}
       {filteredPlayers.length > 0 && (
-        <div className="border-t border-gray-700 p-3 bg-gray-800/50">
-          <p className="text-xs text-gray-500 text-center">
+        <div className="border-t border-fdp-border-1 p-3 bg-fdp-surface-2/50">
+          <p className="text-xs text-fdp-text-3 text-center">
             Showing {filteredPlayers.length} of {trendingPlayers.length} trending players
             • Max adjustment: ±1500 per player
           </p>
