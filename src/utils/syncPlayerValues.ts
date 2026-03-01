@@ -197,7 +197,7 @@ function calculateAdjustedValue(
     }
   }
 
-  if (playerData.status === 'Inactive' || playerData.status === 'Retired') {
+  if (playerData.status === 'Retired') {
     value *= 0.10;
     trend = 'down';
   }
@@ -294,6 +294,7 @@ export async function syncPlayerValuesToDatabase(isSuperflex: boolean = false): 
           original_fdp_value: fdpData.value,
           backup_qb_applied: playerData.position === 'QB' && isKnownBackup,
           rookie_penalty_applied: isRookie && playerData.position !== 'QB',
+          inactive_penalty_applied: false,
         },
       };
 

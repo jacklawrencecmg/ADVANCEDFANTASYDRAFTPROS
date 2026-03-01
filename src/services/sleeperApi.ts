@@ -618,7 +618,18 @@ export function getPlayerValue(
     dbValueById.player_name?.toLowerCase().trim().replace(/[^a-z0-9 ]/g, '') === normalizedName;
   const dbValue = (idMatchesName ? dbValueById : undefined) || dbPlayerValuesByName.get(normalizedName);
   if (dbValue) {
-    const rawFdpValue = typeof dbValue.fdp_value === 'string' ? parseFloat(dbValue.fdp_value) : (dbValue.fdp_value ?? 0);
+    let rawFdpValue = typeof dbValue.fdp_value === 'string' ? parseFloat(dbValue.fdp_value) : (dbValue.fdp_value ?? 0);
+
+    // Old DB records (synced before the fix) have a 0.10x inactive penalty baked in.
+    // New records explicitly set inactive_penalty_applied: false.
+    // If sleeper_status is Inactive and the flag is absent/true, reverse the penalty.
+    const hadInactivePenalty =
+      dbValue.metadata?.sleeper_status === 'Inactive' &&
+      dbValue.metadata?.inactive_penalty_applied !== false;
+    if (hadInactivePenalty) {
+      rawFdpValue = rawFdpValue / 0.10;
+    }
+
     let value: number = rawFdpValue;
 
     // TE Premium is a legitimate league-setting adjustment
