@@ -148,6 +148,13 @@
   </script>
 
   <script>
+    // Apply saved theme immediately to prevent flash of wrong theme
+    (function() {
+      var t = localStorage.getItem('fdp_theme');
+      document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+    })();
+  </script>
+  <script>
     // GitHub Pages SPA: restore path from 404.html redirect
     (function() {
       var redirect = sessionStorage.getItem('spa_redirect');

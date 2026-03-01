@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import TradeAnalyzer from './TradeAnalyzer';
 import { TodayInDynasty } from './TodayInDynasty';
-import { LogIn, UserPlus, TrendingUp, Target, Bell, Users, BarChart2, Star, Shield, Zap, Trophy, ChevronRight, ChevronDown } from 'lucide-react';
+import { LogIn, UserPlus, TrendingUp, Target, Bell, Users, BarChart2, Star, Shield, Zap, Trophy, ChevronRight, ChevronDown, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useTheme } from '../hooks/useTheme';
 
 export function LandingPage() {
   const [showAuth, setShowAuth] = useState(false);
@@ -14,6 +15,7 @@ export function LandingPage() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const { signIn, signUp } = useAuth();
+  const { theme, toggle: toggleTheme } = useTheme();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -271,7 +273,14 @@ export function LandingPage() {
               <div className="text-xs text-fdp-accent-2 font-semibold hidden sm:block">Dynasty Tools · $2.99/month</div>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <button
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              className="flex items-center justify-center w-8 h-8 bg-fdp-surface-2 hover:bg-fdp-border-1 text-fdp-text-2 rounded-lg transition-colors"
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
             <button
               onClick={() => { setMode('login'); setShowAuth(true); }}
               className="btn-ghost py-2 px-4 text-sm"

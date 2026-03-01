@@ -2,7 +2,8 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { supabase, UserLeague } from '../lib/supabase';
 import { SEASON_CONTEXT } from '../config/seasonContext';
-import { LogOut, Plus, Settings, TrendingUp, Users, Trophy, Activity, History, Search, Shield, Clipboard, FileText, Swords, MessageCircle, Bell, Newspaper, Share2, ArrowLeftRight, ShoppingCart, RefreshCw, Calendar, DollarSign, Mail, Award, Edit, Sparkles, Target, Upload, Radio, Zap, ChevronRight, AlertCircle, X, Sliders, BarChart2, Lock } from 'lucide-react';
+import { LogOut, Plus, Settings, TrendingUp, Users, Trophy, Activity, History, Search, Shield, Clipboard, FileText, Swords, MessageCircle, Bell, Newspaper, Share2, ArrowLeftRight, ShoppingCart, RefreshCw, Calendar, DollarSign, Mail, Award, Edit, Sparkles, Target, Upload, Radio, Zap, ChevronRight, AlertCircle, X, Sliders, BarChart2, Lock, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../hooks/useTheme';
 import { LeagueManager } from './LeagueManager';
 import { ListSkeleton } from './LoadingSkeleton';
 import { useToast } from './Toast';
@@ -92,6 +93,7 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
   const { user, signOut, isAdmin } = useAuth();
   const { showToast } = useToast();
   const { isPro } = useSubscription();
+  const { theme, toggle: toggleTheme } = useTheme();
   const [leagues, setLeagues] = useState<UserLeague[]>([]);
   const [currentLeague, setCurrentLeague] = useState<UserLeague | null>(null);
   const [currentRosterId, setCurrentRosterId] = useState<string>('1');
@@ -320,6 +322,13 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
             <div className="flex items-center gap-2 flex-shrink-0">
               <SubscriptionBadge onUpgrade={() => { setUpgradeFeature(undefined); setShowUpgradeModal(true); }} />
               <AlertsDropdown onSelectPlayer={(playerId) => setSelectedPlayerId(playerId)} />
+              <button
+                onClick={toggleTheme}
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                className="flex items-center justify-center w-8 h-8 bg-fdp-surface-2 hover:bg-fdp-border-1 text-fdp-text-2 rounded-lg transition-colors"
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
               <button
                 onClick={signOut}
                 title="Sign out"
