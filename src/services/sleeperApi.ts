@@ -626,9 +626,9 @@ export function getPlayerValue(
       value *= 1.15;
     }
 
-    // Only penalise truly inactive/retired players — DB adjusted_value already prices
-    // backup status, injury history, and rookie uncertainty correctly
-    if ((player.status === 'Inactive' && player.injury_status !== 'IR') || player.status === 'Retired') {
+    // Only penalise officially retired players — DB adjusted_value already prices
+    // cut/unsigned status, backup roles, injury history, and rookie uncertainty correctly
+    if (player.status === 'Retired') {
       value *= 0.15;
     }
 
@@ -645,9 +645,9 @@ export function getPlayerValue(
       value *= 1.15;
     }
 
-    // Only penalise truly inactive/retired players — KTC values already price
-    // backup status, rookie uncertainty, and short-term injury status correctly
-    if ((player.status === 'Inactive' && player.injury_status !== 'IR') || player.status === 'Retired') {
+    // Only penalise officially retired players — KTC values already price
+    // cut/unsigned status, backup roles, and short-term injury status correctly
+    if (player.status === 'Retired') {
       value *= 0.15;
     }
 
@@ -763,7 +763,7 @@ export function getPlayerValue(
     baseValue *= multiplier;
   }
 
-  if ((player.status === 'Inactive' && player.injury_status !== 'IR') || player.status === 'Retired') {
+  if (player.status === 'Retired') {
     baseValue *= 0.15;
   }
 
