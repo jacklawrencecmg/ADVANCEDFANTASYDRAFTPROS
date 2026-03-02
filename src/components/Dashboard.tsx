@@ -452,8 +452,8 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                 <Suspense fallback={tabContentFallback}>
                   {activeTab === 'trade' && <TradeAnalyzer leagueId={currentLeague?.league_id} onTradeSaved={() => setActiveTab('history')} onLimitReached={() => setShowHighIntentTrigger(true)} />}
                   {activeTab === 'history' && <TradeHistory leagueId={currentLeague?.league_id ?? ''} />}
-                  {activeTab === 'tradeFinder' && <TradeFinder leagueId={currentLeague?.league_id ?? ''} rosterId={currentRosterId} />}
-                  {activeTab === 'counterOffer' && <CounterOfferGenerator />}
+                  {activeTab === 'tradeFinder' && <TradeFinder leagueId={currentLeague?.league_id ?? ''} rosterId={currentRosterId} isSuperflex={currentLeague?.is_superflex ?? false} />}
+                  {activeTab === 'counterOffer' && <CounterOfferGenerator isSuperflex={currentLeague?.is_superflex ?? false} />}
                   {activeTab === 'tradeBlock' && <TradeBlockMarketplace leagueId={currentLeague?.league_id ?? ''} userId={user?.id || ''} />}
                 </Suspense>
               </div>
@@ -483,10 +483,10 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                 <Suspense fallback={tabContentFallback}>
                   {activeTab === 'rankings' && <PowerRankings leagueId={currentLeague?.league_id ?? ''} />}
                   {activeTab === 'playoffs' && <PlayoffSimulator leagueId={currentLeague?.league_id ?? ''} />}
-                  {activeTab === 'championship' && <ChampionshipCalculator leagueId={currentLeague?.league_id ?? ''} />}
+                  {activeTab === 'championship' && <ChampionshipCalculator leagueId={currentLeague?.league_id ?? ''} isSuperflex={currentLeague?.is_superflex ?? false} />}
                   {activeTab === 'teamAdvice' && <TeamAdvice sleeperLeagueId={currentLeague?.league_id} />}
                   {activeTab === 'health' && <RosterHealth leagueId={currentLeague?.league_id ?? ''} rosterId={currentRosterId} />}
-                  {activeTab === 'waiver' && <WaiverAssistant leagueId={currentLeague?.league_id ?? ''} rosterId={currentRosterId} userId={user?.id || ''} />}
+                  {activeTab === 'waiver' && <WaiverAssistant leagueId={currentLeague?.league_id ?? ''} rosterId={currentRosterId} userId={user?.id || ''} isSuperflex={currentLeague?.is_superflex ?? false} />}
                   {activeTab === 'lineup' && <LineupOptimizer leagueId={currentLeague?.league_id ?? ''} rosterId={currentRosterId} />}
                   {activeTab === 'rivalry' && <RivalryTracker leagueId={currentLeague?.league_id ?? ''} />}
                   {activeTab === 'recap' && <WeeklyRecap leagueId={currentLeague?.league_id ?? ''} />}
@@ -533,10 +533,10 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                   {activeTab === 'pickValues' && <RookiePickValues />}
                   {activeTab === 'trending' && <TrendingPlayersPanel />}
                   {activeTab === 'market' && <MarketTrends onSelectPlayer={(playerId) => setSelectedPlayerId(playerId)} />}
-                  {activeTab === 'trends' && <ValueTrendTracker leagueId={currentLeague?.league_id ?? ''} />}
+                  {activeTab === 'trends' && <ValueTrendTracker leagueId={currentLeague?.league_id ?? ''} isSuperflex={currentLeague?.is_superflex ?? false} />}
                   {activeTab === 'watchlist' && <WatchlistPanel onSelectPlayer={(playerId) => setSelectedPlayerId(playerId)} />}
-                  {activeTab === 'draft' && <DraftKit leagueId={currentLeague?.league_id ?? ''} userId={user?.id || ''} />}
-                  {activeTab === 'keeper' && <KeeperCalculator leagueId={currentLeague?.league_id ?? ''} rosterId={currentRosterId} />}
+                  {activeTab === 'draft' && <DraftKit leagueId={currentLeague?.league_id ?? ''} userId={user?.id || ''} isSuperflex={currentLeague?.is_superflex ?? false} />}
+                  {activeTab === 'keeper' && <KeeperCalculator leagueId={currentLeague?.league_id ?? ''} rosterId={currentRosterId} isSuperflex={currentLeague?.is_superflex ?? false} />}
                 </Suspense>
               </div>
             )}

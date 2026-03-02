@@ -25,9 +25,10 @@ interface TeamInfo {
 interface TradeFinderProps {
   leagueId: string;
   rosterId?: string;
+  isSuperflex?: boolean;
 }
 
-export default function TradeFinder({ leagueId, rosterId }: TradeFinderProps) {
+export default function TradeFinder({ leagueId, rosterId, isSuperflex = false }: TradeFinderProps) {
   const [loading, setLoading] = useState(false);
   const [teams, setTeams] = useState<TeamInfo[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>('');
@@ -147,7 +148,7 @@ export default function TradeFinder({ leagueId, rosterId }: TradeFinderProps) {
       await Promise.all(
         Array.from(allPlayerIds).map(async (pid) => {
           try {
-            const value = await getPlayerValue(pid);
+            const value = await getPlayerValue(pid, { isSuperflex });
             playerValuesMap.set(pid, value);
           } catch (err) {
             console.error(`Error fetching value for ${pid}:`, err);

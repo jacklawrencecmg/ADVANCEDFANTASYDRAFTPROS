@@ -21,9 +21,10 @@ interface DraftPlayer {
 interface DraftKitProps {
   leagueId: string;
   userId: string;
+  isSuperflex?: boolean;
 }
 
-export default function DraftKit({ leagueId, userId }: DraftKitProps) {
+export default function DraftKit({ leagueId, userId, isSuperflex = false }: DraftKitProps) {
   const [loading, setLoading] = useState(false);
   const [players, setPlayers] = useState<DraftPlayer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,7 +52,7 @@ export default function DraftKit({ leagueId, userId }: DraftKitProps) {
       await Promise.all(
         eligiblePlayers.map(async ([id, _]: [string, any]) => {
           try {
-            const value = await getPlayerValue(id);
+            const value = await getPlayerValue(id, { isSuperflex });
             playerValuesMap.set(id, value);
           } catch (err) {
             console.error(`Error fetching value for ${id}:`, err);

@@ -16,7 +16,11 @@ interface CounterOffer {
   suggestions: Player[];
 }
 
-export default function CounterOfferGenerator() {
+interface CounterOfferGeneratorProps {
+  isSuperflex?: boolean;
+}
+
+export default function CounterOfferGenerator({ isSuperflex = false }: CounterOfferGeneratorProps) {
   const [loading, setLoading] = useState(false);
   const [receivingPlayers, setReceivingPlayers] = useState<Player[]>([]);
   const [givingPlayers, setGivingPlayers] = useState<Player[]>([]);
@@ -27,7 +31,7 @@ export default function CounterOfferGenerator() {
     if (!newPlayer.id || !newPlayer.name) return;
 
     try {
-      const value = await getPlayerValue(newPlayer.id);
+      const value = await getPlayerValue(newPlayer.id, { isSuperflex });
       const player = { id: newPlayer.id, name: newPlayer.name, value };
 
       if (newPlayer.list === 'receiving') {

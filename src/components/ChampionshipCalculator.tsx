@@ -22,9 +22,10 @@ interface TeamOdds {
 
 interface ChampionshipCalculatorProps {
   leagueId: string;
+  isSuperflex?: boolean;
 }
 
-export default function ChampionshipCalculator({ leagueId }: ChampionshipCalculatorProps) {
+export default function ChampionshipCalculator({ leagueId, isSuperflex = false }: ChampionshipCalculatorProps) {
   const [loading, setLoading] = useState(false);
   const [teamOdds, setTeamOdds] = useState<TeamOdds[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<TeamOdds | null>(null);
@@ -54,7 +55,7 @@ export default function ChampionshipCalculator({ leagueId }: ChampionshipCalcula
       await Promise.all(
         Array.from(allPlayerIds).map(async (id) => {
           try {
-            const value = await getPlayerValue(id);
+            const value = await getPlayerValue(id, { isSuperflex });
             playerValuesMap.set(id, value);
           } catch (err) {
             console.error(`Error fetching value for ${id}:`, err);

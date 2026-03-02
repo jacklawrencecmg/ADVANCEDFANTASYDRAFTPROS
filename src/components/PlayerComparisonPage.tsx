@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { ArrowRight, TrendingUp, Users, Award } from 'lucide-react';
 import { useParams, Link } from '../lib/seo/router';
 import { supabase } from '../lib/supabase';
@@ -6,6 +6,7 @@ import { generateComparisonMetaTags, parsePlayerSlug, generatePlayerSlug } from 
 import { ListSkeleton } from './LoadingSkeleton';
 import { useAuth } from '../hooks/useAuth';
 import { SoftGateModal } from './SoftGateModal';
+import { calcFdpValue } from '../lib/fdp/calcFdpValue';
 
 interface PlayerData {
   player_id: string;
@@ -19,17 +20,19 @@ interface PlayerData {
   tier?: string;
 }
 
-function getSimilar(anchor: PlayerData, excludeId: string, all: any[]): any[] {
+function getSimilar(anchor: PlayerData, excludeId: string, all: any[], format: string): any[] {
+  const anchorVal = calcFdpValue(anchor.base_value, anchor.position as any, format as any);
   return all
     .filter(p =>
       p.position === anchor.position &&
       p.player_id !== anchor.player_id &&
       p.player_id !== excludeId
     )
-    .sort((a, b) =>
-      Math.abs((a.adjusted_value || 0) - anchor.fdp_value) -
-      Math.abs((b.adjusted_value || 0) - anchor.fdp_value)
-    )
+    .sort((a, b) => {
+      const aVal = calcFdpValue(a.adjusted_value || 0, a.position, format as any);
+      const bVal = calcFdpValue(b.adjusted_value || 0, b.position, format as any);
+      return Math.abs(aVal - anchorVal) - Math.abs(bVal - anchorVal);
+    })
     .slice(0, 4);
 }
 
@@ -42,6 +45,16 @@ export function PlayerComparisonPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showSoftGate, setShowSoftGate] = useState(false);
+  const [format, setFormat] = useState<string>('dynasty_sf');
+
+  const p1Value = useMemo(
+    () => player1 ? calcFdpValue(player1.base_value, player1.position as any, format as any) : 0,
+    [player1, format]
+  );
+  const p2Value = useMemo(
+    () => player2 ? calcFdpValue(player2.base_value, player2.position as any, format as any) : 0,
+    [player2, format]
+  );
 
   useEffect(() => {
     if (!slug) return;
@@ -73,13 +86,13 @@ export function PlayerComparisonPage() {
           '@type': 'ListItem',
           'position': 1,
           'name': player1.full_name,
-          'description': `Dynasty Value: ${player1.fdp_value}`,
+          'description': `Dynasty Value: ${p1Value}`,
         },
         {
           '@type': 'ListItem',
           'position': 2,
           'name': player2.full_name,
-          'description': `Dynasty Value: ${player2.fdp_value}`,
+          'description': `Dynasty Value: ${p2Value}`,
         },
       ],
     });
@@ -181,12 +194,14 @@ export function PlayerComparisonPage() {
     );
   }
 
-  const valueDiff = player1.fdp_value - player2.fdp_value;
+  const valueDiff = p1Value - p2Value;
   const winner = valueDiff > 0 ? player1 : player2;
-  const maxVal = Math.max(player1.fdp_value, player2.fdp_value);
+  const winnerValue = valueDiff > 0 ? p1Value : p2Value;
+  const loserValue = valueDiff > 0 ? p2Value : p1Value;
+  const maxVal = Math.max(p1Value, p2Value);
 
-  const similar1 = allPlayers.length > 0 ? getSimilar(player1, player2.player_id, allPlayers) : [];
-  const similar2 = allPlayers.length > 0 ? getSimilar(player2, player1.player_id, allPlayers) : [];
+  const similar1 = allPlayers.length > 0 ? getSimilar(player1, player2.player_id, allPlayers, format) : [];
+  const similar2 = allPlayers.length > 0 ? getSimilar(player2, player1.player_id, allPlayers, format) : [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-fdp-bg-1 to-fdp-bg-0 p-4 md:p-8">
@@ -203,9 +218,24 @@ export function PlayerComparisonPage() {
           <h1 className="text-3xl md:text-4xl font-bold text-fdp-text-1 mb-4">
             {player1.full_name} vs {player2.full_name} Dynasty Comparison (2026)
           </h1>
-          <p className="text-lg text-fdp-text-2">
+          <p className="text-lg text-fdp-text-2 mb-4">
             Compare dynasty values, rankings, and trade analysis between {player1.full_name} and {player2.full_name}. See which player offers more value for your dynasty roster.
           </p>
+          <div className="flex gap-2">
+            {(['dynasty_sf', 'dynasty_1qb', 'dynasty_tep'] as const).map(f => (
+              <button
+                key={f}
+                onClick={() => setFormat(f)}
+                className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
+                  format === f
+                    ? 'bg-fdp-accent-1 text-fdp-bg-0'
+                    : 'bg-fdp-surface-2 text-fdp-text-2 hover:bg-fdp-surface-2/80'
+                }`}
+              >
+                {f === 'dynasty_sf' ? 'Superflex' : f === 'dynasty_1qb' ? '1QB' : 'TEP'}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -239,12 +269,12 @@ export function PlayerComparisonPage() {
               <div className="border-t border-fdp-border-1 pt-3 mt-3">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-fdp-text-3">Dynasty Value</span>
-                  <span className="text-3xl font-bold text-fdp-accent-1">{player1.fdp_value}</span>
+                  <span className="text-3xl font-bold text-fdp-accent-1">{p1Value}</span>
                 </div>
                 <div className="w-full bg-fdp-surface-2 rounded-full h-1.5 mt-2 mb-3">
                   <div
                     className="bg-fdp-accent-1 h-1.5 rounded-full transition-all"
-                    style={{ width: maxVal > 0 ? `${(player1.fdp_value / maxVal) * 100}%` : '0%' }}
+                    style={{ width: maxVal > 0 ? `${(p1Value / maxVal) * 100}%` : '0%' }}
                   />
                 </div>
                 <div className="flex justify-between items-center">
@@ -287,12 +317,12 @@ export function PlayerComparisonPage() {
               <div className="border-t border-fdp-border-1 pt-3 mt-3">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-fdp-text-3">Dynasty Value</span>
-                  <span className="text-3xl font-bold text-fdp-accent-1">{player2.fdp_value}</span>
+                  <span className="text-3xl font-bold text-fdp-accent-1">{p2Value}</span>
                 </div>
                 <div className="w-full bg-fdp-surface-2 rounded-full h-1.5 mt-2 mb-3">
                   <div
                     className="bg-fdp-accent-1 h-1.5 rounded-full transition-all"
-                    style={{ width: maxVal > 0 ? `${(player2.fdp_value / maxVal) * 100}%` : '0%' }}
+                    style={{ width: maxVal > 0 ? `${(p2Value / maxVal) * 100}%` : '0%' }}
                   />
                 </div>
                 <div className="flex justify-between items-center">
@@ -328,7 +358,7 @@ export function PlayerComparisonPage() {
 
           <div className="prose prose-invert max-w-none">
             <p className="text-fdp-text-2 mb-4">
-              In a dynasty trade, <strong>{winner.full_name}</strong> is currently the more valuable asset with a dynasty value of <strong>{winner.fdp_value}</strong> compared to {winner.player_id === player1.player_id ? player2.full_name : player1.full_name}'s value of <strong>{winner.player_id === player1.player_id ? player2.fdp_value : player1.fdp_value}</strong>.
+              In a dynasty trade, <strong>{winner.full_name}</strong> is currently the more valuable asset with a dynasty value of <strong>{winnerValue}</strong> compared to {winner.player_id === player1.player_id ? player2.full_name : player1.full_name}'s value of <strong>{loserValue}</strong>.
             </p>
 
             {player1.position !== player2.position && (

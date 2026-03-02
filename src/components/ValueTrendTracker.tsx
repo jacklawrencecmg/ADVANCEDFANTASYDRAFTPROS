@@ -21,9 +21,10 @@ interface PlayerTrend {
 
 interface ValueTrendTrackerProps {
   leagueId: string;
+  isSuperflex?: boolean;
 }
 
-export default function ValueTrendTracker({ leagueId }: ValueTrendTrackerProps) {
+export default function ValueTrendTracker({ leagueId, isSuperflex = false }: ValueTrendTrackerProps) {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [trends, setTrends] = useState<PlayerTrend[]>([]);
@@ -97,7 +98,7 @@ export default function ValueTrendTracker({ leagueId }: ValueTrendTrackerProps) 
 
   const trackPlayer = async (playerName: string, playerId: string, position: string) => {
     try {
-      const value = await getPlayerValue(playerId);
+      const value = await getPlayerValue(playerId, { isSuperflex });
 
       await supabase.from('player_values_history').insert({
         player_id: playerId,

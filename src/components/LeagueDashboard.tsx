@@ -4,6 +4,7 @@ import { ListSkeleton } from './LoadingSkeleton';
 import { PlayerAvatar } from './PlayerAvatar';
 import { supabase } from '../lib/supabase';
 import { fetchAllPlayers } from '../services/sleeperApi';
+import { calcFdpValue } from '../lib/fdp/calcFdpValue';
 
 const SLEEPER_BASE_URL = 'https://api.sleeper.app/v1';
 
@@ -82,18 +83,22 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack, onBuildT
 
     try {
       // Fetch Sleeper league data + all player metadata + dynasty values in parallel
-      const [rostersRes, usersRes, allSleeperPlayers, dbResult] = await Promise.all([
+      const [rostersRes, usersRes, leagueRes, allSleeperPlayers, dbResult] = await Promise.all([
         fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`),
         fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/users`),
+        fetch(`${SLEEPER_BASE_URL}/league/${leagueId}`),
         fetchAllPlayers(),
-        // Same query as DynastyRankingsPage — guarantees identical values
         supabase
           .from('player_values_canonical')
-          .select('player_name, position, team, adjusted_value')
+          .select('player_name, position, base_value, adjusted_value')
           .eq('format', 'dynasty')
           .order('adjusted_value', { ascending: false })
           .limit(1500),
       ]);
+
+      const leagueDetails = leagueRes.ok ? await leagueRes.json() : {};
+      const isSuperflex = (leagueDetails.roster_positions || []).includes('SUPER_FLEX');
+      const fdpFormat = isSuperflex ? 'dynasty_sf' : 'dynasty_1qb';
 
       if (!rostersRes.ok || !usersRes.ok) {
         throw new Error('Failed to fetch league data from Sleeper');
@@ -104,8 +109,9 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack, onBuildT
       // Build normalized name → DB record map (same normalization as DynastyRankingsPage)
       const nameToValue = new Map<string, number>();
       for (const p of dbResult.data || []) {
-        if (p.player_name && p.adjusted_value) {
-          nameToValue.set(normalizeName(p.player_name), p.adjusted_value);
+        if (p.player_name && (p.base_value || p.adjusted_value)) {
+          const base = p.base_value || p.adjusted_value;
+          nameToValue.set(normalizeName(p.player_name), calcFdpValue(base, p.position, fdpFormat as any));
         }
       }
 

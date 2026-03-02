@@ -26,9 +26,10 @@ interface WaiverAssistantProps {
   leagueId: string;
   rosterId: string;
   userId: string;
+  isSuperflex?: boolean;
 }
 
-export default function WaiverAssistant({ leagueId, rosterId, userId }: WaiverAssistantProps) {
+export default function WaiverAssistant({ leagueId, rosterId, userId, isSuperflex = false }: WaiverAssistantProps) {
   const [loading, setLoading] = useState(false);
   const [recommendations, setRecommendations] = useState<Player[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -105,7 +106,7 @@ export default function WaiverAssistant({ leagueId, rosterId, userId }: WaiverAs
       await Promise.all(
         playersToAnalyze.map(async (player) => {
           try {
-            const value = await getPlayerValue(player.player_id);
+            const value = await getPlayerValue(player.player_id, { isSuperflex });
             playerValuesMap.set(player.player_id, value);
           } catch (err) {
             console.error(`Error fetching value for ${player.player_id}:`, err);

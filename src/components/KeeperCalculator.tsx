@@ -21,9 +21,10 @@ interface TeamInfo {
 interface KeeperCalculatorProps {
   leagueId: string;
   rosterId?: string;
+  isSuperflex?: boolean;
 }
 
-export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculatorProps) {
+export default function KeeperCalculator({ leagueId, rosterId, isSuperflex = false }: KeeperCalculatorProps) {
   const [loading, setLoading] = useState(false);
   const [teams, setTeams] = useState<TeamInfo[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>('');
@@ -94,7 +95,7 @@ export default function KeeperCalculator({ leagueId, rosterId }: KeeperCalculato
       await Promise.all(
         playerIds.map(async (playerId: string) => {
           try {
-            const value = await getPlayerValue(playerId);
+            const value = await getPlayerValue(playerId, { isSuperflex });
             playerValuesMap.set(playerId, value);
           } catch (err) {
             console.error(`Error fetching value for ${playerId}:`, err);
