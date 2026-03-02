@@ -50,6 +50,14 @@ function AppContent() {
   const [showSEOAdmin, setShowSEOAdmin] = useState(false);
 
   useEffect(() => {
+    // Handle GitHub Pages SPA redirect: 404.html stores the original path in
+    // sessionStorage before redirecting to /, then we restore it here.
+    const spaRedirect = sessionStorage.getItem('spa_redirect');
+    if (spaRedirect) {
+      sessionStorage.removeItem('spa_redirect');
+      window.history.replaceState(null, '', spaRedirect);
+    }
+
     const path = window.location.pathname;
 
     if (path === '/admin/doctor') {

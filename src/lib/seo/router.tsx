@@ -5,9 +5,14 @@ interface RouterContextValue {
   navigate: (path: string) => void;
 }
 
+const defaultNavigate = (path: string) => {
+  sessionStorage.setItem('spa_redirect', path);
+  window.location.replace('/');
+};
+
 const RouterContext = createContext<RouterContextValue>({
   params: {},
-  navigate: () => {}
+  navigate: defaultNavigate,
 });
 
 export function useParams<T = Record<string, string>>(): T {
@@ -32,8 +37,10 @@ export function Link({ to, children, className }: { to: string; children: ReactN
 
 export function RouterProvider({ params, children }: { params: Record<string, string>; children: ReactNode }) {
   const navigate = (path: string) => {
-    window.history.pushState({}, '', path);
-    window.location.href = path;
+    // Use the same sessionStorage mechanism as 404.html so App.tsx routing
+    // correctly handles all internal navigation without a full-page 404 cycle.
+    sessionStorage.setItem('spa_redirect', path);
+    window.location.replace('/');
   };
 
   return (
