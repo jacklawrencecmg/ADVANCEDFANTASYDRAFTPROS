@@ -2,6 +2,7 @@ import { playerValuesApi, type PlayerValue } from './playerValuesApi';
 import { getEnrichedPlayers, mergeSleeperWithDatabase } from '../lib/players/getEnrichedPlayers';
 import { SEASON_CONTEXT } from '../config/seasonContext';
 import { supabase } from '../lib/supabase';
+import { calcFdpValue } from '../lib/fdp/calcFdpValue';
 
 const SLEEPER_API_BASE = 'https://api.sleeper.app/v1';
 
@@ -618,19 +619,19 @@ export function getPlayerValue(
     dbValueById.player_name?.toLowerCase().trim().replace(/[^a-z0-9 ]/g, '') === normalizedName;
   const dbValue = (idMatchesName ? dbValueById : undefined) || dbPlayerValuesByName.get(normalizedName);
   if (dbValue) {
-    const rawFdpValue = typeof dbValue.fdp_value === 'string' ? parseFloat(dbValue.fdp_value) : (dbValue.fdp_value ?? 0);
+    const baseVal = typeof dbValue.base_value === 'number' ? dbValue.base_value : parseFloat(String(dbValue.base_value || 0));
+    const fdpFormat = finalSettings.isSuperflex ? 'dynasty_sf' : 'dynasty_1qb';
 
-    let value: number = rawFdpValue;
+    let value: number = calcFdpValue(baseVal, player.position as any, fdpFormat as any);
 
     // TE Premium is a legitimate league-setting adjustment
     if (player.position === 'TE' && finalSettings.isTEPremium && !dbValue.metadata?.te_premium_applied) {
-      value *= 1.15;
+      value = Math.round(value * 1.15);
     }
 
-    // Only penalise officially retired players — DB adjusted_value already prices
-    // cut/unsigned status, backup roles, injury history, and rookie uncertainty correctly
+    // Only penalise officially retired players
     if (player.status === 'Retired') {
-      value *= 0.15;
+      value = Math.round(value * 0.15);
     }
 
     return parseFloat(value.toFixed(0));
