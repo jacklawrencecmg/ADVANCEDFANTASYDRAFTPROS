@@ -2,14 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Trophy, Users, TrendingUp, ArrowLeft, Loader, AlertCircle, Award, Target, Plus, Check, ArrowRight } from 'lucide-react';
 import { ListSkeleton } from './LoadingSkeleton';
 import { PlayerAvatar } from './PlayerAvatar';
-import { supabase } from '../lib/supabase';
-import { fetchAllPlayers } from '../services/sleeperApi';
+import { fetchAllPlayers, fetchPlayerValues, getPlayerValue } from '../services/sleeperApi';
 
 const SLEEPER_BASE_URL = 'https://api.sleeper.app/v1';
-
-function normalizeName(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
-}
 
 interface Player {
   player_id: string;
@@ -81,30 +76,24 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack, onBuildT
     setError(null);
 
     try {
-      // Fetch Sleeper league data and all player info in parallel
-      const [rostersRes, usersRes, allSleeperPlayers, dbResult] = await Promise.all([
+      // Same pattern as calculatePowerRankings() in sleeperApi.ts
+      const [rostersRes, usersRes] = await Promise.all([
         fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/rosters`),
         fetch(`${SLEEPER_BASE_URL}/league/${leagueId}/users`),
-        fetchAllPlayers(),
-        supabase
-          .from('latest_player_values')
-          .select('player_name, position, team, adjusted_value')
-          .eq('format', 'dynasty')
-          .in('position', ['QB', 'RB', 'WR', 'TE', 'LB', 'DL', 'DB'])
-          .limit(1500),
       ]);
 
       if (!rostersRes.ok || !usersRes.ok) {
         throw new Error('Failed to fetch league data from Sleeper');
       }
 
-      const [rosters, users] = await Promise.all([rostersRes.json(), usersRes.json()]);
+      const [rosters, users, allSleeperPlayers] = await Promise.all([
+        rostersRes.json(),
+        usersRes.json(),
+        fetchAllPlayers(),
+      ]);
 
-      // Build normalized name → DB value map
-      const nameToDbPlayer = new Map<string, any>();
-      for (const p of dbResult.data || []) {
-        if (p.player_name) nameToDbPlayer.set(normalizeName(p.player_name), p);
-      }
+      // Populate the dbPlayerValuesByName cache used by getPlayerValue
+      await fetchPlayerValues(false, 'dynasty');
 
       const userMap = new Map(users.map((u: any) => [u.user_id, u]));
 
@@ -112,18 +101,14 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack, onBuildT
         const owner = userMap.get(roster.owner_id);
         const players: Player[] = (roster.players || []).map((playerId: string) => {
           const sp = allSleeperPlayers[playerId];
-          const liveTeam = sp?.team || null;
-          const fullName = sp
-            ? (sp.full_name || `${sp.first_name || ''} ${sp.last_name || ''}`.trim())
-            : '';
-          const dbPlayer = fullName ? nameToDbPlayer.get(normalizeName(fullName)) : undefined;
+          const value = sp ? getPlayerValue(sp) : 0;
 
           return {
             player_id: playerId,
-            name: dbPlayer?.player_name || fullName || playerId,
-            position: dbPlayer?.position || sp?.position || 'N/A',
-            team: liveTeam ?? dbPlayer?.team ?? null,
-            fdp_value: dbPlayer?.adjusted_value || 0,
+            name: sp?.full_name || playerId,
+            position: sp?.position || 'N/A',
+            team: sp?.team || null,
+            fdp_value: value,
             is_starter: (roster.starters || []).includes(playerId),
             headshot_url: `https://sleepercdn.com/content/nfl/players/thumb/${playerId}.jpg`,
           };
