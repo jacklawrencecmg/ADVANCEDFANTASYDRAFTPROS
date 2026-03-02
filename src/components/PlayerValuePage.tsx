@@ -250,7 +250,7 @@ export function PlayerValuePage() {
             <div className="bg-fdp-surface-2 rounded-lg p-6 border border-fdp-border-1">
               <div className="text-sm text-fdp-text-3 mb-2">Current Dynasty Value</div>
               <div className="text-4xl font-bold text-fdp-accent-1 mb-1">
-                {Math.min(10000, calcFdpValue(player.base_value, player.position as any, format as any))}
+                {calcFdpValue(player.base_value, player.position as any, format as any)}
               </div>
               <div className="text-xs text-fdp-text-3">FDP Points</div>
             </div>
@@ -293,7 +293,7 @@ export function PlayerValuePage() {
           <h2 className="text-2xl font-bold text-fdp-text-1 mb-4">Trade Value Analysis</h2>
           <div className="prose prose-invert max-w-none">
             <p className="text-fdp-text-2 mb-4">
-              {player.full_name} currently ranks as the <strong>#{player.dynasty_rank || 'N/A'} player</strong> in dynasty fantasy football with a value of <strong>{Math.min(10000, calcFdpValue(player.base_value, player.position as any, format as any))} points</strong>.
+              {player.full_name} currently ranks as the <strong>#{player.dynasty_rank || 'N/A'} player</strong> in dynasty fantasy football with a value of <strong>{calcFdpValue(player.base_value, player.position as any, format as any)} points</strong>.
               {player.position === 'QB' && ' As a quarterback, their value is heavily influenced by scoring format, with superflex leagues typically valuing QBs significantly higher.'}
               {player.position === 'RB' && ' Running backs in dynasty require careful evaluation of age, workload, and team situation due to the position\'s shorter shelf life.'}
               {player.position === 'WR' && ' Wide receivers offer longer dynasty windows than running backs, making them valuable long-term assets.'}
@@ -331,7 +331,7 @@ export function PlayerValuePage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xl font-bold text-fdp-accent-1">{Math.min(10000, calcFdpValue(sim.fdp_value, sim.position as any, format as any))}</div>
+                      <div className="text-xl font-bold text-fdp-accent-1">{calcFdpValue(sim.fdp_value, sim.position as any, format as any)}</div>
                       <div className="text-xs text-fdp-text-3">
                         {sim.dynasty_rank ? `#${sim.dynasty_rank}` : 'Unranked'}
                       </div>
@@ -352,7 +352,7 @@ export function PlayerValuePage() {
                 What is {player.full_name}'s dynasty value?
               </h3>
               <p className="text-fdp-text-2">
-                {player.full_name} currently has a dynasty value of {Math.min(10000, calcFdpValue(player.base_value, player.position as any, format as any))} points and is ranked {player.dynasty_rank ? `#${player.dynasty_rank}` : 'unranked'} overall in dynasty fantasy football. This value is calculated using our proprietary FDP algorithm that factors in age, production, situation, and market consensus.
+                {player.full_name} currently has a dynasty value of {calcFdpValue(player.base_value, player.position as any, format as any)} points and is ranked {player.dynasty_rank ? `#${player.dynasty_rank}` : 'unranked'} overall in dynasty fantasy football. This value is calculated using our proprietary FDP algorithm that factors in age, production, situation, and market consensus.
               </p>
             </div>
 

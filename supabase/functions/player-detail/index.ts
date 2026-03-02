@@ -57,10 +57,16 @@ Deno.serve(async (req: Request) => {
       dynasty_1qb: { QB: 1.0, RB: 1.18, WR: 1.0, TE: 1.10 },
       dynasty_tep: { QB: 1.35, RB: 1.15, WR: 1.0, TE: 1.25 },
     };
+    const formatCaps: Record<string, number> = {
+      dynasty_sf: 13500,
+      dynasty_1qb: 10000,
+      dynasty_tep: 13500,
+    };
     function applyMultiplier(baseValue: number, position: string): number {
       const key = format.replace(/-/g, '_') === 'dynasty_superflex' ? 'dynasty_sf' : format.replace(/-/g, '_');
       const mult = formatMultipliers[key]?.[position] ?? 1.0;
-      return Math.min(10000, Math.round(baseValue * mult));
+      const cap = formatCaps[key] ?? 10000;
+      return Math.min(cap, Math.round(baseValue * mult));
     }
 
     console.log('Fetching from latest_player_values for player:', playerId);

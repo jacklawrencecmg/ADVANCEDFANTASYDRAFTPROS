@@ -1,6 +1,12 @@
 export type LeagueFormat = 'dynasty_sf' | 'dynasty_1qb' | 'dynasty_tep';
 export type Position = 'QB' | 'RB' | 'WR' | 'TE';
 
+export const formatCaps: Record<LeagueFormat, number> = {
+  dynasty_sf: 13500,
+  dynasty_1qb: 10000,
+  dynasty_tep: 13500,
+};
+
 export const formatMultipliers: Record<LeagueFormat, Record<Position, number>> = {
   dynasty_sf: {
     QB: 1.35,

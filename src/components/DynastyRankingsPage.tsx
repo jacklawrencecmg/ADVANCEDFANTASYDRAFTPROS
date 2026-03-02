@@ -109,7 +109,7 @@ export function DynastyRankingsPage() {
     return rawPlayers
       .map(p => ({
         ...p,
-        fdp_value: Math.min(10000, calcFdpValue(p.base_value, p.position as any, format as any)),
+        fdp_value: calcFdpValue(p.base_value, p.position as any, format as any),
       }))
       .sort((a, b) => b.fdp_value - a.fdp_value)
       .map((p, i) => ({ ...p, dynasty_rank: i + 1 }));

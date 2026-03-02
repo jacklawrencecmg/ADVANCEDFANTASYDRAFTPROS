@@ -1,4 +1,4 @@
-import { formatMultipliers, type LeagueFormat, type Position } from './formatMultipliers';
+import { formatMultipliers, formatCaps, type LeagueFormat, type Position } from './formatMultipliers';
 import { rbAdjustmentPoints, type RbContext } from './rbAdjustments';
 import { getIDPMultiplier, isIDPPosition, type IDPPosition, type IDPFormat } from '../idp/idpMultipliers';
 import { calculateIDPAdjustments, clampIDPValue } from '../idp/idpAdjustments';
@@ -11,7 +11,8 @@ export function calcFdpValue(
   format: LeagueFormat = 'dynasty_sf'
 ): number {
   const multiplier = formatMultipliers[format]?.[position] ?? 1;
-  return Math.round(ktcValue * multiplier);
+  const cap = formatCaps[format] ?? 10000;
+  return Math.min(cap, Math.round(ktcValue * multiplier));
 }
 
 export function calcFdpValueFromKtc({
