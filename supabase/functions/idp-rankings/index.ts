@@ -34,15 +34,12 @@ Deno.serve(async (req: Request) => {
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    // IDP data is stored under the 'dynasty' format key in latest_player_values
-    const idpFormat = 'dynasty';
-
     const { data: players, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, player_name, position, team, rank_position, base_value, adjusted_value, market_value, updated_at')
       .eq('position', position.toUpperCase())
-      .eq('format', idpFormat)
-      .order('rank_position', { ascending: true })
+      .eq('format', 'dynasty')
+      .order('adjusted_value', { ascending: false })
       .limit(limit);
 
     if (error) throw error;

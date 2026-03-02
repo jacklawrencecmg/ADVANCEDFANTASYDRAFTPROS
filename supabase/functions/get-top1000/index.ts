@@ -65,11 +65,12 @@ Deno.serve(async (req: Request) => {
           total_count: recentData.total_count,
         };
       } else {
-        // Final fallback: build from latest_player_values directly
+        // Final fallback: build from player_values_canonical directly
         const { data: liveData, error: liveError } = await supabase
-          .from("latest_player_values")
+          .from("player_values_canonical")
           .select("player_id, player_name, position, team, base_value, adjusted_value, updated_at")
-          .order("base_value", { ascending: false })
+          .eq("format", "dynasty")
+          .order("adjusted_value", { ascending: false })
           .limit(1000);
 
         if (liveError) throw liveError;
