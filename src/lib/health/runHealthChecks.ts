@@ -19,7 +19,7 @@ export interface SystemHealthSummary {
 async function checkPlayerSyncFreshness(): Promise<HealthCheckResult> {
   try {
     const { data, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('updated_at')
       .order('updated_at', { ascending: false })
       .limit(1)
@@ -83,7 +83,7 @@ async function checkPlayerSyncFreshness(): Promise<HealthCheckResult> {
 async function checkValueSnapshotFreshness(): Promise<HealthCheckResult> {
   try {
     const { count: totalCount, error: countError } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('*', { count: 'exact', head: true });
 
     if (countError) {
@@ -105,7 +105,7 @@ async function checkValueSnapshotFreshness(): Promise<HealthCheckResult> {
     }
 
     const { data: freshData } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('updated_at')
       .order('updated_at', { ascending: false })
       .limit(1)
@@ -160,7 +160,7 @@ async function checkPositionCoverage(): Promise<HealthCheckResult> {
 
     for (const pos of positions) {
       const { count, error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('player_id', { count: 'exact', head: true })
         .eq('position', pos);
 
@@ -212,7 +212,7 @@ async function checkMissingTeamHistory(): Promise<HealthCheckResult> {
   try {
     // Repurposed: check total player value records in DB
     const { count, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('*', { count: 'exact', head: true });
 
     if (error) {
@@ -265,7 +265,7 @@ async function checkUnresolvedPlayersQueue(): Promise<HealthCheckResult> {
     // Check that at least one valid format ('standard' or 'superflex') has data.
     // The sync writes one row per player; the format reflects the most recent sync mode.
     const { data, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('format')
       .limit(1)
       .maybeSingle();
@@ -324,7 +324,7 @@ async function checkScraperFailures(): Promise<HealthCheckResult> {
 
     for (const pos of positions) {
       const { count, error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('player_id', { count: 'exact', head: true })
         .eq('position', pos);
 
@@ -361,7 +361,7 @@ async function checkScraperFailures(): Promise<HealthCheckResult> {
 async function checkDatabaseConnectivity(): Promise<HealthCheckResult> {
   try {
     const startTime = Date.now();
-    const { error } = await supabase.from('latest_player_values').select('player_id').limit(1);
+    const { error } = await supabase.from('player_values_canonical').select('player_id').limit(1);
     const responseTime = Date.now() - startTime;
 
     if (error) {

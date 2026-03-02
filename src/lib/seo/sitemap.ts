@@ -56,7 +56,7 @@ export async function generateSitemap(): Promise<SitemapUrl[]> {
 
   try {
     const { data: players, error } = await supabase
-      .rpc('get_latest_player_values', {})
+      .from('player_values_canonical').select('*')
       .order('base_value', { ascending: false })
       .limit(1000);
 

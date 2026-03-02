@@ -377,7 +377,7 @@ export async function fetchPlayerValues(
   try {
     const dbFormat = leagueFormat === 'redraft' ? 'redraft' : 'dynasty';
     const { data: canonicalValues, error: canonicalError } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, player_name, position, team, base_value, adjusted_value, market_value, rank_overall, rank_position, updated_at, metadata')
       .eq('format', dbFormat)
       .limit(2000);

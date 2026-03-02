@@ -69,7 +69,7 @@ export async function capturePredictions(
   try {
     // Step 1: Get current player values from latest_player_values
     const { data: latestValues, error: fetchError } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select(
         `
         player_id,

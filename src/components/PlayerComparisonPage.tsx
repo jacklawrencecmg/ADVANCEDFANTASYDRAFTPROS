@@ -98,17 +98,17 @@ export function PlayerComparisonPage() {
       const name2 = parsePlayerSlug(slug2);
 
       const { data: players, error: playersError } = await supabase
-        .rpc('get_latest_player_values', {});
+        .from('player_values_canonical').select('*');
 
       if (playersError) throw playersError;
 
       setAllPlayers(players || []);
 
       const p1 = players.find((p: any) =>
-        p.full_name.toLowerCase().includes(name1.toLowerCase())
+        (p.player_name || (p.player_name || p.full_name) || '').toLowerCase().includes(name1.toLowerCase())
       );
       const p2 = players.find((p: any) =>
-        p.full_name.toLowerCase().includes(name2.toLowerCase())
+        (p.player_name || (p.player_name || p.full_name) || '').toLowerCase().includes(name2.toLowerCase())
       );
 
       if (!p1 || !p2) {
@@ -119,11 +119,13 @@ export function PlayerComparisonPage() {
 
       const enriched1: PlayerData = {
         ...p1,
+        full_name: p1.player_name || p1.full_name,
         fdp_value: getFDPValue(p1)
       };
 
       const enriched2: PlayerData = {
         ...p2,
+        full_name: p2.player_name || p2.full_name,
         fdp_value: getFDPValue(p2)
       };
 
@@ -430,10 +432,10 @@ export function PlayerComparisonPage() {
                   {similar1.map((p: any) => (
                     <Link
                       key={p.player_id}
-                      to={`/compare/${generatePlayerSlug(player1.full_name)}-vs-${generatePlayerSlug(p.full_name)}-dynasty`}
+                      to={`/compare/${generatePlayerSlug(player1.full_name)}-vs-${generatePlayerSlug((p.player_name || p.full_name))}-dynasty`}
                       className="px-3 py-1.5 bg-fdp-surface-2 border border-fdp-border-1 rounded-full text-sm text-fdp-text-2 hover:border-fdp-accent-1 hover:text-fdp-accent-1 transition-all"
                     >
-                      {p.full_name}
+                      {(p.player_name || p.full_name)}
                     </Link>
                   ))}
                 </div>
@@ -449,10 +451,10 @@ export function PlayerComparisonPage() {
                   {similar2.map((p: any) => (
                     <Link
                       key={p.player_id}
-                      to={`/compare/${generatePlayerSlug(player2.full_name)}-vs-${generatePlayerSlug(p.full_name)}-dynasty`}
+                      to={`/compare/${generatePlayerSlug(player2.full_name)}-vs-${generatePlayerSlug((p.player_name || p.full_name))}-dynasty`}
                       className="px-3 py-1.5 bg-fdp-surface-2 border border-fdp-border-1 rounded-full text-sm text-fdp-text-2 hover:border-fdp-accent-1 hover:text-fdp-accent-1 transition-all"
                     >
-                      {p.full_name}
+                      {(p.player_name || p.full_name)}
                     </Link>
                   ))}
                 </div>

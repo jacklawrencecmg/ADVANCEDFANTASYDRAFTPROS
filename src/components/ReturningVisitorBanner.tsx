@@ -53,7 +53,7 @@ export function ReturningVisitorBanner() {
         const playerIds = data.map(d => d.player_id);
 
         const { data: players } = await supabase
-          .rpc('get_latest_player_values', {})
+          .from('player_values_canonical').select('*')
           .in('player_id', playerIds);
 
         if (players) {
@@ -62,7 +62,7 @@ export function ReturningVisitorBanner() {
             if (!player) return null;
 
             return {
-              player_name: player.full_name,
+              player_name: player.player_name || player.full_name,
               old_value: player.base_value - trend.change_amount,
               new_value: player.base_value,
               change_percent: trend.change_percent

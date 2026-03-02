@@ -58,8 +58,8 @@ export function PlayerValuePage() {
       const searchName = parsePlayerSlug(slug!);
 
       const { data: playerData, error: playerError } = await supabase
-        .rpc('get_latest_player_values', {})
-        .ilike('full_name', `%${searchName}%`)
+        .from('player_values_canonical').select('*')
+        .ilike('player_name', `%${searchName}%`)
         .limit(1)
         .maybeSingle();
 
@@ -72,7 +72,8 @@ export function PlayerValuePage() {
 
       const enrichedPlayer: PlayerData = {
         ...(playerData as any),
-        fdp_value: (playerData as any).fdp_value || (playerData as any).base_value || 0
+        full_name: (playerData as any).player_name || (playerData as any).full_name,
+        fdp_value: (playerData as any).adjusted_value || (playerData as any).fdp_value || (playerData as any).base_value || 0
       };
 
       setPlayer(enrichedPlayer);
@@ -98,7 +99,7 @@ export function PlayerValuePage() {
   async function loadSimilarPlayers(currentPlayer: PlayerData) {
     try {
       const { data, error } = await supabase
-        .rpc('get_latest_player_values', {})
+        .from('player_values_canonical').select('*')
         .eq('position', currentPlayer.position)
         .neq('player_id', currentPlayer.player_id)
         .gte('base_value', currentPlayer.base_value - 500)
@@ -110,7 +111,8 @@ export function PlayerValuePage() {
 
       const enriched = (data || []).map((p: any) => ({
         ...p,
-        fdp_value: p.fdp_value || p.base_value || 0
+        full_name: p.player_name || p.full_name,
+        fdp_value: p.adjusted_value || p.fdp_value || p.base_value || 0
       }));
 
       setSimilarPlayers(enriched);

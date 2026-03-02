@@ -40,7 +40,7 @@ export async function getValuesBatch(
   try {
     // Single query with WHERE IN
     let query = supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, fdp_value, position_rank, player_position, full_name')
       .in('player_id', playerIds)
       .eq('format', format);
@@ -275,7 +275,7 @@ export async function validateTradeBatch(
 
   try {
     const { data } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, is_stale')
       .in('player_id', playerIds)
       .eq('format', format)

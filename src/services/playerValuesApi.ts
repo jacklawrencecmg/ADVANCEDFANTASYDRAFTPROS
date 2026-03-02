@@ -471,7 +471,7 @@ class PlayerValuesApi {
       const format = leagueFormat === 'redraft' ? 'redraft' : 'dynasty';
 
       let query = supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('player_id, player_name, position, team, rank_overall, rank_position, base_value, adjusted_value, market_value, updated_at, format, metadata')
         .eq('format', format)
         .order('adjusted_value', { ascending: false })
@@ -510,7 +510,7 @@ class PlayerValuesApi {
   async getPlayerValue(playerId: string): Promise<PlayerValue | null> {
     try {
       const { data, error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('player_id, player_name, position, team, rank_overall, rank_position, base_value, adjusted_value, market_value, updated_at, format, metadata')
         .eq('player_id', playerId)
         .maybeSingle();
@@ -601,7 +601,7 @@ class PlayerValuesApi {
   async searchPlayers(searchTerm: string, limit: number = 20): Promise<PlayerValue[]> {
     try {
       const { data, error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('*')
         .or(`player_name.ilike.%${searchTerm}%,team.ilike.%${searchTerm}%`)
         .order('adjusted_value', { ascending: false, nullsFirst: false })
@@ -622,7 +622,7 @@ class PlayerValuesApi {
   async getTopRisers(limit: number = 10): Promise<PlayerValue[]> {
     try {
       const { data, error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('*')
         .order('adjusted_value', { ascending: false })
         .limit(limit);
@@ -639,7 +639,7 @@ class PlayerValuesApi {
   async getTopFallers(limit: number = 10): Promise<PlayerValue[]> {
     try {
       const { data, error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('*')
         .order('adjusted_value', { ascending: false })
         .limit(limit);
@@ -656,7 +656,7 @@ class PlayerValuesApi {
   async comparePlayerValues(playerIds: string[]): Promise<PlayerValue[]> {
     try {
       const { data, error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('*')
         .in('player_id', playerIds);
 
@@ -743,7 +743,7 @@ class PlayerValuesApi {
       if (playerIds.length === 0) return { risers: [], fallers: [] };
 
       const { data: players, error: playersError } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('*')
         .in('player_id', playerIds);
 
@@ -799,7 +799,7 @@ class PlayerValuesApi {
       const currentYear = year || new Date().getFullYear();
 
       const { data, error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('*')
         .eq('draft_year', currentYear)
         .order('adjusted_value', { ascending: false });

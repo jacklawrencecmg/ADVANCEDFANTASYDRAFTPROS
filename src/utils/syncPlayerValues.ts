@@ -334,7 +334,7 @@ export async function syncPlayerValuesToDatabase(isSuperflex: boolean = false): 
 
     if (playerValues.length > 0) {
       const { error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .upsert(playerValues, { onConflict: 'player_id' });
 
       if (error) {

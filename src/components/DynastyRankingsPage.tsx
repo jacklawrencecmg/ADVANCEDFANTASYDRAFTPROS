@@ -69,7 +69,7 @@ export function DynastyRankingsPage() {
       setLoading(true);
 
       const { data, error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('player_id, player_name, position, team, adjusted_value, rank_overall, updated_at')
         .eq('format', 'dynasty')
         .in('position', ['QB', 'RB', 'WR', 'TE', 'LB', 'DL', 'DB'])

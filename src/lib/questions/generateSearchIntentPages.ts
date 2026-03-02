@@ -12,7 +12,7 @@ export async function generateAllSearchIntentPages(): Promise<void> {
 
   try {
     const { data: players } = await supabase
-      .rpc('get_latest_player_values', {})
+      .from('player_values_canonical').select('*')
       .order('base_value', { ascending: false })
       .limit(200);
 
@@ -198,7 +198,7 @@ export async function regenerateStalePages(): Promise<void> {
   for (const update of pendingUpdates) {
     try {
       const { data: player } = await supabase
-        .rpc('get_latest_player_values', {})
+        .from('player_values_canonical').select('*')
         .eq('player_id', update.player_id)
         .maybeSingle();
 

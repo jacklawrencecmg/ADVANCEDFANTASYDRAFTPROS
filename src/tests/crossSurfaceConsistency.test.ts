@@ -56,7 +56,7 @@ describe('Cross-Surface Value Consistency', () => {
       if (!canonicalValue) return;
 
       const { data } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('effective_value, value_epoch')
         .eq('player_id', testPlayerId)
         .eq('format', TEST_CONFIG.format)

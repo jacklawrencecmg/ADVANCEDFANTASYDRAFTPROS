@@ -63,7 +63,7 @@ export async function validateFDPReadiness(): Promise<FDPReadinessResult> {
   try {
     // Check 1: Has values
     const { data: allValues, error: countError } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('id', { count: 'exact', head: true });
 
     if (countError) {
@@ -83,7 +83,7 @@ export async function validateFDPReadiness(): Promise<FDPReadinessResult> {
 
     // Check 2: Is fresh (updated within 48 hours)
     const { data: latestValue } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('updated_at')
       .order('updated_at', { ascending: false })
       .limit(1)
@@ -109,7 +109,7 @@ export async function validateFDPReadiness(): Promise<FDPReadinessResult> {
 
     // Check 3: Has value_epoch
     const { data: epochCheck } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('value_epoch_id')
       .not('value_epoch_id', 'is', null)
       .limit(1)
@@ -124,7 +124,7 @@ export async function validateFDPReadiness(): Promise<FDPReadinessResult> {
 
     // Check 4: Required formats covered
     const { data: formatCheck } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('format')
       .in('format', REQUIRED_FORMATS);
 

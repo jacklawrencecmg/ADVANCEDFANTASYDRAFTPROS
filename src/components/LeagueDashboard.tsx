@@ -88,7 +88,7 @@ export default function LeagueDashboard({ leagueId, leagueName, onBack, onBuildT
         fetchAllPlayers(),
         // Same query as DynastyRankingsPage — guarantees identical values
         supabase
-          .from('latest_player_values')
+          .from('player_values_canonical')
           .select('player_name, position, team, adjusted_value')
           .eq('format', 'dynasty')
           .order('adjusted_value', { ascending: false })

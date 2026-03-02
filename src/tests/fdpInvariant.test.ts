@@ -18,7 +18,7 @@ describe('FDP Canonical Value Invariants', () => {
 
   beforeAll(async () => {
     const { data } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id')
       .limit(10);
 

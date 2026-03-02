@@ -58,7 +58,7 @@ export async function getLatestValuesByPosition(
     async () => {
       try {
         const { data, error } = await supabase
-          .from('latest_player_values')
+          .from('player_values_canonical')
           .select('player_id, player_name, position, team, rank_overall, rank_position, base_value, adjusted_value, market_value, updated_at')
           .eq('format', format)
           .eq('position', position)
@@ -91,7 +91,7 @@ export async function getLatestValueForPlayer(
     async () => {
       try {
         const { data, error } = await supabase
-          .from('latest_player_values')
+          .from('player_values_canonical')
           .select('player_id, player_name, position, team, rank_overall, rank_position, base_value, adjusted_value, market_value, updated_at')
           .eq('player_id', playerId)
           .eq('format', format)
@@ -156,7 +156,7 @@ export async function getPlayerValueHistory(
 export async function getAllLatestValues(format: string = 'dynasty'): Promise<PlayerValue[]> {
   try {
     const { data, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, player_name, position, team, rank_overall, rank_position, base_value, adjusted_value, market_value, updated_at')
       .eq('format', format)
       .order('adjusted_value', { ascending: false })
@@ -180,7 +180,7 @@ export async function getValuesSummary(
 ): Promise<ValuesSummary | null> {
   try {
     let query = supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('adjusted_value, updated_at')
       .eq('format', format);
 
@@ -224,7 +224,7 @@ export async function getTopPlayers(
 ): Promise<PlayerValue[]> {
   try {
     const { data, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, player_name, position, team, rank_overall, rank_position, base_value, adjusted_value, market_value, updated_at')
       .eq('format', format)
       .gt('adjusted_value', 0)
@@ -250,7 +250,7 @@ export async function searchPlayerValues(
 ): Promise<PlayerValue[]> {
   try {
     const { data, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, player_name, position, team, rank_overall, rank_position, base_value, adjusted_value, market_value, updated_at')
       .eq('format', format)
       .ilike('player_name', `%${searchTerm}%`)
@@ -272,7 +272,7 @@ export async function searchPlayerValues(
 export async function getValuesLastUpdated(format: string = 'dynasty'): Promise<string | null> {
   try {
     const { data, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('updated_at')
       .eq('format', format)
       .order('updated_at', { ascending: false })
@@ -320,7 +320,7 @@ export async function getMultiplePlayerValues(
 
   try {
     const { data, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, player_name, position, team, rank_overall, rank_position, base_value, adjusted_value, market_value, updated_at')
       .in('player_id', playerIds)
       .eq('format', format);

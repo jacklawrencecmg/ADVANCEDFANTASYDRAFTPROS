@@ -45,7 +45,7 @@ export async function generateDailyArticles(): Promise<void> {
 
 async function detectRisers(): Promise<PlayerMovement[]> {
   const { data: currentValues } = await supabase
-    .rpc('get_latest_player_values', {})
+    .from('player_values_canonical').select('*')
     .order('base_value', { ascending: false })
     .limit(500);
 
@@ -74,7 +74,7 @@ async function detectRisers(): Promise<PlayerMovement[]> {
 
       if (change > 100) {
         const { data: rankData } = await supabase
-          .rpc('get_latest_player_values', {})
+          .from('player_values_canonical').select('*')
           .gte('base_value', player.base_value)
           .select('player_id');
 
@@ -98,7 +98,7 @@ async function detectRisers(): Promise<PlayerMovement[]> {
 
 async function detectFallers(): Promise<PlayerMovement[]> {
   const { data: currentValues } = await supabase
-    .rpc('get_latest_player_values', {})
+    .from('player_values_canonical').select('*')
     .order('base_value', { ascending: false })
     .limit(500);
 
@@ -127,7 +127,7 @@ async function detectFallers(): Promise<PlayerMovement[]> {
 
       if (change < -100) {
         const { data: rankData } = await supabase
-          .rpc('get_latest_player_values', {})
+          .from('player_values_canonical').select('*')
           .gte('base_value', player.base_value)
           .select('player_id');
 
@@ -151,7 +151,7 @@ async function detectFallers(): Promise<PlayerMovement[]> {
 
 async function detectBuyLows(): Promise<PlayerMovement[]> {
   const { data: currentValues } = await supabase
-    .rpc('get_latest_player_values', {})
+    .from('player_values_canonical').select('*')
     .order('base_value', { ascending: false })
     .limit(200);
 
@@ -174,7 +174,7 @@ async function detectBuyLows(): Promise<PlayerMovement[]> {
 
       if (valueGap < -200) {
         const { data: rankData } = await supabase
-          .rpc('get_latest_player_values', {})
+          .from('player_values_canonical').select('*')
           .gte('base_value', player.base_value)
           .select('player_id');
 

@@ -49,7 +49,7 @@ export default function KTCWRRankings() {
     try {
       setLoading(true);
       const { data, error: dbError } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('player_id, player_name, position, team, rank_position, base_value, adjusted_value, market_value, updated_at')
         .eq('format', 'dynasty')
         .eq('position', 'WR')

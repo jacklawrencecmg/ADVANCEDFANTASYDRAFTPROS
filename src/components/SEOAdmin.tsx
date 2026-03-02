@@ -26,7 +26,7 @@ export function SEOAdmin() {
   async function loadStats() {
     try {
       const { data: players } = await supabase
-        .rpc('get_latest_player_values', {})
+        .from('player_values_canonical').select('*')
         .limit(1000);
 
       const { data: leagues } = await supabase
@@ -49,7 +49,7 @@ export function SEOAdmin() {
 
     try {
       const { data } = await supabase
-        .rpc('get_latest_player_values', {})
+        .from('player_values_canonical').select('*')
         .ilike('full_name', `%${searchTerm}%`)
         .limit(20);
 

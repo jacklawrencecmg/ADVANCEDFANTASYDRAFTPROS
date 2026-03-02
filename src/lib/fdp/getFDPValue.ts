@@ -40,7 +40,7 @@ export async function getFDPValue(
 ): Promise<FDPValueBundle | null> {
   try {
     const { data, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('*')
       .eq('player_id', playerId)
       .eq('format', format)
@@ -99,7 +99,7 @@ export async function getFDPValuesBatch(
 
   try {
     const { data, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('*')
       .in('player_id', playerIds)
       .eq('format', format);

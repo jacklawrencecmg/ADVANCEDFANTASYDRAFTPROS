@@ -43,21 +43,21 @@ export function AdminSyncHub() {
 
       // All data comes from latest_player_values — the actual working table
       const { data: lastUpdatedRow } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('updated_at')
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
 
       const { count: totalCount } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('*', { count: 'exact', head: true });
 
       // Position counts (one query per position — no GROUP BY in supabase-js)
       const positionCounts = await Promise.all(
         ['QB', 'RB', 'WR', 'TE'].map(async (pos) => {
           const { count } = await supabase
-            .from('latest_player_values')
+            .from('player_values_canonical')
             .select('player_id', { count: 'exact', head: true })
             .eq('position', pos);
           return [pos, count || 0] as [string, number];

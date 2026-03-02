@@ -36,7 +36,7 @@ export async function checkFDPValueDrift(): Promise<DriftCheckResult> {
 
   try {
     const { data: cachedValues, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, adjusted_value')
       .limit(100);
 

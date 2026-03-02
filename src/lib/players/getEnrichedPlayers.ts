@@ -37,7 +37,7 @@ export async function getEnrichedPlayers(): Promise<Map<string, EnrichedPlayer>>
 
   try {
     const queryPromise = supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, player_name, position, team')
       .not('player_id', 'is', null);
 

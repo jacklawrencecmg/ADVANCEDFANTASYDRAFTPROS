@@ -240,7 +240,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
   async function checkAndSyncPlayerValues() {
     try {
       const { count, error } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('*', { count: 'exact', head: true });
 
       if (error) throw error;

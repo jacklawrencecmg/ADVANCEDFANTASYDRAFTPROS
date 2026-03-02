@@ -53,7 +53,7 @@ export async function getRankings(query: RankingsQuery): Promise<{
   try {
     // Build single query with all filters
     let queryBuilder = supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('*', { count: 'exact' })
       .eq('format', format)
       .not('fdp_value', 'is', null)
@@ -154,7 +154,7 @@ async function getTotalPlayerCount(format: 'dynasty' | 'redraft'): Promise<numbe
     cacheKey,
     async () => {
       const { count } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('*', { count: 'exact', head: true })
         .eq('format', format)
         .is('league_profile_id', null)
@@ -176,7 +176,7 @@ export async function getPlayerRank(
   try {
     const [playerData, total] = await Promise.all([
       supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('position_rank, fdp_value')
         .eq('player_id', playerId)
         .eq('format', format)
@@ -206,7 +206,7 @@ export async function getCurrentValueEpoch(
 ): Promise<string | null> {
   try {
     const { data } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('value_epoch')
       .eq('format', format)
       .is('league_profile_id', null)
@@ -238,7 +238,7 @@ export async function getRankingsStats(
     async () => {
       try {
         const { data } = await supabase
-          .from('latest_player_values')
+          .from('player_values_canonical')
           .select('player_position, value_epoch, captured_at')
           .eq('format', format)
           .is('league_profile_id', null)

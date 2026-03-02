@@ -86,16 +86,16 @@ export function NewsArticlePage() {
   async function loadPlayerCards(playerIds: string[]) {
     try {
       const { data } = await supabase
-        .rpc('get_latest_player_values', {})
+        .from('player_values_canonical').select('*')
         .in('player_id', playerIds.slice(0, 10));
 
       if (data) {
         const cards = data.map((p: any, index: number) => ({
           player_id: p.player_id,
-          full_name: p.full_name,
+          full_name: p.player_name || p.full_name,
           position: p.position,
           team: p.team,
-          fdp_value: p.fdp_value || 0,
+          fdp_value: p.adjusted_value || p.fdp_value || p.base_value || 0,
           rank: index + 1
         }));
 
