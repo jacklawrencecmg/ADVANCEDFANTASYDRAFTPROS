@@ -90,40 +90,70 @@ export function AdminSyncHub() {
       setError(null);
       setLastResult(null);
 
-      const functionMap = {
-        players: 'sync-sleeper-players',
-        values: 'sync-values-all',
-        full: 'sync-full-pipeline',
-        rebuild: 'rebuild-player-values-v2',
-      };
+      const githubToken = import.meta.env.VITE_GITHUB_TOKEN;
 
-      const functionName = functionMap[type];
-      const { data, error } = await supabase.functions.invoke(functionName);
-
-      if (error) {
-        throw error;
+      if (!githubToken) {
+        throw new Error(
+          'VITE_GITHUB_TOKEN is not set. Add a GitHub PAT (workflow scope) to your .env file, then rebuild and deploy.'
+        );
       }
 
-      setLastResult(data);
+      // Map sync type to workflow input — daily-sync.yml handles the rest with its own secrets
+      const syncTypeMap: Record<string, string> = {
+        players: 'full',   // no separate player-only workflow input; full covers it
+        values: 'values',
+        full: 'full',
+        rebuild: 'rebuild',
+      };
 
-      // Clear player caches after sync to ensure fresh data
+      const res = await fetch(
+        'https://api.github.com/repos/jacklawrencecmg/ADVANCEDFANTASYDRAFTPROS/actions/workflows/daily-sync.yml/dispatches',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${githubToken}`,
+            Accept: 'application/vnd.github+json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ref: 'main',
+            inputs: { sync_type: syncTypeMap[type] },
+          }),
+        }
+      );
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`GitHub API error ${res.status}: ${text}`);
+      }
+
+      // GitHub returns 204 No Content on success
+      setLastResult({
+        success: true,
+        steps: [
+          {
+            name: `${type}_dispatched`,
+            status: 'success',
+            result: {
+              message: 'Workflow dispatched. Check GitHub Actions for progress.',
+              url: 'https://github.com/jacklawrencecmg/ADVANCEDFANTASYDRAFTPROS/actions/workflows/daily-sync.yml',
+            },
+          },
+        ],
+      });
+
+      // Clear caches so next page load pulls fresh data after sync completes
       if (type === 'players' || type === 'full') {
         clearPlayerCache();
         invalidateEnrichedPlayersCache();
-        console.log('Player caches cleared - team data will be refreshed on next request');
       }
-
-      // Clear player values cache after value syncs
       if (type === 'values' || type === 'rebuild' || type === 'full') {
         clearPlayerValuesCache();
-        console.log('Player values cache cleared - values will be refreshed on next request');
       }
 
-      await loadStatus();
+      // Refresh status after a short delay to reflect any in-progress changes
+      setTimeout(() => loadStatus(), 3000);
 
-      if (!data.success) {
-        setError('Sync completed with errors. Check result details below.');
-      }
     } catch (err: any) {
       console.error('Sync error:', err);
       setError(err.message || 'Sync failed');
@@ -364,7 +394,18 @@ export function AdminSyncHub() {
 
                     {step.result && (
                       <div className="mt-2 text-sm text-gray-700">
-                        {JSON.stringify(step.result, null, 2)}
+                        {step.result.message && <p>{step.result.message}</p>}
+                        {step.result.url && (
+                          <a
+                            href={step.result.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 underline mt-1 inline-block"
+                          >
+                            View GitHub Actions run →
+                          </a>
+                        )}
+                        {!step.result.message && JSON.stringify(step.result, null, 2)}
                       </div>
                     )}
 
