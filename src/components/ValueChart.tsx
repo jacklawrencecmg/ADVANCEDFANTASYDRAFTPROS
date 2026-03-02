@@ -83,7 +83,7 @@ export default function ValueChart({ data, height = 400 }: ValueChartProps) {
           />
           <Line
             type="monotone"
-            dataKey="KTC Value"
+            dataKey="Base Value"
             stroke="#9ca3af"
             strokeWidth={2}
             dot={false}
