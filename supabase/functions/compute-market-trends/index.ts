@@ -89,8 +89,9 @@ Deno.serve(async (req: Request) => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const { data: players, error: playersError } = await supabase
-      .from('latest_player_values')
-      .select('player_id, player_name, position, team, adjusted_value');
+      .from('player_values_canonical')
+      .select('player_id, player_name, position, team, adjusted_value')
+      .eq('format', 'dynasty');
 
     if (playersError) {
       throw new Error(`Failed to fetch players: ${playersError.message}`);

@@ -133,9 +133,9 @@ export function PlayerValuePage() {
     try {
       const { data, error } = await supabase
         .from('ktc_value_snapshots')
-        .select('fdp_value, snapshot_date')
+        .select('fdp_value, captured_at')
         .eq('player_id', playerId)
-        .order('snapshot_date', { ascending: true })
+        .order('captured_at', { ascending: true })
         .limit(30);
 
       if (error) throw error;
@@ -143,7 +143,7 @@ export function PlayerValuePage() {
       if (data && data.length > 0) {
         setValueHistory(data.map(d => ({
           value: d.fdp_value,
-          date: d.snapshot_date,
+          date: d.captured_at.split('T')[0],
           explanation: undefined
         })));
       }
