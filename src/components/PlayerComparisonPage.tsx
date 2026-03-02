@@ -3,7 +3,6 @@ import { ArrowRight, TrendingUp, Users, Award } from 'lucide-react';
 import { useParams, Link } from '../lib/seo/router';
 import { supabase } from '../lib/supabase';
 import { generateComparisonMetaTags, parsePlayerSlug, generatePlayerSlug } from '../lib/seo/meta';
-import { getFDPValue } from '../lib/fdp/getFDPValue';
 import { ListSkeleton } from './LoadingSkeleton';
 import { useAuth } from '../hooks/useAuth';
 import { SoftGateModal } from './SoftGateModal';
@@ -28,7 +27,8 @@ function getSimilar(anchor: PlayerData, excludeId: string, all: any[]): any[] {
       p.player_id !== excludeId
     )
     .sort((a, b) =>
-      Math.abs(getFDPValue(a) - anchor.fdp_value) - Math.abs(getFDPValue(b) - anchor.fdp_value)
+      Math.abs((a.adjusted_value || 0) - anchor.fdp_value) -
+      Math.abs((b.adjusted_value || 0) - anchor.fdp_value)
     )
     .slice(0, 4);
 }
@@ -98,17 +98,20 @@ export function PlayerComparisonPage() {
       const name2 = parsePlayerSlug(slug2);
 
       const { data: players, error: playersError } = await supabase
-        .from('player_values_canonical').select('*');
+        .from('player_values_canonical')
+        .select('player_id, player_name, position, team, adjusted_value, rank_overall, rank_position, updated_at')
+        .eq('format', 'dynasty')
+        .order('adjusted_value', { ascending: false });
 
       if (playersError) throw playersError;
 
       setAllPlayers(players || []);
 
       const p1 = players.find((p: any) =>
-        (p.player_name || (p.player_name || p.full_name) || '').toLowerCase().includes(name1.toLowerCase())
+        (p.player_name || '').toLowerCase().includes(name1.toLowerCase())
       );
       const p2 = players.find((p: any) =>
-        (p.player_name || (p.player_name || p.full_name) || '').toLowerCase().includes(name2.toLowerCase())
+        (p.player_name || '').toLowerCase().includes(name2.toLowerCase())
       );
 
       if (!p1 || !p2) {
@@ -119,14 +122,18 @@ export function PlayerComparisonPage() {
 
       const enriched1: PlayerData = {
         ...p1,
-        full_name: p1.player_name || p1.full_name,
-        fdp_value: getFDPValue(p1)
+        full_name: p1.player_name,
+        fdp_value: p1.adjusted_value || 0,
+        base_value: p1.adjusted_value || 0,
+        dynasty_rank: p1.rank_overall,
       };
 
       const enriched2: PlayerData = {
         ...p2,
-        full_name: p2.player_name || p2.full_name,
-        fdp_value: getFDPValue(p2)
+        full_name: p2.player_name,
+        fdp_value: p2.adjusted_value || 0,
+        base_value: p2.adjusted_value || 0,
+        dynasty_rank: p2.rank_overall,
       };
 
       setPlayer1(enriched1);
