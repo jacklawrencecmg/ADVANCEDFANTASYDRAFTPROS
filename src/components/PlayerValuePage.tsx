@@ -58,7 +58,9 @@ export function PlayerValuePage() {
       const searchName = parsePlayerSlug(slug!);
 
       const { data: playerData, error: playerError } = await supabase
-        .from('player_values_canonical').select('*')
+        .from('player_values_canonical')
+        .select('player_id, player_name, position, team, adjusted_value, rank_overall, rank_position, updated_at')
+        .eq('format', 'dynasty')
         .ilike('player_name', `%${searchName}%`)
         .limit(1)
         .maybeSingle();
@@ -72,8 +74,11 @@ export function PlayerValuePage() {
 
       const enrichedPlayer: PlayerData = {
         ...(playerData as any),
-        full_name: (playerData as any).player_name || (playerData as any).full_name,
-        fdp_value: (playerData as any).adjusted_value || (playerData as any).fdp_value || (playerData as any).base_value || 0
+        full_name: (playerData as any).player_name,
+        fdp_value: (playerData as any).adjusted_value || 0,
+        base_value: (playerData as any).adjusted_value || 0,
+        dynasty_rank: (playerData as any).rank_overall,
+        value_epoch: (playerData as any).updated_at || new Date().toISOString(),
       };
 
       setPlayer(enrichedPlayer);
@@ -99,20 +104,23 @@ export function PlayerValuePage() {
   async function loadSimilarPlayers(currentPlayer: PlayerData) {
     try {
       const { data, error } = await supabase
-        .from('player_values_canonical').select('*')
+        .from('player_values_canonical')
+        .select('player_id, player_name, position, team, adjusted_value, rank_overall')
+        .eq('format', 'dynasty')
         .eq('position', currentPlayer.position)
         .neq('player_id', currentPlayer.player_id)
-        .gte('base_value', currentPlayer.base_value - 500)
-        .lte('base_value', currentPlayer.base_value + 500)
-        .order('base_value', { ascending: false })
-        .limit(10);
+        .gte('adjusted_value', currentPlayer.fdp_value - 1500)
+        .lte('adjusted_value', currentPlayer.fdp_value + 1500)
+        .order('adjusted_value', { ascending: false })
+        .limit(8);
 
       if (error) throw error;
 
       const enriched = (data || []).map((p: any) => ({
         ...p,
-        full_name: p.player_name || p.full_name,
-        fdp_value: p.adjusted_value || p.fdp_value || p.base_value || 0
+        full_name: p.player_name,
+        fdp_value: p.adjusted_value || 0,
+        dynasty_rank: p.rank_overall,
       }));
 
       setSimilarPlayers(enriched);
