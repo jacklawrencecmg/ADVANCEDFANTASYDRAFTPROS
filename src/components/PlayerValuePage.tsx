@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { generatePlayerMetaTags, parsePlayerSlug, generatePlayerSlug } from '../lib/seo/meta';
 import { generatePlayerStructuredData, injectMultipleStructuredData } from '../lib/seo/structuredData';
 import ValueChart from './ValueChart';
+import { calcFdpValue } from '../lib/fdp/calcFdpValue';
 import { ListSkeleton } from './LoadingSkeleton';
 
 interface PlayerData {
@@ -43,6 +44,7 @@ export function PlayerValuePage() {
   const [valueHistory, setValueHistory] = useState<ValueHistory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [format, setFormat] = useState<string>('dynasty_sf');
 
   useEffect(() => {
     if (!slug) return;
@@ -59,7 +61,7 @@ export function PlayerValuePage() {
 
       const { data: playerData, error: playerError } = await supabase
         .from('player_values_canonical')
-        .select('player_id, player_name, position, team, adjusted_value, rank_overall, rank_position, updated_at')
+        .select('player_id, player_name, position, team, base_value, adjusted_value, rank_overall, rank_position, updated_at')
         .eq('format', 'dynasty')
         .ilike('player_name', `%${searchName}%`)
         .limit(1)
@@ -72,11 +74,12 @@ export function PlayerValuePage() {
         return;
       }
 
+      const rawBase = (playerData as any).base_value || (playerData as any).adjusted_value || 0;
       const enrichedPlayer: PlayerData = {
         ...(playerData as any),
         full_name: (playerData as any).player_name,
-        fdp_value: (playerData as any).adjusted_value || 0,
-        base_value: (playerData as any).adjusted_value || 0,
+        fdp_value: rawBase,
+        base_value: rawBase,
         dynasty_rank: (playerData as any).rank_overall,
         value_epoch: (playerData as any).updated_at || new Date().toISOString(),
       };
@@ -105,12 +108,12 @@ export function PlayerValuePage() {
     try {
       const { data, error } = await supabase
         .from('player_values_canonical')
-        .select('player_id, player_name, position, team, adjusted_value, rank_overall')
+        .select('player_id, player_name, position, team, base_value, adjusted_value, rank_overall')
         .eq('format', 'dynasty')
         .eq('position', currentPlayer.position)
         .neq('player_id', currentPlayer.player_id)
-        .gte('adjusted_value', currentPlayer.fdp_value - 1500)
-        .lte('adjusted_value', currentPlayer.fdp_value + 1500)
+        .gte('adjusted_value', currentPlayer.base_value - 1500)
+        .lte('adjusted_value', currentPlayer.base_value + 1500)
         .order('adjusted_value', { ascending: false })
         .limit(8);
 
@@ -119,7 +122,7 @@ export function PlayerValuePage() {
       const enriched = (data || []).map((p: any) => ({
         ...p,
         full_name: p.player_name,
-        fdp_value: p.adjusted_value || 0,
+        fdp_value: p.base_value || p.adjusted_value || 0,
         dynasty_rank: p.rank_overall,
       }));
 
@@ -222,10 +225,33 @@ export function PlayerValuePage() {
             <span>Values updated: {relativeTime}</span>
           </div>
 
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span className="text-sm text-fdp-text-3 self-center mr-1">Format:</span>
+            {[
+              { key: 'dynasty_sf', label: 'Superflex' },
+              { key: 'dynasty_1qb', label: '1QB' },
+              { key: 'dynasty_tep', label: 'TEP' },
+            ].map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setFormat(key)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  format === key
+                    ? 'bg-gradient-to-r from-fdp-accent-1 to-fdp-accent-2 text-fdp-bg-0'
+                    : 'bg-fdp-surface-2 text-fdp-text-3 hover:bg-fdp-border-1'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-fdp-surface-2 rounded-lg p-6 border border-fdp-border-1">
               <div className="text-sm text-fdp-text-3 mb-2">Current Dynasty Value</div>
-              <div className="text-4xl font-bold text-fdp-accent-1 mb-1">{player.fdp_value}</div>
+              <div className="text-4xl font-bold text-fdp-accent-1 mb-1">
+                {Math.min(10000, calcFdpValue(player.base_value, player.position as any, format as any))}
+              </div>
               <div className="text-xs text-fdp-text-3">FDP Points</div>
             </div>
 
@@ -267,7 +293,7 @@ export function PlayerValuePage() {
           <h2 className="text-2xl font-bold text-fdp-text-1 mb-4">Trade Value Analysis</h2>
           <div className="prose prose-invert max-w-none">
             <p className="text-fdp-text-2 mb-4">
-              {player.full_name} currently ranks as the <strong>#{player.dynasty_rank || 'N/A'} player</strong> in dynasty fantasy football with a value of <strong>{player.fdp_value} points</strong>.
+              {player.full_name} currently ranks as the <strong>#{player.dynasty_rank || 'N/A'} player</strong> in dynasty fantasy football with a value of <strong>{Math.min(10000, calcFdpValue(player.base_value, player.position as any, format as any))} points</strong>.
               {player.position === 'QB' && ' As a quarterback, their value is heavily influenced by scoring format, with superflex leagues typically valuing QBs significantly higher.'}
               {player.position === 'RB' && ' Running backs in dynasty require careful evaluation of age, workload, and team situation due to the position\'s shorter shelf life.'}
               {player.position === 'WR' && ' Wide receivers offer longer dynasty windows than running backs, making them valuable long-term assets.'}
@@ -305,7 +331,7 @@ export function PlayerValuePage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xl font-bold text-fdp-accent-1">{sim.fdp_value}</div>
+                      <div className="text-xl font-bold text-fdp-accent-1">{Math.min(10000, calcFdpValue(sim.fdp_value, sim.position as any, format as any))}</div>
                       <div className="text-xs text-fdp-text-3">
                         {sim.dynasty_rank ? `#${sim.dynasty_rank}` : 'Unranked'}
                       </div>
@@ -326,7 +352,7 @@ export function PlayerValuePage() {
                 What is {player.full_name}'s dynasty value?
               </h3>
               <p className="text-fdp-text-2">
-                {player.full_name} currently has a dynasty value of {player.fdp_value} points and is ranked {player.dynasty_rank ? `#${player.dynasty_rank}` : 'unranked'} overall in dynasty fantasy football. This value is calculated using our proprietary FDP algorithm that factors in age, production, situation, and market consensus.
+                {player.full_name} currently has a dynasty value of {Math.min(10000, calcFdpValue(player.base_value, player.position as any, format as any))} points and is ranked {player.dynasty_rank ? `#${player.dynasty_rank}` : 'unranked'} overall in dynasty fantasy football. This value is calculated using our proprietary FDP algorithm that factors in age, production, situation, and market consensus.
               </p>
             </div>
 

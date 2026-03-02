@@ -52,13 +52,24 @@ Deno.serve(async (req: Request) => {
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+    const formatMultipliers: Record<string, Record<string, number>> = {
+      dynasty_sf: { QB: 1.35, RB: 1.15, WR: 1.0, TE: 1.10 },
+      dynasty_1qb: { QB: 1.0, RB: 1.18, WR: 1.0, TE: 1.10 },
+      dynasty_tep: { QB: 1.35, RB: 1.15, WR: 1.0, TE: 1.25 },
+    };
+    function applyMultiplier(baseValue: number, position: string): number {
+      const key = format.replace(/-/g, '_') === 'dynasty_superflex' ? 'dynasty_sf' : format.replace(/-/g, '_');
+      const mult = formatMultipliers[key]?.[position] ?? 1.0;
+      return Math.min(10000, Math.round(baseValue * mult));
+    }
+
     console.log('Fetching from latest_player_values for player:', playerId);
 
     const { data: playerData, error: playerError } = await supabase
       .from('player_values_canonical')
       .select('player_id, player_name, position, team, base_value, adjusted_value, market_value, rank_overall, rank_position, updated_at')
       .eq('player_id', playerId)
-      .eq('format', format)
+      .eq('format', 'dynasty')
       .maybeSingle();
 
     if (playerError) {
@@ -69,30 +80,7 @@ Deno.serve(async (req: Request) => {
     console.log('Player data:', playerData);
 
     if (!playerData) {
-      console.error('No player found with ID:', playerId, 'format:', format);
-
-      const { data: anyFormatData } = await supabase
-        .from('player_values_canonical')
-        .select('player_name, format')
-        .eq('player_id', playerId)
-        .limit(5);
-
-      if (anyFormatData && anyFormatData.length > 0) {
-        const availableFormats = anyFormatData.map(d => d.format).join(', ');
-        const playerName = anyFormatData[0].player_name;
-        return new Response(
-          JSON.stringify({
-            ok: false,
-            error: `${playerName} not found in ${format} format`,
-            details: `This player is available in: ${availableFormats}. Try switching formats.`
-          }),
-          {
-            status: 404,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
+      console.error('No player found with ID:', playerId);
       return new Response(
         JSON.stringify({
           ok: false,
@@ -140,16 +128,19 @@ Deno.serve(async (req: Request) => {
         history = [{
           captured_at: playerData.updated_at || new Date().toISOString(),
           ktc_value: playerData.base_value,
-          fdp_value: playerData.adjusted_value
+          fdp_value: playerData.base_value
         }];
       }
     }
 
-    const formattedHistory = history.map((point) => ({
-      date: point.captured_at,
-      ktc: point.ktc_value || playerData.base_value,
-      fdp: point.fdp_value || playerData.adjusted_value,
-    }));
+    const formattedHistory = history.map((point) => {
+      const baseKtc = point.ktc_value || playerData.base_value;
+      return {
+        date: point.captured_at,
+        ktc: baseKtc,
+        fdp: applyMultiplier(baseKtc, playerData.position),
+      };
+    });
 
     const calculateTrend = (): 'up' | 'down' | 'stable' => {
       if (formattedHistory.length < 2) return 'stable';
@@ -222,7 +213,7 @@ Deno.serve(async (req: Request) => {
       },
       latest: {
         ktc_value: playerData.base_value,
-        fdp_value: playerData.adjusted_value,
+        fdp_value: applyMultiplier(playerData.base_value, playerData.position),
         rank: playerData.rank_position,
         updated_at: playerData.updated_at,
       },

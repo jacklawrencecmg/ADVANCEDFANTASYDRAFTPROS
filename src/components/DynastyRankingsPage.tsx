@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { TrendingUp, TrendingDown, Calendar, Search, AlertCircle } from 'lucide-react';
 import { Link } from '../lib/seo/router';
 import { supabase } from '../lib/supabase';
@@ -7,6 +7,7 @@ import { generateRankingsStructuredData, injectStructuredData } from '../lib/seo
 import { TableSkeleton } from './LoadingSkeleton';
 import { PlayerAvatar } from './PlayerAvatar';
 import { fetchAllPlayers, getEspnIdFromCache } from '../services/sleeperApi';
+import { calcFdpValue } from '../lib/fdp/calcFdpValue';
 
 interface RankedPlayer {
   player_id: string;
@@ -14,17 +15,19 @@ interface RankedPlayer {
   position: string;
   team?: string;
   age?: number;
+  base_value: number;
   fdp_value: number;
   dynasty_rank: number;
   value_change_7d?: number;
 }
 
 export function DynastyRankingsPage() {
-  const [players, setPlayers] = useState<RankedPlayer[]>([]);
+  const [rawPlayers, setRawPlayers] = useState<RankedPlayer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [positionFilter, setPositionFilter] = useState<string>('ALL');
+  const [format, setFormat] = useState<string>('dynasty_sf');
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   // name (lowercase) → canonical Sleeper player_id, for correct headshots
   const [sleeperIdByName, setSleeperIdByName] = useState<Record<string, string>>({});
@@ -70,25 +73,26 @@ export function DynastyRankingsPage() {
 
       const { data, error } = await supabase
         .from('player_values_canonical')
-        .select('player_id, player_name, position, team, adjusted_value, rank_overall, updated_at')
+        .select('player_id, player_name, position, team, base_value, adjusted_value, rank_overall, updated_at')
         .eq('format', 'dynasty')
         .in('position', ['QB', 'RB', 'WR', 'TE', 'LB', 'DL', 'DB'])
-        .order('adjusted_value', { ascending: false })
+        .order('base_value', { ascending: false })
         .limit(1000);
 
       if (error) throw error;
 
-      const enriched = (data || []).map((p: any, index: number) => ({
+      const enriched = (data || []).map((p: any) => ({
         player_id: p.player_id,
         full_name: p.player_name || 'Unknown',
         position: p.position,
         team: p.team,
-        fdp_value: p.adjusted_value || 0,
-        dynasty_rank: p.rank_overall || index + 1,
+        base_value: p.base_value || p.adjusted_value || 0,
+        fdp_value: p.base_value || p.adjusted_value || 0,
+        dynasty_rank: 0,
         value_change_7d: undefined,
       }));
 
-      setPlayers(enriched);
+      setRawPlayers(enriched);
 
       if (data && data.length > 0 && data[0].updated_at) {
         setLastUpdated(new Date(data[0].updated_at));
@@ -100,6 +104,16 @@ export function DynastyRankingsPage() {
       setLoading(false);
     }
   }
+
+  const players = useMemo(() => {
+    return rawPlayers
+      .map(p => ({
+        ...p,
+        fdp_value: Math.min(10000, calcFdpValue(p.base_value, p.position as any, format as any)),
+      }))
+      .sort((a, b) => b.fdp_value - a.fdp_value)
+      .map((p, i) => ({ ...p, dynasty_rank: i + 1 }));
+  }, [rawPlayers, format]);
 
   const filteredPlayers = players.filter(p => {
     const matchesSearch = p.full_name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -144,30 +158,53 @@ export function DynastyRankingsPage() {
         </div>
 
         <div className="bg-fdp-surface-1 rounded-xl p-6 border border-fdp-border-1 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fdp-text-3" />
-              <input
-                type="text"
-                placeholder="Search players..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 text-fdp-text-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent outline-none"
-              />
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-fdp-text-3" />
+                <input
+                  type="text"
+                  placeholder="Search players..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 text-fdp-text-1 rounded-lg focus:ring-2 focus:ring-fdp-accent-1 focus:border-transparent outline-none"
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {['ALL', 'QB', 'RB', 'WR', 'TE', 'LB', 'DL', 'DB'].map(pos => (
+                  <button
+                    key={pos}
+                    onClick={() => setPositionFilter(pos)}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all ${
+                      positionFilter === pos
+                        ? 'bg-gradient-to-r from-fdp-accent-1 to-fdp-accent-2 text-fdp-bg-0'
+                        : 'bg-fdp-surface-2 text-fdp-text-3 hover:bg-fdp-border-1'
+                    }`}
+                  >
+                    {pos}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-2">
-              {['ALL', 'QB', 'RB', 'WR', 'TE', 'LB', 'DL', 'DB'].map(pos => (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-fdp-text-3 mr-1">Format:</span>
+              {[
+                { key: 'dynasty_sf', label: 'Superflex' },
+                { key: 'dynasty_1qb', label: '1QB' },
+                { key: 'dynasty_tep', label: 'TEP' },
+              ].map(({ key, label }) => (
                 <button
-                  key={pos}
-                  onClick={() => setPositionFilter(pos)}
-                  className={`px-4 py-2 rounded-lg font-semibold transition-all ${
-                    positionFilter === pos
+                  key={key}
+                  onClick={() => setFormat(key)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    format === key
                       ? 'bg-gradient-to-r from-fdp-accent-1 to-fdp-accent-2 text-fdp-bg-0'
                       : 'bg-fdp-surface-2 text-fdp-text-3 hover:bg-fdp-border-1'
                   }`}
                 >
-                  {pos}
+                  {label}
                 </button>
               ))}
             </div>
