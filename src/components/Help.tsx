@@ -916,7 +916,7 @@ export function Help({ onClose }: HelpProps) {
             </p>
             <div className="flex flex-wrap gap-3">
               <a
-                href="mailto:contact@fantasydraftpros.com"
+                href="mailto:fantasydraftproshelp@gmail.com"
                 className="px-4 py-2 bg-fdp-bg-0 bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-all font-semibold backdrop-blur"
               >
                 Email Support

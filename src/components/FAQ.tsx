@@ -301,7 +301,7 @@ export function FAQ({ onClose }: FAQProps) {
         },
         {
           question: 'Can I delete my account?',
-          answer: 'Yes. Contact us at contact@fantasydraftpros.com and we will permanently delete your account and all associated data within 30 days.',
+          answer: 'Yes. Contact us at fantasydraftproshelp@gmail.com and we will permanently delete your account and all associated data within 30 days.',
         },
       ],
     },
@@ -372,7 +372,7 @@ export function FAQ({ onClose }: FAQProps) {
       questions: [
         {
           question: 'How do I change my email?',
-          answer: 'Currently, email changes require manual intervention. Contact us at contact@fantasydraftpros.com with your current and new email address.',
+          answer: 'Currently, email changes require manual intervention. Contact us at fantasydraftproshelp@gmail.com with your current and new email address.',
         },
         {
           question: 'I forgot my password',
@@ -454,7 +454,7 @@ export function FAQ({ onClose }: FAQProps) {
           </p>
           <div className="flex gap-4">
             <a
-              href="mailto:contact@fantasydraftpros.com"
+              href="mailto:fantasydraftproshelp@gmail.com"
               className="px-4 py-2 bg-gradient-to-r from-fdp-accent-1 to-fdp-accent-2 text-fdp-bg-0 rounded-lg hover:shadow-lg transition-all transform hover:-translate-y-0.5 font-semibold"
             >
               Contact Support
