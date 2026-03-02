@@ -30,6 +30,7 @@ import { TradeGrade, calculateTradeGrade } from './TradeGrade';
 import { syncPlayerValuesToDatabase } from '../utils/syncPlayerValues';
 import { getCurrentPhaseInfo, getPhaseEmoji } from '../lib/picks/seasonPhase';
 import { getMultiplierPercentage } from '../lib/picks/phaseMultipliers';
+import { calcFdpValue } from '../lib/fdp/calcFdpValue';
 import { evaluateTrade, type TradeAsset, type TradeEvaluationResult } from '../lib/trade/evaluateTrade';
 import TradeFairnessWarning from './TradeFairnessWarning';
 import { trackUsage, checkUsageLimit, USAGE_LIMITS } from '../lib/subscription';
@@ -147,19 +148,22 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
   // Mirrors the same adjustments getPlayerValue() applies so badges match trade results.
   useEffect(() => {
     const sf: 'ppr' | 'half-ppr' = scoringFormat === 'half' ? 'half-ppr' : 'ppr';
+    const fdpFormat = leagueSettings.isSuperflex ? 'dynasty_sf' : 'dynasty_1qb';
     playerValuesApi.getPlayerValues(undefined, 3000, leagueFormat, sf).then(values => {
       const map: Record<string, number> = {};
       values.forEach(v => {
-        const raw = v.adjusted_value ?? v.fdp_value ?? v.base_value;
-        let val = typeof raw === 'number' ? raw : parseFloat(String(raw || 0));
-        if (val <= 0) return;
-        // Apply TE Premium if the league setting is on (matches getPlayerValue() behaviour)
-        if (v.position === 'TE' && leagueSettings.isTEPremium) val *= 1.15;
+        const base = typeof v.base_value === 'number' ? v.base_value : parseFloat(String(v.base_value || 0));
+        if (base <= 0) return;
+        let val = leagueFormat === 'dynasty'
+          ? calcFdpValue(base, v.position as any, fdpFormat as any)
+          : base;
+        // Apply TE Premium on top of format multiplier
+        if (v.position === 'TE' && leagueSettings.isTEPremium) val = Math.round(val * 1.15);
         map[v.player_id] = Math.round(val);
       });
       setPlayerValues(map);
     }).catch(() => {});
-  }, [leagueFormat, scoringFormat, leagueSettings.isTEPremium]);
+  }, [leagueFormat, scoringFormat, leagueSettings.isSuperflex, leagueSettings.isTEPremium]);
 
   const searchPlayers = useCallback(async (term: string, side: 'A' | 'B') => {
     const setResults = side === 'A' ? setSearchResultsA : setSearchResultsB;
