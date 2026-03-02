@@ -6,11 +6,14 @@ import {
   analyzeTrade,
   fetchLeagueRosters,
   fetchLeagueUsers,
+  fetchLeagueDetails,
+  getLeagueSettings,
   fetchTradedPicks,
   clearPlayerValuesCache,
   getEspnIdFromCache,
   getSleeperIdByName,
   warmEspnIdCache,
+  getDraftPickValue,
   type SleeperPlayer,
   type SleeperRoster,
   type SleeperUser,
@@ -78,7 +81,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [leagueSettings, setLeagueSettings] = useState<Partial<LeagueSettings>>({
-    isSuperflex: false,
+    isSuperflex: true,
     isTEPremium: false,
   });
   const [rosters, setRosters] = useState<SleeperRoster[]>([]);
@@ -99,6 +102,14 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [playersLoading, setPlayersLoading] = useState(false);
   const [playerValues, setPlayerValues] = useState<Record<string, number>>({});
+  const [fdpFormat, setFdpFormat] = useState<'dynasty_sf' | 'dynasty_1qb' | 'dynasty_tep'>('dynasty_sf');
+  const [topPlayers, setTopPlayers] = useState<Array<{player_id: string, player_name: string, position: string, value: number}>>([]);
+  const [searchFocusA, setSearchFocusA] = useState(false);
+  const [searchFocusB, setSearchFocusB] = useState(false);
+  const [showPickPickerA, setShowPickPickerA] = useState(false);
+  const [showPickPickerB, setShowPickPickerB] = useState(false);
+  const pickPickerRefA = useRef<HTMLDivElement>(null);
+  const pickPickerRefB = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (leagueId) {
@@ -148,22 +159,50 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
   // Mirrors the same adjustments getPlayerValue() applies so badges match trade results.
   useEffect(() => {
     const sf: 'ppr' | 'half-ppr' = scoringFormat === 'half' ? 'half-ppr' : 'ppr';
-    const fdpFormat = leagueSettings.isSuperflex ? 'dynasty_sf' : 'dynasty_1qb';
+    const activeFdpFormat = leagueSettings.isSuperflex
+      ? (leagueSettings.isTEPremium ? 'dynasty_tep' : 'dynasty_sf')
+      : 'dynasty_1qb';
     playerValuesApi.getPlayerValues(undefined, 3000, leagueFormat, sf).then(values => {
       const map: Record<string, number> = {};
       values.forEach(v => {
         const base = typeof v.base_value === 'number' ? v.base_value : parseFloat(String(v.base_value || 0));
         if (base <= 0) return;
         let val = leagueFormat === 'dynasty'
-          ? calcFdpValue(base, v.position as any, fdpFormat as any)
+          ? calcFdpValue(base, v.position as any, activeFdpFormat as any)
           : base;
         // Apply TE Premium on top of format multiplier
         if (v.position === 'TE' && leagueSettings.isTEPremium) val = Math.round(val * 1.15);
         map[v.player_id] = Math.round(val);
       });
       setPlayerValues(map);
+      // Build top players list for search focus suggestions
+      const top = values
+        .filter(v => {
+          const base = typeof v.base_value === 'number' ? v.base_value : parseFloat(String(v.base_value || 0));
+          return base > 0;
+        })
+        .map(v => ({
+          player_id: v.player_id,
+          player_name: v.player_name || '',
+          position: v.position || '',
+          value: map[v.player_id] || 0,
+        }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 20);
+      setTopPlayers(top);
     }).catch(() => {});
   }, [leagueFormat, scoringFormat, leagueSettings.isSuperflex, leagueSettings.isTEPremium]);
+
+  function applyFormat(fmt: 'dynasty_sf' | 'dynasty_1qb' | 'dynasty_tep') {
+    setFdpFormat(fmt);
+    if (fmt === 'dynasty_sf') {
+      setLeagueSettings(s => ({ ...s, isSuperflex: true, isTEPremium: false }));
+    } else if (fmt === 'dynasty_1qb') {
+      setLeagueSettings(s => ({ ...s, isSuperflex: false, isTEPremium: false }));
+    } else {
+      setLeagueSettings(s => ({ ...s, isSuperflex: true, isTEPremium: true }));
+    }
+  }
 
   const searchPlayers = useCallback(async (term: string, side: 'A' | 'B') => {
     const setResults = side === 'A' ? setSearchResultsA : setSearchResultsB;
@@ -273,13 +312,14 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
 
     setPlayersLoading(true);
     try {
-      const [rostersData, usersData, tradedPicksData, allPlayers] = await Promise.all([
+      const [rostersData, usersData, tradedPicksData, allPlayers, leagueDetails] = await Promise.all([
         fetchLeagueRosters(leagueId),
         fetchLeagueUsers(leagueId),
         fetchTradedPicks(leagueId).catch(() => []),
         // fetchAllPlayers returns all ~3000+ NFL players merged with DB enrichment data,
         // ensuring every player on a roster has their name, position, and team.
         fetchAllPlayers().catch(() => fetchAllPlayersFromDatabase().catch(() => ({} as Record<string, SleeperPlayer>))),
+        fetchLeagueDetails(leagueId).catch(() => null),
       ]);
 
       setRosters(rostersData);
@@ -287,6 +327,18 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
       setTradedPicks(tradedPicksData);
       if (Object.keys(allPlayers).length > 0) {
         setPlayers(allPlayers);
+      }
+      // Detect league format and sync fdpFormat state
+      if (leagueDetails) {
+        const settings = getLeagueSettings(leagueDetails);
+        setLeagueSettings(settings);
+        if (settings.isTEPremium) {
+          setFdpFormat('dynasty_tep');
+        } else if (settings.isSuperflex) {
+          setFdpFormat('dynasty_sf');
+        } else {
+          setFdpFormat('dynasty_1qb');
+        }
       }
     } catch (error) {
       console.error('Failed to load league data:', error);
@@ -1334,29 +1386,26 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
             ))}
           </div>
 
-          {/* Superflex + TEP (no-league mode only) */}
-          {!leagueId && (
-            <>
-              <label className="flex items-center gap-1.5 cursor-pointer text-xs text-fdp-text-2">
-                <input
-                  type="checkbox"
-                  checked={leagueSettings.isSuperflex}
-                  onChange={(e) => setLeagueSettings({ ...leagueSettings, isSuperflex: e.target.checked })}
-                  className="w-3.5 h-3.5 rounded"
-                />
-                SF
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer text-xs text-fdp-text-2">
-                <input
-                  type="checkbox"
-                  checked={leagueSettings.isTEPremium}
-                  onChange={(e) => setLeagueSettings({ ...leagueSettings, isTEPremium: e.target.checked })}
-                  className="w-3.5 h-3.5 rounded"
-                />
-                TE+
-              </label>
-            </>
-          )}
+          {/* Format button strip (SF / 1QB / TEP) */}
+          <div className="flex rounded-md overflow-hidden border border-fdp-border-1 text-xs font-medium">
+            {([
+              { key: 'dynasty_sf' as const, label: 'Superflex' },
+              { key: 'dynasty_1qb' as const, label: '1QB' },
+              { key: 'dynasty_tep' as const, label: 'TEP' },
+            ]).map(({ key, label }, i) => (
+              <button
+                key={key}
+                onClick={() => applyFormat(key)}
+                className={`px-3 py-2 min-h-[36px] transition-colors ${i > 0 ? 'border-l border-fdp-border-1' : ''} ${
+                  fdpFormat === key
+                    ? 'bg-fdp-accent-1 text-white'
+                    : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
           {/* Refresh values */}
           <button
@@ -1402,69 +1451,136 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
               <label className="block text-sm font-semibold text-fdp-text-2 mb-2">
                 {teamAName} Gives
               </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-fdp-text-3 z-10" />
-                <input
-                  type="text"
-                  value={searchTermA}
-                  onChange={(e) => handleSearchA(e.target.value)}
-                  placeholder="Search players or draft picks..."
-                  className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-white placeholder-fdp-text-3 focus:outline-none focus:border-fdp-accent-1 transition-colors"
-                />
-                {searchLoadingA && (
-                  <div className="absolute right-3 top-3 w-5 h-5 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin z-10" />
-                )}
-                {searchTermA.length >= 2 && (() => {
-                  const pickResultsA = getFilteredResults(searchTermA).filter(r => r.type === 'pick');
-                  return (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-[min(240px,50vh)] overflow-y-auto z-50 shadow-xl">
-                    {pickResultsA.length === 0 && searchResultsA.length === 0 && !searchLoadingA && (
-                      <div className="px-4 py-3 text-sm text-fdp-text-3">No results found</div>
-                    )}
-                    {pickResultsA.map((result) => {
-                      const pick = result.pick!;
-                      return (
-                        <button
-                          key={`pick-${pick.year}-${pick.round}-${pick.pickNumber}`}
-                          onClick={() => addPickFromSearch(pick.year, pick.round, pick.pickNumber, pick.displayName, 'A', 'gives')}
-                          className="w-full px-4 py-2 text-left hover:bg-fdp-surface-1 transition-colors flex items-center gap-3"
-                        >
-                          <Calendar className="w-5 h-5 text-fdp-accent-1 flex-shrink-0" />
-                          <span className="text-white font-medium">{pick.displayName}</span>
-                        </button>
-                      );
-                    })}
-                    {searchResultsA.map((player) => {
-                      const isSelected = teamAGives.includes(player.player_id);
-                      return (
-                        <button
-                          key={player.player_id}
-                          onClick={() => addPlayer(player.player_id, 'A', 'gives')}
-                          className={`w-full px-4 py-2 text-left transition-colors flex items-center gap-3 group ${
-                            isSelected
-                              ? 'bg-fdp-accent-1/20 border-l-4 border-fdp-accent-1 hover:bg-fdp-accent-1/30'
-                              : 'hover:bg-fdp-surface-1'
-                          }`}
-                        >
-                          <PlayerAvatar
-                            playerName={player.full_name}
-                            team={player.team ?? undefined}
-                            position={player.position}
-                            size="md"
-                            playerId={player.headshot_id || player.player_id}
-                            espnId={player.espn_id}
-                          />
-                          <div className="flex-1">
-                            <span className="text-white font-medium">{player.full_name}</span>
-                            <div className="text-sm text-fdp-text-3">{player.position} - {player.team || 'FA'}</div>
-                          </div>
-                          <Plus className="w-5 h-5 text-fdp-text-3 group-hover:text-fdp-accent-1" />
-                        </button>
-                      );
-                    })}
-                  </div>
-                  );
-                })()}
+              <div className="flex gap-2 items-start">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-3 w-5 h-5 text-fdp-text-3 z-10" />
+                  <input
+                    type="text"
+                    value={searchTermA}
+                    onChange={(e) => handleSearchA(e.target.value)}
+                    onFocus={() => setSearchFocusA(true)}
+                    onBlur={() => setTimeout(() => setSearchFocusA(false), 150)}
+                    placeholder="Search players or draft picks..."
+                    className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-white placeholder-fdp-text-3 focus:outline-none focus:border-fdp-accent-1 transition-colors"
+                  />
+                  {searchLoadingA && (
+                    <div className="absolute right-3 top-3 w-5 h-5 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin z-10" />
+                  )}
+                  {/* Dropdown: typed results OR top players on empty focus */}
+                  {(searchTermA.length >= 2 || (searchFocusA && searchTermA.length === 0)) && (() => {
+                    const pickResultsA = searchTermA.length >= 2 ? getFilteredResults(searchTermA).filter(r => r.type === 'pick') : [];
+                    const playerList = searchTermA.length >= 2
+                      ? searchResultsA
+                      : topPlayers.filter(p => !teamAGives.includes(p.player_id)).map(p => ({
+                          player_id: p.player_id,
+                          full_name: p.player_name,
+                          first_name: '',
+                          last_name: '',
+                          position: p.position,
+                          team: null,
+                          status: 'Active' as const,
+                          injury_status: null,
+                        } as SleeperPlayer));
+                    const isEmpty = pickResultsA.length === 0 && playerList.length === 0 && !searchLoadingA;
+                    return (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-[min(280px,55vh)] overflow-y-auto z-50 shadow-xl">
+                      {isEmpty && searchTermA.length >= 2 && (
+                        <div className="px-4 py-3 text-sm text-fdp-text-3">No results found</div>
+                      )}
+                      {searchTermA.length === 0 && playerList.length > 0 && (
+                        <div className="px-3 py-1.5 text-xs font-semibold text-fdp-text-3 border-b border-fdp-border-1/50 bg-fdp-surface-1/50">
+                          Top Players
+                        </div>
+                      )}
+                      {pickResultsA.map((result) => {
+                        const pick = result.pick!;
+                        return (
+                          <button
+                            key={`pick-${pick.year}-${pick.round}-${pick.pickNumber}`}
+                            onClick={() => addPickFromSearch(pick.year, pick.round, pick.pickNumber, pick.displayName, 'A', 'gives')}
+                            className="w-full px-4 py-2 text-left hover:bg-fdp-surface-1 transition-colors flex items-center gap-3"
+                          >
+                            <Calendar className="w-5 h-5 text-fdp-accent-1 flex-shrink-0" />
+                            <span className="text-white font-medium">{pick.displayName}</span>
+                          </button>
+                        );
+                      })}
+                      {playerList.map((player) => {
+                        const isSelected = teamAGives.includes(player.player_id);
+                        return (
+                          <button
+                            key={player.player_id}
+                            onClick={() => addPlayer(player.player_id, 'A', 'gives')}
+                            className={`w-full px-4 py-2 text-left transition-colors flex items-center gap-3 group ${
+                              isSelected
+                                ? 'bg-fdp-accent-1/20 border-l-4 border-fdp-accent-1 hover:bg-fdp-accent-1/30'
+                                : 'hover:bg-fdp-surface-1'
+                            }`}
+                          >
+                            <PlayerAvatar
+                              playerName={player.full_name}
+                              team={player.team ?? undefined}
+                              position={player.position}
+                              size="md"
+                              playerId={player.headshot_id || player.player_id}
+                              espnId={player.espn_id}
+                            />
+                            <div className="flex-1">
+                              <span className="text-white font-medium">{player.full_name}</span>
+                              <div className="text-sm text-fdp-text-3">{player.position} - {player.team || 'FA'}</div>
+                            </div>
+                            <Plus className="w-5 h-5 text-fdp-text-3 group-hover:text-fdp-accent-1" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                    );
+                  })()}
+                </div>
+                {/* Add Pick button */}
+                <div className="relative" ref={pickPickerRefA}>
+                  <button
+                    onClick={() => setShowPickPickerA(v => !v)}
+                    title="Add draft pick"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-fdp-text-3 hover:text-fdp-accent-1 hover:border-fdp-accent-1/60 transition-colors text-xs font-medium whitespace-nowrap"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Add Pick
+                  </button>
+                  {showPickPickerA && (() => {
+                    const currentYear = new Date().getFullYear();
+                    const years = [currentYear, currentYear + 1, currentYear + 2, currentYear + 3];
+                    return (
+                      <div className="absolute top-full right-0 mt-1 z-50 bg-fdp-surface-1 border border-fdp-border-2 rounded-lg shadow-card p-3 w-max">
+                        <div className="grid gap-1" style={{ gridTemplateColumns: `auto repeat(${years.length}, 1fr)` }}>
+                          <div className="text-xs text-fdp-text-3 font-semibold px-2 py-1"></div>
+                          {years.map(y => (
+                            <div key={y} className="text-xs text-fdp-text-3 font-semibold text-center px-2 py-1">{y}</div>
+                          ))}
+                          {[1, 2, 3, 4].map(round => (
+                            <>
+                              <div key={`label-${round}`} className="text-xs text-fdp-text-2 font-semibold px-2 py-1 flex items-center">{getOrdinal(round)}</div>
+                              {years.map(year => {
+                                const val = getDraftPickValue(round, year, { isSuperflex: leagueSettings.isSuperflex });
+                                const displayName = `${year} ${getOrdinal(round)} Rd`;
+                                return (
+                                  <button
+                                    key={`${year}-${round}`}
+                                    onClick={() => { addPickFromSearch(year, round, undefined, `${year} Pick ${round}`, 'A', 'gives'); setShowPickPickerA(false); }}
+                                    className="text-center px-2 py-1.5 rounded hover:bg-fdp-accent-1/20 hover:text-white transition-colors"
+                                  >
+                                    <div className="text-xs text-white font-medium">{displayName}</div>
+                                    <div className="text-xs text-fdp-accent-1">{val > 0 ? val.toLocaleString() : '—'}</div>
+                                  </button>
+                                );
+                              })}
+                            </>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
               <div className="mt-3 space-y-2">
                 {teamAGives.map((playerId) => {
@@ -1601,69 +1717,136 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
               <label className="block text-sm font-semibold text-fdp-text-2 mb-2">
                 {teamAName} Gets
               </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-fdp-text-3 z-10" />
-                <input
-                  type="text"
-                  value={searchTermB}
-                  onChange={(e) => handleSearchB(e.target.value)}
-                  placeholder="Search players or draft picks..."
-                  className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-white placeholder-fdp-text-3 focus:outline-none focus:border-fdp-accent-1 transition-colors"
-                />
-                {searchLoadingB && (
-                  <div className="absolute right-3 top-3 w-5 h-5 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin z-10" />
-                )}
-                {searchTermB.length >= 2 && (() => {
-                  const pickResultsB = getFilteredResults(searchTermB).filter(r => r.type === 'pick');
-                  return (
-                  <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-[min(240px,50vh)] overflow-y-auto z-50 shadow-xl">
-                    {pickResultsB.length === 0 && searchResultsB.length === 0 && !searchLoadingB && (
-                      <div className="px-4 py-3 text-sm text-fdp-text-3">No results found</div>
-                    )}
-                    {pickResultsB.map((result) => {
-                      const pick = result.pick!;
-                      return (
-                        <button
-                          key={`pick-${pick.year}-${pick.round}-${pick.pickNumber}`}
-                          onClick={() => addPickFromSearch(pick.year, pick.round, pick.pickNumber, pick.displayName, 'A', 'gets')}
-                          className="w-full px-4 py-2 text-left hover:bg-fdp-surface-1 transition-colors flex items-center gap-3"
-                        >
-                          <Calendar className="w-5 h-5 text-fdp-accent-1 flex-shrink-0" />
-                          <span className="text-white font-medium">{pick.displayName}</span>
-                        </button>
-                      );
-                    })}
-                    {searchResultsB.map((player) => {
-                      const isSelected = teamAGets.includes(player.player_id);
-                      return (
-                        <button
-                          key={player.player_id}
-                          onClick={() => addPlayer(player.player_id, 'A', 'gets')}
-                          className={`w-full px-4 py-2 text-left transition-colors flex items-center gap-3 group ${
-                            isSelected
-                              ? 'bg-fdp-accent-1/20 border-l-4 border-fdp-accent-1 hover:bg-fdp-accent-1/30'
-                              : 'hover:bg-fdp-surface-1'
-                          }`}
-                        >
-                          <PlayerAvatar
-                            playerName={player.full_name}
-                            team={player.team ?? undefined}
-                            position={player.position}
-                            size="md"
-                            playerId={player.headshot_id || player.player_id}
-                            espnId={player.espn_id}
-                          />
-                          <div className="flex-1">
-                            <span className="text-white font-medium">{player.full_name}</span>
-                            <div className="text-sm text-fdp-text-3">{player.position} - {player.team || 'FA'}</div>
-                          </div>
-                          <Plus className="w-5 h-5 text-fdp-text-3 group-hover:text-fdp-accent-1" />
-                        </button>
-                      );
-                    })}
-                  </div>
-                  );
-                })()}
+              <div className="flex gap-2 items-start">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-3 w-5 h-5 text-fdp-text-3 z-10" />
+                  <input
+                    type="text"
+                    value={searchTermB}
+                    onChange={(e) => handleSearchB(e.target.value)}
+                    onFocus={() => setSearchFocusB(true)}
+                    onBlur={() => setTimeout(() => setSearchFocusB(false), 150)}
+                    placeholder="Search players or draft picks..."
+                    className="w-full pl-10 pr-4 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-white placeholder-fdp-text-3 focus:outline-none focus:border-fdp-accent-1 transition-colors"
+                  />
+                  {searchLoadingB && (
+                    <div className="absolute right-3 top-3 w-5 h-5 border-2 border-fdp-accent-1 border-t-transparent rounded-full animate-spin z-10" />
+                  )}
+                  {/* Dropdown: typed results OR top players on empty focus */}
+                  {(searchTermB.length >= 2 || (searchFocusB && searchTermB.length === 0)) && (() => {
+                    const pickResultsB = searchTermB.length >= 2 ? getFilteredResults(searchTermB).filter(r => r.type === 'pick') : [];
+                    const playerList = searchTermB.length >= 2
+                      ? searchResultsB
+                      : topPlayers.filter(p => !teamAGets.includes(p.player_id)).map(p => ({
+                          player_id: p.player_id,
+                          full_name: p.player_name,
+                          first_name: '',
+                          last_name: '',
+                          position: p.position,
+                          team: null,
+                          status: 'Active' as const,
+                          injury_status: null,
+                        } as SleeperPlayer));
+                    const isEmpty = pickResultsB.length === 0 && playerList.length === 0 && !searchLoadingB;
+                    return (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg max-h-[min(280px,55vh)] overflow-y-auto z-50 shadow-xl">
+                      {isEmpty && searchTermB.length >= 2 && (
+                        <div className="px-4 py-3 text-sm text-fdp-text-3">No results found</div>
+                      )}
+                      {searchTermB.length === 0 && playerList.length > 0 && (
+                        <div className="px-3 py-1.5 text-xs font-semibold text-fdp-text-3 border-b border-fdp-border-1/50 bg-fdp-surface-1/50">
+                          Top Players
+                        </div>
+                      )}
+                      {pickResultsB.map((result) => {
+                        const pick = result.pick!;
+                        return (
+                          <button
+                            key={`pick-${pick.year}-${pick.round}-${pick.pickNumber}`}
+                            onClick={() => addPickFromSearch(pick.year, pick.round, pick.pickNumber, pick.displayName, 'A', 'gets')}
+                            className="w-full px-4 py-2 text-left hover:bg-fdp-surface-1 transition-colors flex items-center gap-3"
+                          >
+                            <Calendar className="w-5 h-5 text-fdp-accent-1 flex-shrink-0" />
+                            <span className="text-white font-medium">{pick.displayName}</span>
+                          </button>
+                        );
+                      })}
+                      {playerList.map((player) => {
+                        const isSelected = teamAGets.includes(player.player_id);
+                        return (
+                          <button
+                            key={player.player_id}
+                            onClick={() => addPlayer(player.player_id, 'A', 'gets')}
+                            className={`w-full px-4 py-2 text-left transition-colors flex items-center gap-3 group ${
+                              isSelected
+                                ? 'bg-fdp-accent-1/20 border-l-4 border-fdp-accent-1 hover:bg-fdp-accent-1/30'
+                                : 'hover:bg-fdp-surface-1'
+                            }`}
+                          >
+                            <PlayerAvatar
+                              playerName={player.full_name}
+                              team={player.team ?? undefined}
+                              position={player.position}
+                              size="md"
+                              playerId={player.headshot_id || player.player_id}
+                              espnId={player.espn_id}
+                            />
+                            <div className="flex-1">
+                              <span className="text-white font-medium">{player.full_name}</span>
+                              <div className="text-sm text-fdp-text-3">{player.position} - {player.team || 'FA'}</div>
+                            </div>
+                            <Plus className="w-5 h-5 text-fdp-text-3 group-hover:text-fdp-accent-1" />
+                          </button>
+                        );
+                      })}
+                    </div>
+                    );
+                  })()}
+                </div>
+                {/* Add Pick button */}
+                <div className="relative" ref={pickPickerRefB}>
+                  <button
+                    onClick={() => setShowPickPickerB(v => !v)}
+                    title="Add draft pick"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-fdp-surface-2 border border-fdp-border-1 rounded-lg text-fdp-text-3 hover:text-fdp-accent-1 hover:border-fdp-accent-1/60 transition-colors text-xs font-medium whitespace-nowrap"
+                  >
+                    <Calendar className="w-4 h-4" />
+                    Add Pick
+                  </button>
+                  {showPickPickerB && (() => {
+                    const currentYear = new Date().getFullYear();
+                    const years = [currentYear, currentYear + 1, currentYear + 2, currentYear + 3];
+                    return (
+                      <div className="absolute top-full right-0 mt-1 z-50 bg-fdp-surface-1 border border-fdp-border-2 rounded-lg shadow-card p-3 w-max">
+                        <div className="grid gap-1" style={{ gridTemplateColumns: `auto repeat(${years.length}, 1fr)` }}>
+                          <div className="text-xs text-fdp-text-3 font-semibold px-2 py-1"></div>
+                          {years.map(y => (
+                            <div key={y} className="text-xs text-fdp-text-3 font-semibold text-center px-2 py-1">{y}</div>
+                          ))}
+                          {[1, 2, 3, 4].map(round => (
+                            <>
+                              <div key={`label-${round}`} className="text-xs text-fdp-text-2 font-semibold px-2 py-1 flex items-center">{getOrdinal(round)}</div>
+                              {years.map(year => {
+                                const val = getDraftPickValue(round, year, { isSuperflex: leagueSettings.isSuperflex });
+                                const displayName = `${year} ${getOrdinal(round)} Rd`;
+                                return (
+                                  <button
+                                    key={`${year}-${round}`}
+                                    onClick={() => { addPickFromSearch(year, round, undefined, `${year} Pick ${round}`, 'A', 'gets'); setShowPickPickerB(false); }}
+                                    className="text-center px-2 py-1.5 rounded hover:bg-fdp-accent-1/20 hover:text-white transition-colors"
+                                  >
+                                    <div className="text-xs text-white font-medium">{displayName}</div>
+                                    <div className="text-xs text-fdp-accent-1">{val > 0 ? val.toLocaleString() : '—'}</div>
+                                  </button>
+                                );
+                              })}
+                            </>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
               </div>
               <div className="mt-3 space-y-2">
                 {teamAGets.map((playerId) => {
@@ -1797,15 +1980,27 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
         </div>
 
         {/* Live value running totals */}
-        {Object.keys(playerValues).length > 0 && (teamAGives.length > 0 || teamAGets.length > 0) && (
+        {Object.keys(playerValues).length > 0 && (teamAGives.length > 0 || teamAGivesPicks.length > 0 || teamAGets.length > 0 || teamAGetsPicks.length > 0) && (
           <div className="mt-4 grid grid-cols-2 gap-3">
             {(() => {
-              const givesVal = Math.round(teamAGives.reduce((s, id) => s + (playerValues[id] || 0), 0) + teamAGivesFAAB);
-              const getsVal = Math.round(teamAGets.reduce((s, id) => s + (playerValues[id] || 0), 0) + teamAGetsFAAB);
+              const givesPickVal = teamAGivesPicks.reduce((s, p) =>
+                s + getDraftPickValue(p.round, p.year, { isSuperflex: leagueSettings.isSuperflex }, p.pickNumber), 0);
+              const getsPickVal = teamAGetsPicks.reduce((s, p) =>
+                s + getDraftPickValue(p.round, p.year, { isSuperflex: leagueSettings.isSuperflex }, p.pickNumber), 0);
+              const givesVal = Math.round(teamAGives.reduce((s, id) => s + (playerValues[id] || 0), 0) + givesPickVal + teamAGivesFAAB);
+              const getsVal = Math.round(teamAGets.reduce((s, id) => s + (playerValues[id] || 0), 0) + getsPickVal + teamAGetsFAAB);
               const total = givesVal + getsVal;
               const givePct = total > 0 ? (givesVal / total) * 100 : 50;
               const getPct = 100 - givePct;
               const diff = getsVal - givesVal;
+              // Fairness badge
+              let badgeText = '';
+              let badgeClass = '';
+              if (diff > 300) { badgeText = "You're giving too much"; badgeClass = 'bg-red-500/20 text-red-400 border-red-500/40'; }
+              else if (diff > 100) { badgeText = 'Slight edge for you'; badgeClass = 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40'; }
+              else if (Math.abs(diff) <= 100) { badgeText = 'Fair trade'; badgeClass = 'bg-green-500/20 text-green-400 border-green-500/40'; }
+              else if (diff < -300) { badgeText = 'Great value for you'; badgeClass = 'bg-green-500/20 text-green-400 border-green-500/40'; }
+              else { badgeText = "They're giving more"; badgeClass = 'bg-yellow-500/20 text-yellow-400 border-yellow-500/40'; }
               return (
                 <>
                   <div className="bg-fdp-surface-2/80 border border-fdp-border-1 rounded-lg p-3 text-center">
@@ -1817,12 +2012,16 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
                     <div className={`text-xl font-bold ${diff > 200 ? 'text-green-400' : diff > 0 ? 'text-yellow-400' : 'text-white'}`}>{getsVal.toLocaleString()}</div>
                   </div>
                   {total > 0 && (
-                    <div className="col-span-2">
+                    <div className="col-span-2 space-y-2">
+                      {/* Fairness badge */}
+                      <div className={`flex items-center justify-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border w-fit mx-auto ${badgeClass}`}>
+                        {badgeText}
+                      </div>
                       <div className="flex rounded-full overflow-hidden h-2 gap-0.5">
                         <div className="bg-red-500/70 transition-all duration-300" style={{ width: `${givePct}%` }} />
                         <div className="bg-green-500/70 transition-all duration-300" style={{ width: `${getPct}%` }} />
                       </div>
-                      <div className="flex justify-between text-xs text-fdp-text-3 mt-1">
+                      <div className="flex justify-between text-xs text-fdp-text-3">
                         <span>Gives {givePct.toFixed(0)}%</span>
                         {diff !== 0 && (
                           <span className={diff > 0 ? 'text-green-400' : 'text-red-400'}>

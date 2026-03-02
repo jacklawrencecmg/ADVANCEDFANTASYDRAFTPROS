@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Calendar, AlertTriangle, CheckCircle, RefreshCw, Database, TrendingUp, Info, Play } from 'lucide-react';
 import { SEASON_CONTEXT, getSeasonContextSummary, needsSeasonalRebuild } from '../config/seasonContext';
 import { supabase } from '../lib/supabase';
+import { syncPlayerValuesToDatabase } from '../utils/syncPlayerValues';
+import { clearPlayerValuesCache } from '../services/sleeperApi';
 
 export default function SeasonRolloverAdmin() {
   const [loading, setLoading] = useState(false);
@@ -50,22 +52,14 @@ export default function SeasonRolloverAdmin() {
     setResult(null);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const apiUrl = `${supabaseUrl}/functions/v1/rebuild-player-values`;
-      const adminSecret = import.meta.env.VITE_ADMIN_SYNC_SECRET || 'admin-secret-key';
+      const count = await syncPlayerValuesToDatabase(true);
+      clearPlayerValuesCache();
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${adminSecret}`,
-          'Content-Type': 'application/json',
-        },
+      setResult({
+        success: true,
+        message: `Rebuilt values for ${count} players successfully.`,
       });
 
-      const data = await response.json();
-      setResult(data);
-
-      // Reload status
       setTimeout(loadStatus, 2000);
     } catch (error) {
       console.error('Rebuild failed:', error);

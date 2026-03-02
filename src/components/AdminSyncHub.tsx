@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Loader2, RefreshCw, Database, TrendingUp, Activity, CheckCircle, XCircle, AlertCircle, Clock, Calendar, Shield, List } from 'lucide-react';
+import { Loader2, RefreshCw, Database, TrendingUp, Activity, CheckCircle, XCircle, AlertCircle, Clock, Calendar, Shield, List, Zap } from 'lucide-react';
 import { clearPlayerCache, clearPlayerValuesCache, clearAllCaches } from '../services/sleeperApi';
 import { invalidateEnrichedPlayersCache } from '../lib/players/getEnrichedPlayers';
+import { syncPlayerValuesToDatabase } from '../utils/syncPlayerValues';
 import SeasonRollover from './SeasonRollover';
 import ValueValidation from './ValueValidation';
 import Top1000HealthCheck from './Top1000HealthCheck';
@@ -162,6 +163,33 @@ export function AdminSyncHub() {
     }
   }
 
+  async function runDirectSync() {
+    try {
+      setSyncing('direct');
+      setError(null);
+      setLastResult(null);
+
+      const count = await syncPlayerValuesToDatabase(true); // SF = true for broadest coverage
+      clearPlayerValuesCache();
+
+      setLastResult({
+        success: true,
+        steps: [{
+          name: 'direct_ktc_sync',
+          status: 'success',
+          result: { message: `Synced ${count} player values directly from KTC/FDP API. Reload the page to see updated values.` },
+        }],
+      });
+
+      await loadStatus();
+    } catch (err: any) {
+      console.error('Direct sync error:', err);
+      setError(err.message || 'Direct sync failed');
+    } finally {
+      setSyncing(null);
+    }
+  }
+
   function getTimeSince(timestamp?: string): string {
     if (!timestamp) return 'Never';
 
@@ -303,6 +331,14 @@ export function AdminSyncHub() {
         </div>
       )}
 
+      {/* Direct sync banner — shown when GitHub token is missing or workflow sync fails */}
+      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+        <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
+        <div className="text-sm text-amber-800">
+          <strong>Getting "Invalid JWT" from Rebuild?</strong> Use the <strong>Direct KTC Sync</strong> button below — it fetches values straight from the KTC/FDP API without needing GitHub Actions or Supabase edge functions.
+        </div>
+      </div>
+
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-6">Sync Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -363,6 +399,21 @@ export function AdminSyncHub() {
             </div>
             {syncing === 'full' && (
               <Loader2 className="w-5 h-5 animate-spin text-purple-600" />
+            )}
+          </button>
+
+          <button
+            onClick={runDirectSync}
+            disabled={syncing !== null}
+            className="flex flex-col items-center gap-3 p-6 border-2 border-amber-300 rounded-lg hover:border-amber-500 hover:bg-amber-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Zap className="w-8 h-8 text-amber-500" />
+            <div className="text-center">
+              <h3 className="font-semibold text-gray-900">Direct KTC Sync</h3>
+              <p className="text-sm text-gray-600 mt-1">Sync values without GitHub / edge functions</p>
+            </div>
+            {syncing === 'direct' && (
+              <Loader2 className="w-5 h-5 animate-spin text-amber-500" />
             )}
           </button>
         </div>
