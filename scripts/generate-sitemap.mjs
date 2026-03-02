@@ -82,8 +82,9 @@ async function generateSitemap() {
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
   const { data: players, error } = await supabase
-    .from('latest_player_values')
-    .select('player_id, full_name, position, base_value, updated_at')
+    .from('player_values_canonical')
+    .select('player_id, player_name, position, base_value, updated_at')
+    .eq('format', 'dynasty')
     .order('base_value', { ascending: false })
     .limit(1000);
 
@@ -91,7 +92,8 @@ async function generateSitemap() {
     console.error('[sitemap] Error fetching players:', error.message);
   }
 
-  const playerList = players || [];
+  // Normalize to full_name for the rest of the script
+  const playerList = (players || []).map(p => ({ ...p, full_name: p.player_name }));
   console.log(`[sitemap] Fetched ${playerList.length} players`);
 
   // Player value pages — top 1000
