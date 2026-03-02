@@ -61,7 +61,7 @@ Deno.serve(async (req: Request) => {
     const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
     const { data: dbPlayers, error } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, player_name, position, team, adjusted_value')
       .eq('format', 'dynasty');
 

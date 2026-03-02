@@ -375,8 +375,9 @@ Deno.serve(async (req: Request) => {
       fetch(`https://api.sleeper.app/v1/league/${actualSleeperLeagueId}/rosters`),
       fetch(`https://api.sleeper.app/v1/league/${actualSleeperLeagueId}/users`),
       supabase
-        .from('latest_player_values')
-        .select('player_id, player_name, position, metadata, adjusted_value, team'),
+        .from('player_values_canonical')
+        .select('player_id, player_name, position, metadata, adjusted_value, team')
+        .eq('format', 'dynasty'),
     ]);
 
     const [rosters, users] = await Promise.all([

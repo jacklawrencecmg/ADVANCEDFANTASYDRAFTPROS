@@ -66,7 +66,7 @@ Deno.serve(async (req: Request) => {
 
     const [dbResult, sleeperPlayers] = await Promise.all([
       supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('player_id, player_name, position, team, adjusted_value')
         .eq('format', 'dynasty')
         .ilike('player_name', `%${searchTerm}%`)

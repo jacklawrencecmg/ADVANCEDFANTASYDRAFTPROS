@@ -55,7 +55,7 @@ Deno.serve(async (req: Request) => {
     console.log('Fetching from latest_player_values for player:', playerId);
 
     const { data: playerData, error: playerError } = await supabase
-      .from('latest_player_values')
+      .from('player_values_canonical')
       .select('player_id, player_name, position, team, base_value, adjusted_value, market_value, rank_overall, rank_position, updated_at')
       .eq('player_id', playerId)
       .eq('format', format)
@@ -72,7 +72,7 @@ Deno.serve(async (req: Request) => {
       console.error('No player found with ID:', playerId, 'format:', format);
 
       const { data: anyFormatData } = await supabase
-        .from('latest_player_values')
+        .from('player_values_canonical')
         .select('player_name, format')
         .eq('player_id', playerId)
         .limit(5);
