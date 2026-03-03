@@ -71,7 +71,8 @@ type TabType =
   'rankings' | 'playoffs' | 'championship' | 'health' | 'waiver' | 'lineup' |
   'rivalry' | 'recap' | 'chat' | 'notifications' | 'sleeperAnalysis' | 'teamAdvice' |
   // Rankings
-  'values' | 'unifiedRankings' | 'idpRankings' | 'pickValues' | 'trending' | 'market' | 'trends' |
+  'values' | 'unifiedRankings' | 'qbRankings' | 'rbRankings' | 'wrRankings' | 'teRankings' |
+  'idpRankings' | 'pickValues' | 'trending' | 'market' | 'trends' |
   'watchlist' | 'draft' | 'keeper' | 'compare' |
   // Reports
   'reports' | 'reportDetail' | 'news' | 'export' | 'pricing' | 'contact' |
@@ -499,6 +500,10 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                   items={[
                     { tab: 'values', label: 'Player Values', icon: DollarSign },
                     { tab: 'unifiedRankings', label: 'All Rankings', icon: BarChart2 },
+                    { tab: 'qbRankings', label: 'QBs', icon: Zap },
+                    { tab: 'rbRankings', label: 'RBs', icon: Activity },
+                    { tab: 'wrRankings', label: 'WRs', icon: Radio },
+                    { tab: 'teRankings', label: 'TEs', icon: Shield },
                     { tab: 'idpRankings', label: 'IDP', icon: Users },
                     { tab: 'pickValues', label: 'Rookie Picks', icon: Calendar },
                     { tab: 'trending', label: 'Trending', icon: TrendingUp },
@@ -514,6 +519,10 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                   {activeTab === 'compare' && <PlayerCompareWidget />}
                   {activeTab === 'values' && <PlayerValues leagueId={currentLeague?.league_id ?? ''} isSuperflex={currentLeague?.is_superflex ?? false} />}
                   {activeTab === 'unifiedRankings' && <UnifiedRankings />}
+                  {activeTab === 'qbRankings' && <UnifiedRankings defaultPosition="QB" />}
+                  {activeTab === 'rbRankings' && <UnifiedRankings defaultPosition="RB" />}
+                  {activeTab === 'wrRankings' && <UnifiedRankings defaultPosition="WR" />}
+                  {activeTab === 'teRankings' && <UnifiedRankings defaultPosition="TE" />}
                   {activeTab === 'idpRankings' && <IDPRankings />}
                   {activeTab === 'pickValues' && <RookiePickValues />}
                   {activeTab === 'trending' && <TrendingPlayersPanel />}

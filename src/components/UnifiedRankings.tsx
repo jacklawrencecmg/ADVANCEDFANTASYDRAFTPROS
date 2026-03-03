@@ -27,8 +27,8 @@ const FORMAT_OPTIONS = [
   { value: 'dynasty_tep', label: 'TEP', abbr: 'TEP' },
 ];
 
-export default function UnifiedRankings() {
-  const [selectedPosition, setSelectedPosition] = useState<Position>('QB');
+export default function UnifiedRankings({ defaultPosition }: { defaultPosition?: Position } = {}) {
+  const [selectedPosition, setSelectedPosition] = useState<Position>(defaultPosition ?? 'QB');
   const [selectedFormat, setSelectedFormat] = useState<Format>('dynasty_sf');
   const [players, setPlayers] = useState<Player[]>([]);
   const [loading, setLoading] = useState(true);
