@@ -39,14 +39,8 @@ const PlayerNewsFeed = lazy(() => import('./PlayerNewsFeed'));
 const ExportShare = lazy(() => import('./ExportShare'));
 const PlayerValues = lazy(() => import('./PlayerValues').then(m => ({ default: m.PlayerValues })));
 const Contact = lazy(() => import('./Contact').then(m => ({ default: m.Contact })));
-const KTCAdminSync = lazy(() => import('./KTCAdminSync'));
 const AdminSyncHub = lazy(() => import('./AdminSyncHub').then(m => ({ default: m.AdminSyncHub })));
 const TrendingPlayersPanel = lazy(() => import('./TrendingPlayersPanel'));
-const KTCQBRankings = lazy(() => import('./KTCQBRankings'));
-const KTCRBRankings = lazy(() => import('./KTCRBRankings'));
-const KTCWRRankings = lazy(() => import('./KTCWRRankings'));
-const KTCTERankings = lazy(() => import('./KTCTERankings'));
-const KTCMultiPositionSync = lazy(() => import('./KTCMultiPositionSync'));
 const UnifiedRankings = lazy(() => import('./UnifiedRankings'));
 const PlayerCompareWidget = lazy(() => import('./PlayerCompareWidget').then(m => ({ default: m.PlayerCompareWidget })));
 const PlayerSearch = lazy(() => import('./PlayerSearch'));
@@ -77,14 +71,13 @@ type TabType =
   'rankings' | 'playoffs' | 'championship' | 'health' | 'waiver' | 'lineup' |
   'rivalry' | 'recap' | 'chat' | 'notifications' | 'sleeperAnalysis' | 'teamAdvice' |
   // Rankings
-  'values' | 'unifiedRankings' | 'ktcRankings' | 'ktcRBRankings' | 'ktcWRRankings' |
-  'ktcTERankings' | 'idpRankings' | 'pickValues' | 'trending' | 'market' | 'trends' |
+  'values' | 'unifiedRankings' | 'idpRankings' | 'pickValues' | 'trending' | 'market' | 'trends' |
   'watchlist' | 'draft' | 'keeper' | 'compare' |
   // Reports
   'reports' | 'reportDetail' | 'news' | 'export' | 'pricing' | 'contact' |
   // Admin
-  'adminSync' | 'ktcAdmin' | 'valueTuner' | 'rbContext' | 'rbSuggestions' |
-  'headshotAdmin' | 'idpUpload' | 'ktcMultiSync';
+  'adminSync' | 'valueTuner' | 'rbContext' | 'rbSuggestions' |
+  'headshotAdmin' | 'idpUpload';
 
 interface DashboardProps {
   onNavigate?: (page: 'home' | 'faq' | 'help' | 'contact') => void;
@@ -506,10 +499,6 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                   items={[
                     { tab: 'values', label: 'Player Values', icon: DollarSign },
                     { tab: 'unifiedRankings', label: 'All Rankings', icon: BarChart2 },
-                    { tab: 'ktcRankings', label: 'QBs', icon: Zap },
-                    { tab: 'ktcRBRankings', label: 'RBs', icon: Activity },
-                    { tab: 'ktcWRRankings', label: 'WRs', icon: Radio },
-                    { tab: 'ktcTERankings', label: 'TEs', icon: Shield },
                     { tab: 'idpRankings', label: 'IDP', icon: Users },
                     { tab: 'pickValues', label: 'Rookie Picks', icon: Calendar },
                     { tab: 'trending', label: 'Trending', icon: TrendingUp },
@@ -525,10 +514,6 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                   {activeTab === 'compare' && <PlayerCompareWidget />}
                   {activeTab === 'values' && <PlayerValues leagueId={currentLeague?.league_id ?? ''} isSuperflex={currentLeague?.is_superflex ?? false} />}
                   {activeTab === 'unifiedRankings' && <UnifiedRankings />}
-                  {activeTab === 'ktcRankings' && <KTCQBRankings />}
-                  {activeTab === 'ktcRBRankings' && <KTCRBRankings />}
-                  {activeTab === 'ktcWRRankings' && <KTCWRRankings />}
-                  {activeTab === 'ktcTERankings' && <KTCTERankings />}
                   {activeTab === 'idpRankings' && <IDPRankings />}
                   {activeTab === 'pickValues' && <RookiePickValues />}
                   {activeTab === 'trending' && <TrendingPlayersPanel />}
@@ -584,22 +569,18 @@ export function Dashboard({ onNavigate }: DashboardProps = {}) {
                   setActiveTab={setActiveTab}
                   items={[
                     { tab: 'adminSync', label: 'System', icon: RefreshCw },
-                    { tab: 'ktcAdmin', label: 'KTC Sync', icon: Shield },
                     { tab: 'valueTuner', label: 'Value Tuner', icon: Sliders },
                     { tab: 'rbContext', label: 'RB Context', icon: Edit },
                     { tab: 'rbSuggestions', label: 'RB AI', icon: Sparkles },
-                    { tab: 'ktcMultiSync', label: 'Multi Sync', icon: RefreshCw },
                     { tab: 'headshotAdmin', label: 'Headshots', icon: Users },
                     { tab: 'idpUpload', label: 'IDP Upload', icon: Upload },
                   ]}
                 />
                 <Suspense fallback={tabContentFallback}>
                   {activeTab === 'adminSync' && <AdminSyncHub />}
-                  {activeTab === 'ktcAdmin' && <KTCAdminSync />}
                   {activeTab === 'valueTuner' && <ValueFineTuner />}
                   {activeTab === 'rbContext' && <RBContextEditor />}
                   {activeTab === 'rbSuggestions' && <RBContextSuggestions />}
-                  {activeTab === 'ktcMultiSync' && <KTCMultiPositionSync />}
                   {activeTab === 'headshotAdmin' && <HeadshotAdmin />}
                   {activeTab === 'idpUpload' && <IDPAdminUpload />}
                 </Suspense>

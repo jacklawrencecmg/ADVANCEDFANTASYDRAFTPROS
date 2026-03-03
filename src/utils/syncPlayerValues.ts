@@ -74,53 +74,6 @@ async function fetchFDPValues(isSuperflex: boolean = false): Promise<Record<stri
     console.error('Failed to fetch FDP values:', error);
   }
 
-  try {
-    const fallbackResponse = await fetch(
-      `https://api.keeptradecut.com/bff/dynasty/players?format=${format}`,
-      { headers: { 'Accept': 'application/json' } }
-    );
-
-    if (fallbackResponse.ok) {
-      const data: FDPPlayer[] = await fallbackResponse.json();
-      const rawValues: Array<{ id: string; value: number; position: string; name: string; team: string }> = [];
-
-      data.forEach((item) => {
-        if (item.sleeperId && item.value) {
-          const rawValue = parseInt(item.value, 10);
-          if (rawValue > 0) {
-            rawValues.push({
-              id: item.sleeperId,
-              value: rawValue,
-              position: item.position,
-              name: item.player,
-              team: item.team ?? '',
-            });
-          }
-        }
-      });
-
-      if (rawValues.length === 0) throw new Error('No valid values from KTC');
-
-      const minValue = Math.min(...rawValues.map(v => v.value));
-      const maxValue = Math.max(...rawValues.map(v => v.value));
-
-      const normalizedValues: Record<string, PlayerValueData> = {};
-      rawValues.forEach((item) => {
-        normalizedValues[item.id] = {
-          value: normalizeValue(item.value, minValue, maxValue),
-          position: item.position,
-          name: item.name,
-          team: item.team,
-        };
-      });
-
-      console.log(`KTC: Normalized ${rawValues.length} values from range ${minValue}-${maxValue} to 0-10000`);
-      return normalizedValues;
-    }
-  } catch (error) {
-    console.error('Failed to fetch KTC fallback values:', error);
-  }
-
   return {};
 }
 

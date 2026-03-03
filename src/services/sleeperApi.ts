@@ -423,70 +423,6 @@ export async function fetchPlayerValues(
   }
 
   if (cached) return;
-
-  try {
-    const response = await fetch(`https://api.keeptradecut.com/bff/dynasty/players?season=${targetYear}&format=${format}`, {
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      const values: Record<string, number> = {};
-
-      if (Array.isArray(data)) {
-        data.forEach((item: any) => {
-          if (item.sleeperId && item.value) {
-            const rawValue = parseInt(item.value, 10);
-            values[item.sleeperId] = parseFloat((rawValue * VALUE_SCALE_FACTOR).toFixed(0));
-          }
-        });
-      }
-
-      if (Object.keys(values).length > 0) {
-        if (isSuperflex) {
-          fdpSuperflexValues = values;
-        } else {
-          fdpValues = values;
-        }
-        setCachedData(cacheKey, values);
-        console.log(`Loaded ${Object.keys(values).length} ${isSuperflex ? 'Superflex' : '1QB'} player values from Fantasy Draft Pros (${targetYear} season)`);
-      }
-    } else {
-      const fallbackResponse = await fetch(`https://api.keeptradecut.com/bff/dynasty/players?format=${format}`, {
-        headers: {
-          'Accept': 'application/json',
-        },
-      });
-
-      if (fallbackResponse.ok) {
-        const data = await fallbackResponse.json();
-        const values: Record<string, number> = {};
-
-        if (Array.isArray(data)) {
-          data.forEach((item: any) => {
-            if (item.sleeperId && item.value) {
-              const rawValue = parseInt(item.value, 10);
-              values[item.sleeperId] = parseFloat((rawValue * VALUE_SCALE_FACTOR).toFixed(0));
-            }
-          });
-        }
-
-        if (Object.keys(values).length > 0) {
-          if (isSuperflex) {
-            fdpSuperflexValues = values;
-          } else {
-            fdpValues = values;
-          }
-          setCachedData(cacheKey, values);
-          console.log(`Loaded ${Object.keys(values).length} ${isSuperflex ? 'Superflex' : '1QB'} player values from Fantasy Draft Pros (current season)`);
-        }
-      }
-    }
-  } catch (error) {
-    console.warn(`Failed to fetch Fantasy Draft Pros ${isSuperflex ? 'Superflex' : '1QB'} values, using fallback values:`, error);
-  }
 }
 
 export function getDraftPickValue(
@@ -495,18 +431,18 @@ export function getDraftPickValue(
   settings?: { totalRounds?: number; isSuperflex?: boolean; hasIDP?: boolean },
   pickNumber?: number
 ): number {
-  const ktcValueSource = settings?.isSuperflex ? fdpSuperflexValues : fdpValues;
+  const valueSource = settings?.isSuperflex ? fdpSuperflexValues : fdpValues;
 
   if (pickNumber) {
     const pickKey = `${year}_${round}_${pickNumber.toString().padStart(2, '0')}`;
-    if (ktcValueSource[pickKey]) {
-      return ktcValueSource[pickKey];
+    if (valueSource[pickKey]) {
+      return valueSource[pickKey];
     }
   }
 
   const earlyPickKey = `${year}_${round}_01`;
-  if (ktcValueSource[earlyPickKey]) {
-    return ktcValueSource[earlyPickKey];
+  if (valueSource[earlyPickKey]) {
+    return valueSource[earlyPickKey];
   }
 
   // Use the current league year from SEASON_CONTEXT
@@ -637,10 +573,10 @@ export function getPlayerValue(
     return parseFloat(value.toFixed(0));
   }
 
-  const ktcValueSource = finalSettings.isSuperflex ? fdpSuperflexValues : fdpValues;
+  const valueSource = finalSettings.isSuperflex ? fdpSuperflexValues : fdpValues;
 
-  if (ktcValueSource[player.player_id]) {
-    let value = ktcValueSource[player.player_id];
+  if (valueSource[player.player_id]) {
+    let value = valueSource[player.player_id];
 
     // TE Premium is a legitimate league-setting adjustment
     if (player.position === 'TE' && finalSettings.isTEPremium) {

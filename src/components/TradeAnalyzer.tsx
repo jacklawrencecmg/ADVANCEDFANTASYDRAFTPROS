@@ -1656,7 +1656,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
                       {playerValues[playerId] !== undefined && (
                         <div className="flex flex-col items-end flex-shrink-0 mr-1">
                           <span className="text-fdp-accent-1 font-bold text-sm leading-none">{Math.round(playerValues[playerId])}</span>
-                          <span className="text-fdp-text-3 text-xs">KTC</span>
+                          <span className="text-fdp-text-3 text-xs">FDP</span>
                         </div>
                       )}
                       <WatchButton playerId={playerId} isWatched={isWatched(playerId)} onToggle={toggleWatch} />
@@ -1922,7 +1922,7 @@ export default function TradeAnalyzer({ leagueId, onTradeSaved, isGuest = false,
                       {playerValues[playerId] !== undefined && (
                         <div className="flex flex-col items-end flex-shrink-0 mr-1">
                           <span className="text-fdp-accent-1 font-bold text-sm leading-none">{Math.round(playerValues[playerId])}</span>
-                          <span className="text-fdp-text-3 text-xs">KTC</span>
+                          <span className="text-fdp-text-3 text-xs">FDP</span>
                         </div>
                       )}
                       <WatchButton playerId={playerId} isWatched={isWatched(playerId)} onToggle={toggleWatch} />
