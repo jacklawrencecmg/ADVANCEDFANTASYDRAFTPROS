@@ -4,6 +4,8 @@ import { ListSkeleton } from './LoadingSkeleton';
 import PlayerDetail from './PlayerDetail';
 import { PlayerAvatar } from './PlayerAvatar';
 import { warmEspnIdCache, getEspnIdFromCache } from '../services/sleeperApi';
+import { supabase } from '../lib/supabase';
+import { calcFdpValue } from '../lib/fdp/calcFdpValue';
 
 interface Player {
   player_id: string;
@@ -47,25 +49,31 @@ export default function UnifiedRankings({ defaultPosition }: { defaultPosition?:
     setError(null);
 
     try {
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      const response = await fetch(
-        `${supabaseUrl}/functions/v1/ktc-rankings?position=${selectedPosition}&format=${selectedFormat}`,
-        {
-          headers: {
-            Authorization: `Bearer ${supabaseAnonKey}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const { data, error } = await supabase
+        .from('player_values_canonical')
+        .select('player_id, player_name, position, team, base_value, updated_at')
+        .eq('format', 'dynasty')
+        .eq('position', selectedPosition)
+        .order('base_value', { ascending: false })
+        .limit(300);
 
-      if (!response.ok) {
-        const errBody = await response.json().catch(() => ({}));
-        throw new Error(errBody?.error || `Failed to load rankings (${response.status})`);
-      }
+      if (error) throw new Error(error.message);
 
-      const data = await response.json();
-      setPlayers(data);
+      const ranked: Player[] = (data || []).map((row, idx) => ({
+        player_id: row.player_id,
+        position_rank: idx + 1,
+        full_name: row.player_name || '',
+        position: row.position || selectedPosition,
+        team: row.team,
+        fdp_value: calcFdpValue(row.base_value || 0, row.position as any, selectedFormat),
+        captured_at: row.updated_at || new Date().toISOString(),
+      }));
+
+      // Re-sort by fdp_value (format multiplier may reorder within position)
+      ranked.sort((a, b) => b.fdp_value - a.fdp_value);
+      ranked.forEach((p, i) => { p.position_rank = i + 1; });
+
+      setPlayers(ranked);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load rankings');
     } finally {
