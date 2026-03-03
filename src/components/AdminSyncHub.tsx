@@ -175,9 +175,9 @@ export function AdminSyncHub() {
       setLastResult({
         success: true,
         steps: [{
-          name: 'direct_ktc_sync',
+          name: 'direct_fdp_sync',
           status: 'success',
-          result: { message: `Synced ${count} player values directly from KTC/FDP API. Reload the page to see updated values.` },
+          result: { message: `Synced ${count} player values from FDP. Reload the page to see updated values.` },
         }],
       });
 

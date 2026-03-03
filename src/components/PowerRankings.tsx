@@ -3,7 +3,6 @@ import { Trophy, TrendingUp, Users, X, ChevronLeft, ChevronRight, Calendar, Doll
 import { calculatePowerRankings, type TeamRanking, getEspnIdFromCache } from '../services/sleeperApi';
 import { syncPlayerValuesToDatabase } from '../utils/syncPlayerValues';
 import { PlayerAvatar } from './PlayerAvatar';
-import { supabase } from '../lib/supabase';
 import { calcFdpValue } from '../lib/fdp/calcFdpValue';
 
 type FdpFormat = 'dynasty_sf' | 'dynasty_1qb' | 'dynasty_tep';
@@ -20,7 +19,6 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
   const [syncing, setSyncing] = useState(false);
   const [syncSuccess, setSyncSuccess] = useState<string | null>(null);
   const [fdpFormat, setFdpFormat] = useState<FdpFormat>('dynasty_sf');
-  const [playerBaseValues, setPlayerBaseValues] = useState<Map<string, number>>(new Map());
 
   useEffect(() => {
     loadRankings();
@@ -32,40 +30,6 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
     try {
       const data = await calculatePowerRankings(leagueId);
       setRankings(data);
-
-      // Fetch base_values for all roster players so we can apply format multipliers
-      const allPlayers = data.flatMap(t => t.all_players);
-      const uniqueIds = [...new Set(allPlayers.map(p => p.player_id))];
-      if (uniqueIds.length > 0) {
-        const { data: rows } = await supabase
-          .from('player_values_canonical')
-          .select('player_id, player_name, base_value')
-          .eq('format', 'dynasty')
-          .in('player_id', uniqueIds);
-
-        const map = new Map<string, number>();
-        rows?.forEach(r => { if (r.base_value) map.set(r.player_id, r.base_value); });
-
-        // Name-based fallback for players whose Sleeper ID doesn't match the DB
-        const missing = allPlayers.filter(p => !map.has(p.player_id));
-        if (missing.length > 0) {
-          const missingNames = [...new Set(missing.map(p => p.name))];
-          const { data: nameRows } = await supabase
-            .from('player_values_canonical')
-            .select('player_name, base_value')
-            .eq('format', 'dynasty')
-            .in('player_name', missingNames);
-
-          const nameToBase = new Map<string, number>();
-          nameRows?.forEach(r => { if (r.player_name && r.base_value) nameToBase.set(r.player_name, r.base_value); });
-          missing.forEach(p => {
-            const base = nameToBase.get(p.name);
-            if (base) map.set(p.player_id, base);
-          });
-        }
-
-        setPlayerBaseValues(map);
-      }
     } catch (err) {
       console.error('Failed to load power rankings:', err);
       setError('Failed to load power rankings. Please try again.');
@@ -288,10 +252,9 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                       <div className="text-sm text-fdp-text-3">FDP Value</div>
                     </div>
                     <div className="text-2xl font-bold text-fdp-accent-1">
-                      {selectedTeam.all_players.reduce((sum, p) => {
-                        const base = playerBaseValues.get(p.player_id);
-                        return sum + (base != null && base > 0 ? calcFdpValue(base, p.position as any, fdpFormat) : p.value);
-                      }, 0).toLocaleString()}
+                      {selectedTeam.all_players.reduce((sum, p) =>
+                        sum + (p.base_value > 0 ? calcFdpValue(p.base_value, p.position as any, fdpFormat) : p.value), 0
+                      ).toLocaleString()}
                     </div>
                   </div>
                   <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
@@ -361,9 +324,8 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                               <div className="text-xs text-fdp-text-3 mb-1">{player.team}</div>
                             )}
                             {(() => {
-                              const base = playerBaseValues.get(player.player_id);
-                              const val = base != null && base > 0
-                                ? calcFdpValue(base, player.position as any, fdpFormat)
+                              const val = player.base_value > 0
+                                ? calcFdpValue(player.base_value, player.position as any, fdpFormat)
                                 : player.value;
                               return val > 0 ? (
                                 <div className="text-xs font-semibold text-fdp-accent-1">{val.toLocaleString()}</div>

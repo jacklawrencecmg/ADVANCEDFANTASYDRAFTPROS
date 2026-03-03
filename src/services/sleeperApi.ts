@@ -548,8 +548,8 @@ export function getPlayerValue(
   const finalSettings = { ...defaultSettings, ...settings };
 
   const normalizedName = (player.full_name || '').toLowerCase().trim().replace(/[^a-z0-9 ]/g, '');
-  // Verify ID-based lookup actually belongs to this player — DB may use KTC IDs
-  // which can collide with Sleeper IDs for different players.
+  // Verify ID-based lookup actually belongs to this player — DB IDs may not always
+  // match Sleeper IDs, so confirm by name before using the value.
   const dbValueById = dbPlayerValues.get(player.player_id);
   const idMatchesName = dbValueById &&
     dbValueById.player_name?.toLowerCase().trim().replace(/[^a-z0-9 ]/g, '') === normalizedName;
@@ -583,7 +583,7 @@ export function getPlayerValue(
       value *= 1.15;
     }
 
-    // Only penalise officially retired players — KTC values already price
+    // Only penalise officially retired players — FDP values already price
     // cut/unsigned status, backup roles, and short-term injury status correctly
     if (player.status === 'Retired') {
       value *= 0.15;
@@ -925,6 +925,7 @@ export interface TeamRanking {
     position: string;
     team: string | null;
     value: number;
+    base_value: number;
   }>;
   draft_picks: Array<{
     season: string;
@@ -952,10 +953,20 @@ export async function calculatePowerRankings(leagueId: string): Promise<TeamRank
     const teamName =
       user?.metadata?.team_name || user?.display_name || user?.username || 'Unknown Team';
 
+    const normalize = (s: string) => (s || '').toLowerCase().trim().replace(/[^a-z0-9 ]/g, '');
     const playerValues = (roster.players || [])
       .map((playerId) => {
         const player = players[playerId];
         if (!player) return null;
+
+        // Look up base_value from DB using same ID+name logic as getPlayerValue
+        const normalizedName = normalize(player.full_name || '');
+        const dbValById = dbPlayerValues.get(playerId);
+        const idMatchesName = dbValById && normalize(dbValById.player_name || '') === normalizedName;
+        const dbEntry = (idMatchesName ? dbValById : undefined) || dbPlayerValuesByName.get(normalizedName);
+        const baseValue = dbEntry
+          ? (typeof dbEntry.base_value === 'number' ? dbEntry.base_value : parseFloat(String(dbEntry.base_value || 0)))
+          : 0;
 
         return {
           player_id: playerId,
@@ -963,6 +974,7 @@ export async function calculatePowerRankings(leagueId: string): Promise<TeamRank
           position: player.position || 'N/A',
           team: player.team || null,
           value: getPlayerValue(player, settings),
+          base_value: baseValue,
         };
       })
       .filter((p): p is NonNullable<typeof p> => p !== null)

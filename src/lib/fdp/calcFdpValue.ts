@@ -6,13 +6,13 @@ import { applyIdpPreset } from './applyIdpPreset';
 import { getIdpPreset } from '../idp/getIdpPreset';
 
 export function calcFdpValue(
-  ktcValue: number,
+  baseValue: number,
   position: Position,
   format: LeagueFormat = 'dynasty_sf'
 ): number {
   const multiplier = formatMultipliers[format]?.[position] ?? 1;
   const cap = formatCaps[format] ?? 10000;
-  return Math.min(cap, Math.round(ktcValue * multiplier));
+  return Math.min(cap, Math.round(baseValue * multiplier));
 }
 
 export function calcFdpValueFromKtc({

@@ -53,7 +53,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
   // Maps DB player names (lowercase) → Sleeper player_id for correct avatar CDN URLs
   const [sleeperIdMap, setSleeperIdMap] = useState<Map<string, string>>(new Map());
 
-  // Resolve the correct Sleeper player_id for avatar display (DB uses KTC IDs, not Sleeper IDs)
+  // Resolve the correct Sleeper player_id for avatar display (DB IDs may differ from Sleeper IDs)
   const sleeperIdFor = (playerName: string, fallback: string): string => {
     return sleeperIdMap.get(playerName.toLowerCase().trim()) ?? fallback;
   };
