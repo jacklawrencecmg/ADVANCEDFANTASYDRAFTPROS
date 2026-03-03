@@ -168,15 +168,6 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                       </div>
                     </div>
                   </div>
-                  <div className="text-right ml-4">
-                    <div className="text-sm text-fdp-text-3 mb-1 flex items-center justify-end gap-1">
-                      <DollarSign className="w-3 h-3" />
-                      FDP Value
-                    </div>
-                    <div className="text-2xl font-bold text-fdp-accent-1">
-                      {team.total_value.toFixed(1)}
-                    </div>
-                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 mb-4">
