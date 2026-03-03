@@ -1,10 +1,9 @@
 name: Daily Player Values Sync
 
 on:
-  schedule:
-    # Runs at 8:00 AM UTC every day (3 AM ET / midnight PT)
-    - cron: '0 8 * * *'
-  # Allow manual trigger from GitHub Actions UI
+  # Disabled — player values are managed manually via DB scripts
+  # schedule:
+  #   - cron: '0 8 * * *'
   workflow_dispatch:
     inputs:
       sync_type:
