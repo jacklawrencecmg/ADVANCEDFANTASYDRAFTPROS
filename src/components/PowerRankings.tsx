@@ -288,9 +288,10 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                       <div className="text-sm text-fdp-text-3">FDP Value</div>
                     </div>
                     <div className="text-2xl font-bold text-fdp-accent-1">
-                      {selectedTeam.all_players.reduce((sum, p) =>
-                        sum + calcFdpValue(playerBaseValues.get(p.player_id) ?? 0, p.position as any, fdpFormat), 0
-                      ).toLocaleString()}
+                      {selectedTeam.all_players.reduce((sum, p) => {
+                        const base = playerBaseValues.get(p.player_id);
+                        return sum + (base != null && base > 0 ? calcFdpValue(base, p.position as any, fdpFormat) : p.value);
+                      }, 0).toLocaleString()}
                     </div>
                   </div>
                   <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
@@ -359,11 +360,15 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                             {player.team && (
                               <div className="text-xs text-fdp-text-3 mb-1">{player.team}</div>
                             )}
-                            {(playerBaseValues.get(player.player_id) ?? 0) > 0 && (
-                              <div className="text-xs font-semibold text-fdp-accent-1">
-                                {calcFdpValue(playerBaseValues.get(player.player_id) ?? 0, player.position as any, fdpFormat).toLocaleString()}
-                              </div>
-                            )}
+                            {(() => {
+                              const base = playerBaseValues.get(player.player_id);
+                              const val = base != null && base > 0
+                                ? calcFdpValue(base, player.position as any, fdpFormat)
+                                : player.value;
+                              return val > 0 ? (
+                                <div className="text-xs font-semibold text-fdp-accent-1">{val.toLocaleString()}</div>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
                       </div>
