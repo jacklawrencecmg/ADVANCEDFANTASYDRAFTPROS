@@ -224,7 +224,14 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
 
             <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
               <div className="p-6 space-y-8">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <TrendingUp className="w-5 h-5 text-fdp-accent-1" />
+                      <div className="text-sm text-fdp-text-3">FDP Value</div>
+                    </div>
+                    <div className="text-2xl font-bold text-fdp-accent-1">{selectedTeam.total_value.toLocaleString()}</div>
+                  </div>
                   <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Users className="w-5 h-5 text-fdp-accent-1" />
@@ -289,7 +296,10 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                               </span>
                             </div>
                             {player.team && (
-                              <div className="text-xs text-fdp-text-3 mb-2">{player.team}</div>
+                              <div className="text-xs text-fdp-text-3 mb-1">{player.team}</div>
+                            )}
+                            {player.value > 0 && (
+                              <div className="text-xs font-semibold text-fdp-accent-1">{player.value.toLocaleString()}</div>
                             )}
                           </div>
                         </div>
