@@ -34,15 +34,36 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
       setRankings(data);
 
       // Fetch base_values for all roster players so we can apply format multipliers
-      const allIds = [...new Set(data.flatMap(t => t.all_players.map(p => p.player_id)))];
-      if (allIds.length > 0) {
+      const allPlayers = data.flatMap(t => t.all_players);
+      const uniqueIds = [...new Set(allPlayers.map(p => p.player_id))];
+      if (uniqueIds.length > 0) {
         const { data: rows } = await supabase
           .from('player_values_canonical')
-          .select('player_id, base_value')
+          .select('player_id, player_name, base_value')
           .eq('format', 'dynasty')
-          .in('player_id', allIds);
+          .in('player_id', uniqueIds);
+
         const map = new Map<string, number>();
-        rows?.forEach(r => map.set(r.player_id, r.base_value || 0));
+        rows?.forEach(r => { if (r.base_value) map.set(r.player_id, r.base_value); });
+
+        // Name-based fallback for players whose Sleeper ID doesn't match the DB
+        const missing = allPlayers.filter(p => !map.has(p.player_id));
+        if (missing.length > 0) {
+          const missingNames = [...new Set(missing.map(p => p.name))];
+          const { data: nameRows } = await supabase
+            .from('player_values_canonical')
+            .select('player_name, base_value')
+            .eq('format', 'dynasty')
+            .in('player_name', missingNames);
+
+          const nameToBase = new Map<string, number>();
+          nameRows?.forEach(r => { if (r.player_name && r.base_value) nameToBase.set(r.player_name, r.base_value); });
+          missing.forEach(p => {
+            const base = nameToBase.get(p.name);
+            if (base) map.set(p.player_id, base);
+          });
+        }
+
         setPlayerBaseValues(map);
       }
     } catch (err) {
