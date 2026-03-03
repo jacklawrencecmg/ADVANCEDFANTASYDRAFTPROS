@@ -9,6 +9,7 @@ import { useToast } from './Toast';
 import Tooltip from './Tooltip';
 import { PlayerAvatar } from './PlayerAvatar';
 import { fetchAllPlayers, getEspnIdFromCache } from '../services/sleeperApi';
+import { calcFdpValue } from '../lib/fdp/calcFdpValue';
 
 interface PlayerValuesProps {
   leagueId: string;
@@ -44,6 +45,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
   const [showSettings, setShowSettings] = useState(false);
   const [leagueFormat, setLeagueFormat] = useState<LeagueFormat>('dynasty');
   const [scoringFormat, setScoringFormat] = useState<ScoringFormat>('ppr');
+  const [fdpFormat, setFdpFormat] = useState<'dynasty_sf' | 'dynasty_1qb' | 'dynasty_tep'>('dynasty_sf');
   const [searchMinChars, setSearchMinChars] = useState(2);
   const [searchMaxResults, setSearchMaxResults] = useState(50);
   const [searchDebounceMs, setSearchDebounceMs] = useState(300);
@@ -63,6 +65,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
         const settings = JSON.parse(savedSettings);
         setLeagueFormat(settings.leagueFormat || 'dynasty');
         setScoringFormat(settings.scoringFormat || 'ppr');
+        if (settings.fdpFormat) setFdpFormat(settings.fdpFormat);
         setSearchMinChars(settings.searchMinChars || 2);
         setSearchMaxResults(settings.searchMaxResults || 50);
         setSearchDebounceMs(settings.searchDebounceMs || 300);
@@ -86,6 +89,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
     const settings = {
       leagueFormat,
       scoringFormat,
+      fdpFormat,
       searchMinChars,
       searchMaxResults,
       searchDebounceMs,
@@ -95,7 +99,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
 
   useEffect(() => {
     filterPlayers();
-  }, [players, searchTerm, positionFilter, trendFilter, tierFilter, injuryFilter, showOnlyDifferences, leagueFormat, scoringFormat]);
+  }, [players, searchTerm, positionFilter, trendFilter, tierFilter, injuryFilter, showOnlyDifferences, leagueFormat, scoringFormat, fdpFormat]);
 
   useEffect(() => {
     if (viewMode === 'movers') {
@@ -219,6 +223,12 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
   };
 
   const getAdjustedValue = (player: PlayerValue): number => {
+    const base: number = typeof player.base_value === 'number' ? player.base_value : parseFloat(String(player.base_value || player.fdp_value || 0));
+
+    if (leagueFormat === 'dynasty') {
+      return calcFdpValue(base, player.position as any, fdpFormat);
+    }
+
     let value: number = typeof player.fdp_value === 'string' ? parseFloat(player.fdp_value) : (player.fdp_value ?? 0);
 
     if (leagueFormat === 'redraft') {
@@ -530,7 +540,7 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
           </div>
         )}
 
-        <div className="flex items-center gap-2 mb-6 border-b border-fdp-border-1">
+        <div className="flex flex-wrap items-center gap-2 mb-6 border-b border-fdp-border-1">
           <button
             onClick={() => setViewMode('players')}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
@@ -575,6 +585,27 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
             <Calendar className="w-4 h-4" />
             Rookies
           </button>
+          {leagueFormat === 'dynasty' && (
+            <div className="ml-auto flex rounded-md overflow-hidden border border-fdp-border-1 text-xs font-medium mb-1">
+              {([
+                { key: 'dynasty_sf' as const, label: 'SF' },
+                { key: 'dynasty_1qb' as const, label: '1QB' },
+                { key: 'dynasty_tep' as const, label: 'TEP' },
+              ]).map(({ key, label }, i) => (
+                <button
+                  key={key}
+                  onClick={() => setFdpFormat(key)}
+                  className={`px-3 py-1.5 transition-colors ${i > 0 ? 'border-l border-fdp-border-1' : ''} ${
+                    fdpFormat === key
+                      ? 'bg-fdp-accent-1 text-white'
+                      : 'bg-fdp-surface-2 text-fdp-text-3 hover:text-fdp-text-1'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
@@ -872,7 +903,13 @@ export function PlayerValues({ leagueId, isSuperflex }: PlayerValuesProps) {
                     <th className="px-4 py-3 text-center text-xs font-semibold text-fdp-text-3 uppercase tracking-wider hidden sm:table-cell">Trend</th>
                     <th className="px-4 py-3 text-center text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">7d Change</th>
                     <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-3 uppercase tracking-wider hidden md:table-cell">Base Value</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-3 uppercase tracking-wider"><span className="text-fdp-accent-2">FDP Value</span></th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-fdp-text-3 uppercase tracking-wider">
+                      <span className="text-fdp-accent-2">
+                        {leagueFormat === 'dynasty'
+                          ? `FDP Value (${fdpFormat === 'dynasty_sf' ? 'SF' : fdpFormat === 'dynasty_1qb' ? '1QB' : 'TEP'})`
+                          : 'FDP Value'}
+                      </span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-fdp-border-1">
