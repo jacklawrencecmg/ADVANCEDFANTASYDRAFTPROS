@@ -192,14 +192,6 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                     <div className="text-xs text-fdp-text-3 mb-1">FAAB</div>
                     <div className="text-lg font-bold text-white">${team.faab_remaining}</div>
                   </div>
-                  <div className="bg-fdp-bg-0 rounded-lg p-3 border border-fdp-border-1">
-                    <div className="text-xs text-fdp-text-3 mb-1">Avg Player</div>
-                    <div className="text-lg font-bold text-white">
-                      {team.all_players.length > 0
-                        ? (team.total_value / team.all_players.length).toFixed(1)
-                        : '0.0'}
-                    </div>
-                  </div>
                 </div>
 
                 <button
@@ -228,10 +220,6 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                       {selectedTeam.record}
                     </span>
                     <span className="text-fdp-text-3">{selectedTeam.points_for.toFixed(1)} pts</span>
-                    <span className="text-fdp-accent-1 font-semibold flex items-center gap-1">
-                      <DollarSign className="w-4 h-4" />
-                      FDP Value: {selectedTeam.total_value.toFixed(1)}
-                    </span>
                   </div>
                 </div>
               </div>
@@ -312,10 +300,6 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                             {player.team && (
                               <div className="text-xs text-fdp-text-3 mb-2">{player.team}</div>
                             )}
-                            <div className="text-xs font-medium text-fdp-accent-1 bg-fdp-accent-1/10 px-2 py-1 rounded inline-flex items-center gap-1">
-                              <DollarSign className="w-3 h-3" />
-                              {player.value.toFixed(1)}
-                            </div>
                           </div>
                         </div>
                       </div>
