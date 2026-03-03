@@ -3,6 +3,10 @@ import { Trophy, TrendingUp, Users, X, ChevronLeft, ChevronRight, Calendar, Doll
 import { calculatePowerRankings, type TeamRanking, getEspnIdFromCache } from '../services/sleeperApi';
 import { syncPlayerValuesToDatabase } from '../utils/syncPlayerValues';
 import { PlayerAvatar } from './PlayerAvatar';
+import { supabase } from '../lib/supabase';
+import { calcFdpValue } from '../lib/fdp/calcFdpValue';
+
+type FdpFormat = 'dynasty_sf' | 'dynasty_1qb' | 'dynasty_tep';
 
 interface PowerRankingsProps {
   leagueId: string;
@@ -15,6 +19,8 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
   const [selectedTeam, setSelectedTeam] = useState<TeamRanking | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [syncSuccess, setSyncSuccess] = useState<string | null>(null);
+  const [fdpFormat, setFdpFormat] = useState<FdpFormat>('dynasty_sf');
+  const [playerBaseValues, setPlayerBaseValues] = useState<Map<string, number>>(new Map());
 
   useEffect(() => {
     loadRankings();
@@ -26,6 +32,19 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
     try {
       const data = await calculatePowerRankings(leagueId);
       setRankings(data);
+
+      // Fetch base_values for all roster players so we can apply format multipliers
+      const allIds = [...new Set(data.flatMap(t => t.all_players.map(p => p.player_id)))];
+      if (allIds.length > 0) {
+        const { data: rows } = await supabase
+          .from('player_values_canonical')
+          .select('player_id, base_value')
+          .eq('format', 'dynasty')
+          .in('player_id', allIds);
+        const map = new Map<string, number>();
+        rows?.forEach(r => map.set(r.player_id, r.base_value || 0));
+        setPlayerBaseValues(map);
+      }
     } catch (err) {
       console.error('Failed to load power rankings:', err);
       setError('Failed to load power rankings. Please try again.');
@@ -214,17 +233,45 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => setSelectedTeam(null)}
-                className="text-fdp-text-3 hover:text-fdp-text-1 transition-colors p-2 hover:bg-fdp-border-1 rounded-lg"
-              >
-                <X className="w-6 h-6" />
-              </button>
+              <div className="flex items-center gap-3">
+                <div className="flex gap-1">
+                  {(['dynasty_sf', 'dynasty_1qb', 'dynasty_tep'] as FdpFormat[]).map((fmt) => (
+                    <button
+                      key={fmt}
+                      onClick={() => setFdpFormat(fmt)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        fdpFormat === fmt
+                          ? 'bg-gradient-to-r from-fdp-accent-1 to-fdp-accent-2 text-fdp-bg-0'
+                          : 'bg-fdp-surface-1 text-fdp-text-3 hover:bg-fdp-border-1'
+                      }`}
+                    >
+                      {fmt === 'dynasty_sf' ? 'SF' : fmt === 'dynasty_1qb' ? '1QB' : 'TEP'}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setSelectedTeam(null)}
+                  className="text-fdp-text-3 hover:text-fdp-text-1 transition-colors p-2 hover:bg-fdp-border-1 rounded-lg"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
             </div>
 
             <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
               <div className="p-6 space-y-8">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <TrendingUp className="w-5 h-5 text-fdp-accent-1" />
+                      <div className="text-sm text-fdp-text-3">FDP Value</div>
+                    </div>
+                    <div className="text-2xl font-bold text-fdp-accent-1">
+                      {selectedTeam.all_players.reduce((sum, p) =>
+                        sum + calcFdpValue(playerBaseValues.get(p.player_id) ?? 0, p.position as any, fdpFormat), 0
+                      ).toLocaleString()}
+                    </div>
+                  </div>
                   <div className="bg-fdp-surface-2 rounded-lg p-4 border border-fdp-border-1">
                     <div className="flex items-center gap-2 mb-2">
                       <Users className="w-5 h-5 text-fdp-accent-1" />
@@ -289,7 +336,12 @@ export default function PowerRankings({ leagueId }: PowerRankingsProps) {
                               </span>
                             </div>
                             {player.team && (
-                              <div className="text-xs text-fdp-text-3 mb-2">{player.team}</div>
+                              <div className="text-xs text-fdp-text-3 mb-1">{player.team}</div>
+                            )}
+                            {(playerBaseValues.get(player.player_id) ?? 0) > 0 && (
+                              <div className="text-xs font-semibold text-fdp-accent-1">
+                                {calcFdpValue(playerBaseValues.get(player.player_id) ?? 0, player.position as any, fdpFormat).toLocaleString()}
+                              </div>
                             )}
                           </div>
                         </div>
