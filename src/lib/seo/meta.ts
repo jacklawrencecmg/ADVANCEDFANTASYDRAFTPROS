@@ -89,8 +89,8 @@ export function generatePlayerMetaTags(player: {
   const valueText = player.fdp_value ? Math.round(player.fdp_value).toString() : 'N/A';
   const rankText = player.dynasty_rank ? `#${player.dynasty_rank}` : '';
 
-  const title = `${player.full_name} Dynasty Value (2026) | Fantasy Trade Calculator`;
-  const description = `${player.full_name} — Dynasty Value: ${valueText} | Rank: ${rankText} | ${player.position} • ${player.team || 'FA'} | Trade advice, trends, and expert analysis. Updated daily.`;
+  const title = `${player.full_name} Dynasty Value 2026 — Trade Calculator | Fantasy Draft Pros`;
+  const description = `${player.full_name} dynasty trade value: ${valueText} (${rankText} overall). ${player.position} ${player.team ? `• ${player.team}` : ''}. See trade advice, value trends, and comparable players. Updated daily.`;
 
   return {
     title,
@@ -116,17 +116,24 @@ export function generatePlayerMetaTags(player: {
 
 export function generateRankingsMetaTags(type: 'dynasty' | 'superflex' | 'rookie' | 'idp') {
   const titles = {
-    dynasty: 'Dynasty Rankings 2026 | Top 1000 Player Values',
-    superflex: 'Dynasty Superflex Rankings 2026 | Player Values',
-    rookie: 'Dynasty Rookie Rankings 2026 | Draft Pick Values',
-    idp: 'IDP Dynasty Rankings 2026 | Defensive Player Values'
+    dynasty: '2026 Dynasty Fantasy Football Rankings | Top 1000 Player Values | Fantasy Draft Pros',
+    superflex: '2026 Superflex Dynasty Rankings | QB Premium Player Values | Fantasy Draft Pros',
+    rookie: '2026 Dynasty Rookie Rankings & Pick Values | Fantasy Draft Pros',
+    idp: '2026 IDP Dynasty Rankings | Defensive Player Trade Values | Fantasy Draft Pros'
   };
 
   const descriptions = {
-    dynasty: 'Complete dynasty fantasy football rankings for 2026. Top 1000 players with values, tiers, and trade analysis. Updated daily.',
-    superflex: 'Superflex dynasty rankings with QB premium values. Complete player valuations for 12-team superflex leagues. Updated daily.',
-    rookie: 'Dynasty rookie draft rankings and pick values for 2026. Compare rookie picks by round and draft slot. Updated after every game.',
-    idp: 'IDP dynasty rankings for defensive players. Complete linebacker, defensive line, and defensive back values. Updated weekly.'
+    dynasty: '2026 dynasty fantasy football rankings — top 1000 players ranked by trade value across QB, RB, WR, TE, and IDP. Updated daily with age-adjusted dynasty scores and tier breakdowns.',
+    superflex: '2026 superflex dynasty rankings with QB premium values applied. Compare player values in superflex vs 1QB leagues. Full top 200 updated daily for dynasty and startup drafts.',
+    rookie: '2026 dynasty rookie rankings and draft pick values by round and slot. Compare 1QB vs superflex rookie pick values. Updated after every combine and pre-draft event.',
+    idp: '2026 IDP dynasty rankings — defensive player trade values for linebackers, defensive linemen, and DBs. The only dynasty trade calculator with IDP values built in. Updated daily.'
+  };
+
+  const keywords = {
+    dynasty: ['dynasty rankings 2026', 'dynasty fantasy football rankings', 'dynasty player values 2026', 'top 1000 dynasty rankings', 'dynasty trade value chart 2026'],
+    superflex: ['superflex dynasty rankings 2026', 'superflex dynasty rankings', 'dynasty superflex trade values', 'QB premium dynasty rankings', 'superflex trade calculator'],
+    rookie: ['dynasty rookie rankings 2026', 'rookie pick values dynasty', 'dynasty rookie draft rankings', 'rookie pick values by round', '2026 rookie rankings dynasty'],
+    idp: ['IDP dynasty rankings 2026', 'IDP dynasty trade values', 'IDP dynasty rankings', 'defensive player dynasty values', 'dynasty IDP trade calculator']
   };
 
   const type_slug = type === 'dynasty' ? 'dynasty-rankings' : `dynasty-${type}-rankings`;
@@ -136,13 +143,7 @@ export function generateRankingsMetaTags(type: 'dynasty' | 'superflex' | 'rookie
     description: descriptions[type],
     canonical: `https://www.fantasydraftpros.com/${type_slug}`,
     ogType: 'website',
-    keywords: [
-      `${type} rankings`,
-      'fantasy football rankings',
-      'dynasty player values',
-      'trade calculator',
-      'player values 2026'
-    ],
+    keywords: keywords[type],
     author: 'Fantasy Draft Pros',
     modifiedTime: new Date().toISOString()
   };
@@ -152,8 +153,8 @@ export function generateComparisonMetaTags(player1: string, player2: string) {
   const slug1 = generatePlayerSlug(player1);
   const slug2 = generatePlayerSlug(player2);
 
-  const title = `${player1} vs ${player2} Dynasty Comparison (2026)`;
-  const description = `Compare ${player1} and ${player2} dynasty values, rankings, and trade analysis. See which player has more value in dynasty fantasy football.`;
+  const title = `${player1} vs ${player2} Dynasty Trade Value 2026 | Fantasy Draft Pros`;
+  const description = `${player1} vs ${player2} — dynasty trade value comparison. See who has more value, which player to target in a trade, and how their values trend. Updated daily.`;
 
   return {
     title,
@@ -161,13 +162,15 @@ export function generateComparisonMetaTags(player1: string, player2: string) {
     canonical: `https://www.fantasydraftpros.com/compare/${slug1}-vs-${slug2}-dynasty`,
     ogType: 'article',
     keywords: [
-      `${player1} vs ${player2}`,
-      'dynasty comparison',
-      'player comparison',
-      'trade value comparison',
-      'dynasty rankings'
+      `${player1} vs ${player2} dynasty`,
+      `${player1} trade value`,
+      `${player2} trade value`,
+      `${player1} vs ${player2} trade`,
+      'dynasty player comparison',
+      'dynasty trade value comparison'
     ],
-    author: 'Fantasy Draft Pros'
+    author: 'Fantasy Draft Pros',
+    modifiedTime: new Date().toISOString()
   };
 }
 

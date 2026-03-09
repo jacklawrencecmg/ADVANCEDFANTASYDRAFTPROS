@@ -1,5 +1,24 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /*.json$
+Disallow: /api/
+
+# Block known bad bots that waste crawl budget without SEO benefit
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Allow Google to crawl images for rich results
+User-agent: Googlebot-Image
+Allow: /
 
 Sitemap: https://www.fantasydraftpros.com/sitemap.xml

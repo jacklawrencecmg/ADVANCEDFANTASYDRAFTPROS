@@ -70,8 +70,27 @@ function AppContent() {
       return;
     }
 
+    // Trade calculator alias URLs — each gets unique meta targeting its query cluster
+    if (path === '/dynasty-trade-calculator') {
+      import('./lib/seo/meta').then(({ generateMetaTags }) => generateMetaTags({
+        title: 'Dynasty Trade Calculator 2026 — Free | Fantasy Draft Pros',
+        description: 'Free dynasty trade calculator for 2026. Add players, picks, and FAAB to both sides — get an instant value score with IDP support, superflex values, and daily updates.',
+        canonical: 'https://www.fantasydraftpros.com/dynasty-trade-calculator',
+        keywords: ['dynasty trade calculator', 'dynasty trade calculator 2026', 'free dynasty trade calculator', 'dynasty trade calculator superflex', 'dynasty trade calculator IDP']
+      }));
+      return;
+    }
+    if (path === '/dynasty-trade-analyzer') {
+      import('./lib/seo/meta').then(({ generateMetaTags }) => generateMetaTags({
+        title: 'Dynasty Trade Analyzer 2026 — Free | Fantasy Draft Pros',
+        description: 'Analyze dynasty trades instantly. Compare player values, pick values, and FAAB across any scoring format. IDP + superflex supported. Free, no account required.',
+        canonical: 'https://www.fantasydraftpros.com/dynasty-trade-analyzer',
+        keywords: ['dynasty trade analyzer', 'dynasty trade analyzer 2026', 'best dynasty trade analyzer', 'dynasty trade analyzer IDP', 'dynasty trade analyzer superflex']
+      }));
+      return;
+    }
     if (path === '/trade-calculator') {
-      window.location.href = '/';
+      // Legacy alias — just render home
       return;
     }
 

@@ -98,6 +98,44 @@ export function generateRankingsStructuredData(type: string) {
   };
 }
 
+export function generateBreadcrumbStructuredData(crumbs: Array<{ name: string; url: string }>) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: crumbs.map((crumb, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: crumb.name,
+      item: crumb.url
+    }))
+  };
+}
+
+export function generateArticleStructuredData(opts: {
+  headline: string;
+  description: string;
+  url: string;
+  dateModified: string;
+  datePublished?: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: opts.headline,
+    description: opts.description,
+    url: opts.url,
+    publisher: { '@id': 'https://www.fantasydraftpros.com/#organization' },
+    author: {
+      '@type': 'Organization',
+      name: 'Fantasy Draft Pros',
+      url: 'https://www.fantasydraftpros.com/'
+    },
+    datePublished: opts.datePublished || opts.dateModified,
+    dateModified: opts.dateModified,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': opts.url }
+  };
+}
+
 export function injectStructuredData(data: any, id: string = 'structured-data') {
   let script = document.getElementById(id) as HTMLScriptElement;
 

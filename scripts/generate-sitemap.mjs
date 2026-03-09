@@ -65,13 +65,21 @@ async function generateSitemap() {
 
   // ── Static core pages ──────────────────────────────────────────────────────
   urls.push(urlEntry(`${BASE_URL}/`, TODAY, 'daily', '1.0'));
+  // Trade calculator alias URLs — canonical is / but these URLs target key queries
+  urls.push(urlEntry(`${BASE_URL}/dynasty-trade-calculator`, TODAY, 'daily', '0.9'));
+  urls.push(urlEntry(`${BASE_URL}/dynasty-trade-analyzer`, TODAY, 'daily', '0.9'));
+  // Core tool + rankings pages (highest priority)
   urls.push(urlEntry(`${BASE_URL}/dynasty-rankings`, TODAY, 'daily', '0.9'));
   urls.push(urlEntry(`${BASE_URL}/dynasty-superflex-rankings`, TODAY, 'daily', '0.9'));
-  urls.push(urlEntry(`${BASE_URL}/dynasty-rookie-rankings`, TODAY, 'daily', '0.8'));
-  urls.push(urlEntry(`${BASE_URL}/dynasty-idp-rankings`, TODAY, 'weekly', '0.8'));
+  urls.push(urlEntry(`${BASE_URL}/dynasty-rookie-rankings`, TODAY, 'daily', '0.9'));
+  urls.push(urlEntry(`${BASE_URL}/dynasty-idp-rankings`, TODAY, 'daily', '0.9'));
   urls.push(urlEntry(`${BASE_URL}/top1000`, TODAY, 'daily', '0.8'));
-  urls.push(urlEntry(`${BASE_URL}/news`, TODAY, 'daily', '0.7'));
-  urls.push(urlEntry(`${BASE_URL}/faq`, TODAY, 'monthly', '0.7'));
+  // Editorial / info pages
+  urls.push(urlEntry(`${BASE_URL}/news`, TODAY, 'daily', '0.8'));
+  urls.push(urlEntry(`${BASE_URL}/questions`, TODAY, 'weekly', '0.7'));
+  urls.push(urlEntry(`${BASE_URL}/faq`, TODAY, 'monthly', '0.6'));
+  urls.push(urlEntry(`${BASE_URL}/help`, TODAY, 'monthly', '0.5'));
+  urls.push(urlEntry(`${BASE_URL}/contact`, TODAY, 'monthly', '0.4'));
 
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     buildXml(urls);
